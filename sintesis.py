@@ -21,15 +21,96 @@ global feedback1
 global estimulo1
 global destimulodt1
 global b
+
+
     
+# --------------------
+# Function definitions
+# --------------------
+
+def ecuaciones(v, dv):
+    x,y,i1,i2,i3 = v
+    dv[0]=y
+    dv[1]=gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
+    dv[2]= i2
+    dv[3]=-uolg*uoch*i1-(rdis*uolg)*i2+uolg*destimulodt
+    dv[4]=0.
+    return dv
+
+  
+def expo(ti,tf,wi,wf,factor,frequencias,beta,amplitudes):
+    i=np.int(ti/dt)
+    j=np.int(tf/dt)
+    for k in range((j-i)):
+        t=ti+k*dt
+        frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
+        alpha[i+k]=-0.150
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
+    return frequencias,beta,amplitudes
+
+
+def rectas(ti,tf,wi,wf,factor,frequencias,beta,amplitudes):
+    i=np.int(ti/dt)
+    j=np.int(tf/dt)
+    for k in range((j-i)):
+        t=ti+k*dt
+        frequencias[i+k]=wi+(wf-wi)*(t-ti)/(tf-ti) 
+        alpha[i+k]=-0.150
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))#0.3
+    return frequencias,beta,amplitudes #150*
+
+
+def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias,beta, amplitudes):
+    i=np.int(ti/dt)
+    j=np.int(tf/dt)
+    for k in range((j-i)):
+        t=ti+k*dt
+        frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
+        alpha[i+k]=-0.150
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))#0.9
+    return frequencias,beta,amplitudes
+
+
+def rk4(dv,v,n,t,dt):
+    v1=[]
+    k1=[]
+    k2=[]
+    k3=[]
+    k4=[]
+    for x in range(0, n):
+        v1.append(x)
+        k1.append(x)
+        k2.append(x)
+        k3.append(x)
+        k4.append(x)
+        
+    dt2=dt/2.0
+    dt6=dt/6.0
+    for x in range(0, n):
+        v1[x]=v[x]
+    dv(v1, k1)
+    for x in range(0, n):
+        v1[x]=v[x]+dt2*k1[x]
+    dv(v1, k2)     
+    for x in range(0, n):
+        v1[x]=v[x]+dt2*k2[x]
+    dv(v1, k3)
+    for x in range(0, n):
+        v1[x]=v[x]+dt*k3[x]
+    dv(v1, k4)
+    for x in range(0, n):
+        v1[x]=v[x]+dt*k4[x]        
+    for x in range(0, n):
+        v[x]=v[x]+dt6*(2.0*(k2[x]+k3[x])+k1[x]+k4[x])
+    return v
+
+# --------
+# Calculos
+# --------
 
 for lazo in range(1):
-    #gamma=12500
-    gamma=12300 #12500
-    #uoch, uolb, uolg, rb, rdis = (350/2.8)*100000000, 0.0001 , 1/20., .35*1000000, 48*1000
-    #uoch, uolb, uolg, rb, rdis = 45*3800*3800, 0.0001 , 1./1., .35*1000000, 3800/2.0    
+    gamma=12300 #12500 
     uoch, uolg, rdis = 40*2700*2700, 1./1., 5000/1.0 #1000000000, 3800.
-    #beta, dt, t0, tf, L= -0.15, 1/44100.0, 0, 0.5, 0.036
     dt, t0, tf, L= 1/44100.0, 0, 0.5, 0.036
 
     t=0
@@ -40,7 +121,6 @@ for lazo in range(1):
     alpha=np.zeros(np.int(tiempo_total/(dt)))
     amplitudes=np.zeros(np.int(tiempo_total/(dt)))
     beta=np.zeros(np.int(tiempo_total/(dt)))
-    #bes,was=np.loadtxt('b_w_12500.txt',unpack=True)
     bes,was=np.loadtxt('b_w_12300.txt',unpack=True)
     print('bes:', bes[0])
     print('was:',was[0])
@@ -54,51 +134,7 @@ for lazo in range(1):
 
     v=np.zeros(5)
     v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
-    
-    # --------------------
-    # Function definitions
-    # --------------------
-    def ecuaciones(v, dv):
-        x,y,i1,i2,i3 = v
-        dv[0]=y
-        dv[1]=gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
-        dv[2]= i2
-        dv[3]=-uolg*uoch*i1-(rdis*uolg)*i2+uolg*destimulodt
-        dv[4]=0.
-        return dv
 
-  
-    def expo(ti,tf,wi,wf,factor,frequencias,beta,amplitudes):
-        i=np.int(ti/dt)
-        j=np.int(tf/dt)
-        for k in range((j-i)):
-            t=ti+k*dt
-            frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-            alpha[i+k]=-0.150
-            amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
-        return frequencias,beta,amplitudes
-
-
-    def rectas(ti,tf,wi,wf,factor,frequencias,beta,amplitudes):
-        i=np.int(ti/dt)
-        j=np.int(tf/dt)
-        for k in range((j-i)):
-            t=ti+k*dt
-            frequencias[i+k]=wi+(wf-wi)*(t-ti)/(tf-ti) 
-            alpha[i+k]=-0.150
-            amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))#0.3
-        return frequencias,beta,amplitudes #150*
-
-
-    def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias,beta, amplitudes):
-        i=np.int(ti/dt)
-        j=np.int(tf/dt)
-        for k in range((j-i)):
-            t=ti+k*dt
-            frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-            alpha[i+k]=-0.150
-            amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))#0.9
-        return frequencias,beta,amplitudes
 	
 
     expo(0.021233,0.070797,869.3,475.2,0.2239/0.944,frequencias,beta, amplitudes)
@@ -164,42 +200,7 @@ for lazo in range(1):
 
  
 
-
-    def rk4(dv,v,n,t,dt):
-        v1=[]
-        k1=[]
-        k2=[]
-        k3=[]
-        k4=[]
-        for x in range(0, n):
-            v1.append(x)
-            k1.append(x)
-            k2.append(x)
-            k3.append(x)
-            k4.append(x)
-            
-        dt2=dt/2.0
-        dt6=dt/6.0
-        for x in range(0, n):
-            v1[x]=v[x]
-        dv(v1, k1)
-        for x in range(0, n):
-            v1[x]=v[x]+dt2*k1[x]
-        dv(v1, k2)     
-        for x in range(0, n):
-            v1[x]=v[x]+dt2*k2[x]
-        dv(v1, k3)
-        for x in range(0, n):
-            v1[x]=v[x]+dt*k3[x]
-        dv(v1, k4)
-        for x in range(0, n):
-            v1[x]=v[x]+dt*k4[x]        
-        for x in range(0, n):
-            v[x]=v[x]+dt6*(2.0*(k2[x]+k3[x])+k1[x]+k4[x])
-        return v
-
-
-# una integracion
+    # una integracion
 
     n=5 #Cantidad de variables   
     x1=[]
@@ -253,8 +254,6 @@ for lazo in range(1):
         cont1=cont1+1
   
    
-
-
 
 
     for i in range(len(sonido)):
