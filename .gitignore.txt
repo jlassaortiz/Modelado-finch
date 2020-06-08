@@ -1,3 +1,0 @@
-# Git will ignore .wav and .jpeg
-*.wav
-*.jpeg
