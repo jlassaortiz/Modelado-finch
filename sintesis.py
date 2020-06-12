@@ -165,7 +165,6 @@ for n_canto in range(1):
         beta[i] = 0.15 # ¿sistema no fona en este valor?
 
 
-
     # Para cada silaba defino: alpha, frecuencias fundamentales y amplitudes
     expo(0.021233,0.070797,869.3,475.2,0.2239/0.944,frequencias, amplitudes)
     expo(0.163317,0.205335,825.5,453,0.2714/0.944,frequencias, amplitudes)
@@ -204,12 +203,6 @@ for n_canto in range(1):
     rectas(1.931650,1.948097,1550,1550,0.944/0.944,frequencias,amplitudes)
     expo(1.948099,2.06,1023,431,0.7555/0.944,frequencias,amplitudes)
     
-
-
-
-    # --------
-    # Calculos 
-    # --------
     
     # Abro el archivo b_w que no se que es aun.
     bes,was = np.loadtxt('b_w_12300.txt',unpack=True)
@@ -230,23 +223,30 @@ for n_canto in range(1):
         if(alpha[i]<0):
             # beta es el polinomio p valuado en frecuencias[i]
             beta[i] = p(frequencias[i])
+     
         
+     
+
+    # -----------
+    # Integracion
+    # -----------
 
     # Una integracion A PARTIR DE ACA ME CUESTA ENTENDER EL CODIGO
 
-    n = 5 # TAMANO DEL SISTEMA DE ECUACIONES 
+    n = 5 # TAMANO DEL SISTEMA DE ECUACIONES
+    sonido = []
+    
+    # Variables de interes de la integracion que quizas quiera guardar
     #x1 = []
     #y1 = []
     #tiempo1 = []
-    sonido = []
-    sonido_total = []
     #amplitud1 = []
     #forzado1 = []
     #dforzadodt1 = []
     #elbeta1 = []
+
     
-    
-    cont1 = 0 # quizas de puede volar, hay que adaptar codigo
+    # No saco lo de abajo porque lo necesita destimulodt pero no se bien que hacen
     N = int((L /(350*dt))//1)
     fil1 = np.zeros(N)
     back1 = np.zeros(N)
@@ -273,55 +273,38 @@ for n_canto in range(1):
         back1[1:]=back1[:-1]
         #feedback1=back1[N-1]
 
+        # Guardo resultado de integracion v[3] en sonido
+        sonido.append(v[3]*amplitudes[i])
         
     
-        # Esto parece simplemente agrandar en un a unidad las variables
-        # appendea cont1 para hacerlo, pero luego lo sobre escribe
-        
-        #x1.append(cont1)  
-        #y1.append(cont1)
-        #tiempo1.append(cont1)
-        sonido.append(cont1)
-        sonido_total.append(cont1)
-        #amplitud1.append(cont1)
-        #forzado1.append(cont1)
-        #dforzadodt1.append(cont1)
-        #elbeta1.append(cont1)
-        
-        # Sobre escribe lo que appendeo mas arriba 
-        
-        #x1[cont1]=v[0]
-        #y1[cont1]=v[1]
-        #tiempo1[cont1]=t
-        sonido[cont1]=v[3]*amplitudes[i]
-        sonido_total[cont1]=0
-        #amplitud1[cont1]=amplitudes[i]
-        #forzado1[cont1]=estimulo
-        #dforzadodt1[cont1]=destimulodt
-        #elbeta1[cont1]=beta[i]
-
-        cont1=cont1+1
+        # Guarda variables de interes de la integracion
+        #x1.append(v[0])  
+        #y1.append(v[1])
+        #tiempo1.append(t)
+        #amplitud1.append(amplitudes[i])
+        #forzado1.append(estimulo)
+        #dforzadodt1.append(destimulodt)
+        #elbeta1.append(beta[i])
   
    
+    sonido = [s*1000 for s in sonido]
+    sonido = np.asarray(sonido)
 
-    # Genero variable con canto sintetico final
-    for i in range(len(sonido)):
-        sonido_total[i]=(sonido[i])*1000
-        
-    sonido=np.asarray(sonido_total)  
 
 
     # ----------------------
     # Guando canto sintetico
     # ----------------------
+    
     scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
     write('sintesis_finch_2_{}.wav'.format(n_canto), 44100, scaled)
 
 
-
+'''
     # -------------------------------
     # Ploteo espectrograma del sonido
     # -------------------------------
+    
     
     f, t, Sxx = signal.spectrogram(sonido, 44100, window=('gaussian',20*128),nperseg=10*1024,noverlap=18*512,scaling='spectrum')
     Sxx = np.clip(Sxx, a_min=np.amax(Sxx)/10**3, a_max=np.amax(Sxx))
@@ -338,6 +321,7 @@ for n_canto in range(1):
                 #frameon=None)
     plt.show()
 
+'''
 
     
 
