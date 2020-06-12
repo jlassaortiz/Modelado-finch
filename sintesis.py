@@ -17,10 +17,11 @@ from scipy import signal
 import matplotlib.pyplot as plt
 
 global alp
+global b
 global feedback1 
 global estimulo1
 global destimulodt1
-global b
+
 
 
     
@@ -29,6 +30,9 @@ global b
 # --------------------
 
 
+
+# Sistema de ecuaciones del modelo
+# Se utiliza asi: rk4(ecuaciones,v,n,t,dt)
 def ecuaciones(v, dv):
     x ,y,i1,i2,i3 = v
     dv[0]=y
@@ -41,6 +45,8 @@ def ecuaciones(v, dv):
 # Integrador RK4
 def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
     v1=[]
+    
+    # Inicializo cuatro dv (aunque se llaman kx son dv)
     k1=[]
     k2=[]
     k3=[]
@@ -54,29 +60,35 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
         
     dt2=dt/2.0
     dt6=dt/6.0
+    
     for x in range(0, n):
         v1[x]=v[x]
-    dv(v1, k1)                      
+    dv(v1, k1) # modifica k1
+                     
     for x in range(0, n):
         v1[x]=v[x]+dt2*k1[x]
-    dv(v1, k2)     
+    dv(v1, k2)  # modifica k2
+    
     for x in range(0, n):
         v1[x]=v[x]+dt2*k2[x]
-    dv(v1, k3)
+    dv(v1, k3) # modifica k3
+    
     for x in range(0, n):
         v1[x]=v[x]+dt*k3[x]
-    dv(v1, k4)
+    dv(v1, k4) # modifica k4
+    
     for x in range(0, n):
-        v1[x]=v[x]+dt*k4[x]        
+        v1[x]=v[x]+dt*k4[x]
+        
     for x in range(0, n):
         v[x]=v[x]+dt6*(2.0*(k2[x]+k3[x])+k1[x]+k4[x])
     return v
 
 
 
-# Determina Beta para cada silaba.
+
 # Toma a la frec fundamental de cada silaba como una expo, recta o seno y
-# modifica alpha para que fone el sistema
+# modifica alpha para que fone el sistema y devuelve frecuencias y amplitudes
 
 def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
     i=np.int(ti/dt)
@@ -84,7 +96,7 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-        alpha[i+k]=-0.150
+        alpha[i+k]=-0.150 # alpha suficiente para fonar
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
     return frequencias,amplitudes
 
@@ -95,8 +107,8 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wi+(wf-wi)*(t-ti)/(tf-ti) 
-        alpha[i+k]=-0.150
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))#0.3
+        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
     return frequencias,amplitudes #150*
 
 
@@ -104,52 +116,57 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
-        t=ti+k*dt
+        t = ti+k*dt
         frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-        alpha[i+k]=-0.150
+        alpha[i+k]=-0.150 # alpha suficiente para fonar
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
     return frequencias,amplitudes
 
 
 
-# ----------------
-# Defino variables
-# ----------------
+# -----------------
+# Defino parametros
+# -----------------
 
-# este for esta de mas pero me puede servir mas adelante 
+# Este for esta de mas pero me puede servir mas adelante 
 # para sintetizar n cantos con variantes que proponga
 for n_canto in range(1): 
-    
-    # Defino parametros
-    gamma=12300 #12500 
-    uoch, uolg, rdis = 40*2700*2700, 1./1., 5000/1.0
-    dt, t0, tf, L= 1/44100.0, 0, 0.5, 0.036
-    t=0
-    fsamp=1/dt
-    tiempo_total=2.07
-    
-    
-    # Inicializo variables que despues voy a modificar
-    # Claves del modelo
-    v=np.zeros(5)
-    v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
-    
-    frequencias=np.zeros(np.int(tiempo_total/(dt)))
-    
-    tiempos=np.zeros(np.int(tiempo_total/(dt)))
-    amplitudes=np.zeros(np.int(tiempo_total/(dt)))
-    alpha=np.zeros(np.int(tiempo_total/(dt)))
-    beta=np.zeros(np.int(tiempo_total/(dt)))
 
+    
+    # Parametros especificos del modelo
+    # ---------------------------------
+    
+    gamma = 12300 #12500 
+    uoch, uolg, rdis = 40*2700*2700, 1./1., 5000/1.0 # Parametros tracto vocal
+    v = np.zeros(5)
+    v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
+
+    L =  0.036 # No se que es !!!
+
+
+
+    # Parametros especificos del canto
+    # --------------------------------
+    
+    dt = 1/44100.0
+    tiempo_total = 2.07
+    
+    # Inicializo las frecuencias fundamentales y amplitudes
+    frequencias = np.zeros(np.int(tiempo_total/(dt)))
+    amplitudes = np.zeros(np.int(tiempo_total/(dt)))
+    
+    # Inicializo los parametros de control
+    alpha = np.zeros(np.int(tiempo_total/(dt)))
+    beta = np.zeros(np.int(tiempo_total/(dt)))
+    
     # Modifico valores variables que cree arriba
     for i in range(np.int(tiempo_total/(dt))):
-        tiempos[i]=i*dt
-        amplitudes[i]=0.
-        alpha[i]=0.15 # sistema no fona en este valor
-        beta[i]=0.15 # ¿sistema no fona en este valor?
+        alpha[i] = 0.15 # sistema no fona en este valor
+        beta[i] = 0.15 # ¿sistema no fona en este valor?
 
 
-    # Para cada silaba, defino frecuencia, alpha y amplitudes
+
+    # Para cada silaba defino: alpha, frecuencias fundamentales y amplitudes
     expo(0.021233,0.070797,869.3,475.2,0.2239/0.944,frequencias, amplitudes)
     expo(0.163317,0.205335,825.5,453,0.2714/0.944,frequencias, amplitudes)
     expo(0.271632,0.313879,847.4,475.1,0.3216/0.944,frequencias, amplitudes)
@@ -195,7 +212,7 @@ for n_canto in range(1):
     # --------
     
     # Abro el archivo b_w que no se que es aun.
-    bes,was=np.loadtxt('b_w_12300.txt',unpack=True)
+    bes,was = np.loadtxt('b_w_12300.txt',unpack=True)
     print('bes:', bes[0])
     print('was:',was[0])
     
@@ -206,75 +223,82 @@ for n_canto in range(1):
     # Generamos objeto p, que es un polinomio de grado 5 (es z, hecho objeto)
     p = np.poly1d(z)
     
+    # Calculamos beta como resultado de valuar p() en frecuencias fundamentales
     for i in range(np.int(tiempo_total/(dt))):
-        # if se cumple siempre que aplique senito(), recta() o exp().
+        # if se cumple siempre que aplique senito(), recta() o exp()
+        # es decir: si el sistema esta fonando
         if(alpha[i]<0):
             # beta es el polinomio p valuado en frecuencias[i]
-            beta[i]=p(frequencias[i])
+            beta[i] = p(frequencias[i])
         
 
-    # una integracion
+    # Una integracion A PARTIR DE ACA ME CUESTA ENTENDER EL CODIGO
 
-    n=5 # TAMANO DEL SISTEMA DE ECUACIONES 
-    x1=[]
-    y1=[]
-    tiempo1=[]
-    sonido=[]
-    sonido_total=[]
-    amplitud1=[]
-    forzado1=[]
-    dforzadodt1=[]
-    elbeta1=[]
+    n = 5 # TAMANO DEL SISTEMA DE ECUACIONES 
+    #x1 = []
+    #y1 = []
+    #tiempo1 = []
+    sonido = []
+    sonido_total = []
+    #amplitud1 = []
+    #forzado1 = []
+    #dforzadodt1 = []
+    #elbeta1 = []
     
-    cont1=0
-    N=int((L/(350*dt))//1)
-    fil1=np.zeros(N)
-    back1=np.zeros(N)
-    feedback1=0
-
+    
+    cont1 = 0 # quizas de puede volar, hay que adaptar codigo
+    N = int((L /(350*dt))//1)
+    fil1 = np.zeros(N)
+    back1 = np.zeros(N)
+    # feedback1 = 0
+    
 
     for i in range(np.int(tiempo_total/(dt))):
         
         # Parametros dependientes del tiempo del sistema de ecuaciones
+        # Variables globales ¿es necesario que asi lo sean?
         alp=alpha[i]
-        b=beta[i]*(1+random.normalvariate(0.,.3))
+        b=beta[i]*(1+random.normalvariate(0.,.3)) 
         destimulodt=(fil1[N-1]-fil1[N-2])/dt
         
         # Integracion
         t =i*dt
         rk4(ecuaciones,v,n,t,dt) # modifica v
-        
-        
-        estimulo=fil1[N-1]
+       
+             
+        #estimulo=fil1[N-1]
         fil1[0]=v[1]+back1[N-1]
         back1[0]=-0.35*fil1[N-1]
         fil1[1:]=fil1[:-1]
         back1[1:]=back1[:-1]
-        feedback1=back1[N-1]
+        #feedback1=back1[N-1]
+
         
-        
+    
         # Esto parece simplemente agrandar en un a unidad las variables
         # appendea cont1 para hacerlo, pero luego lo sobre escribe
-        x1.append(cont1)  #ACÁ ARMO LOS ARREGLOS DE X Y Z CON LOS RESULTADOS QUE VA LARGANDO "V"
-        y1.append(cont1)
-        tiempo1.append(cont1)
+        
+        #x1.append(cont1)  
+        #y1.append(cont1)
+        #tiempo1.append(cont1)
         sonido.append(cont1)
         sonido_total.append(cont1)
-        amplitud1.append(cont1)
-        forzado1.append(cont1)
-        dforzadodt1.append(cont1)
-        elbeta1.append(cont1)
+        #amplitud1.append(cont1)
+        #forzado1.append(cont1)
+        #dforzadodt1.append(cont1)
+        #elbeta1.append(cont1)
         
         # Sobre escribe lo que appendeo mas arriba 
-        x1[cont1]=v[0]
-        y1[cont1]=v[1]
-        tiempo1[cont1]=t
+        
+        #x1[cont1]=v[0]
+        #y1[cont1]=v[1]
+        #tiempo1[cont1]=t
         sonido[cont1]=v[3]*amplitudes[i]
         sonido_total[cont1]=0
-        amplitud1[cont1]=amplitudes[i]
-        forzado1[cont1]=estimulo
-        dforzadodt1[cont1]=destimulodt
-        elbeta1[cont1]=beta[i]
+        #amplitud1[cont1]=amplitudes[i]
+        #forzado1[cont1]=estimulo
+        #dforzadodt1[cont1]=destimulodt
+        #elbeta1[cont1]=beta[i]
 
         cont1=cont1+1
   
