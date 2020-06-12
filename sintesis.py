@@ -259,13 +259,14 @@ for n_canto in range(1):
         # Variables globales ¿es necesario que asi lo sean?
         alp=alpha[i]
         b=beta[i]*(1+random.normalvariate(0.,.3)) 
-        destimulodt=(fil1[N-1]-fil1[N-2])/dt
+        destimulodt = (fil1[N-1]-fil1[N-2])/dt
         
         # Integracion
         t =i*dt
         rk4(ecuaciones,v,n,t,dt) # modifica v
        
-             
+        
+        # Actualizo las siguientes variables ?   
         #estimulo=fil1[N-1]
         fil1[0]=v[1]+back1[N-1]
         back1[0]=-0.35*fil1[N-1]
@@ -273,11 +274,12 @@ for n_canto in range(1):
         back1[1:]=back1[:-1]
         #feedback1=back1[N-1]
 
+
         # Guardo resultado de integracion v[3] en sonido
         sonido.append(v[3]*amplitudes[i])
         
-    
         # Guarda variables de interes de la integracion
+        # no esta chequeado que ande
         #x1.append(v[0])  
         #y1.append(v[1])
         #tiempo1.append(t)
