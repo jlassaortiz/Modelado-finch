@@ -95,7 +95,6 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
 
 # Toma a la frec fundamental de cada silaba como una expo, recta o seno y
 # modifica alpha para que fone el sistema y devuelve frecuencias y amplitudes
-
 def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
@@ -104,6 +103,7 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
         alpha[i+k]=-0.150 # alpha suficiente para fonar
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.1)) +factor/10 * (1+random.normalvariate(0.,.02))
     return frequencias,amplitudes
 
 
@@ -115,6 +115,7 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
         frequencias[i+k]=wi+(wf-wi)*(t-ti)/(tf-ti) 
         alpha[i+k]=-0.150 # alpha suficiente para fonar
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
     return frequencias,amplitudes #150*
 
 
@@ -126,6 +127,7 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
         frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
         alpha[i+k]=-0.150 # alpha suficiente para fonar
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
     return frequencias,amplitudes
 
 
@@ -264,7 +266,8 @@ for n_canto in range(1):
         # Parametros dependientes del tiempo del sistema de ecuaciones
         # Variables globales ¿es necesario que asi lo sean?
         alp=alpha[i]
-        b=beta[i]*(1+random.normalvariate(0.,.3)) 
+        #b=beta[i]*(1+random.normalvariate(0.,.3))
+        b=beta[i]*(1+random.normalvariate(0.,.1)) 
         destimulodt = (fil1[N-1]-fil1[N-2])/dt
         
         # Integracion
@@ -305,7 +308,7 @@ for n_canto in range(1):
     # ----------------------
     
     scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-    write('sintesis_finch_2_{}.wav'.format(n_canto), 44100, scaled)
+    write('sintesis_finch_error_beta_{}.wav'.format(n_canto), 44100, scaled)
 
 
 '''
