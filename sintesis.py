@@ -1,11 +1,17 @@
 """
-Created on march 2017
+Creado en Junio 2020
 
-@author: Gabo Mindlin
+autor version original: Gabo Mindlin
+autor de version actual: Javier Lassa Ortiz
 
 Integrator with rk4, and tube with delays
+It creates .wav
 
-it creates wav
+Estructura del codigo:
+    - Definicion de funciones
+    - Definicion de parametros
+    - Integracion
+    - Guardo canto sintetico
 
 """
 
@@ -13,8 +19,8 @@ it creates wav
 import numpy as np     	
 from scipy.io.wavfile import write
 import random
-from scipy import signal
-import matplotlib.pyplot as plt
+#from scipy import signal
+#import matplotlib.pyplot as plt
 
 global alp
 global b
@@ -25,9 +31,9 @@ global destimulodt1
 
 
     
-# --------------------
-# Function definitions
-# --------------------
+# -----------------------
+# Definicion de funciones
+# -----------------------
 
 
 
@@ -124,9 +130,9 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 
 
 
-# -----------------
-# Defino parametros
-# -----------------
+# ----------------------
+# Deficion de parametros
+# ----------------------
 
 # Este for esta de mas pero me puede servir mas adelante 
 # para sintetizar n cantos con variantes que proponga
@@ -295,7 +301,7 @@ for n_canto in range(1):
 
 
     # ----------------------
-    # Guando canto sintetico
+    # Guardo canto sintetico
     # ----------------------
     
     scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
