@@ -266,8 +266,8 @@ for n_canto in range(1):
         # Parametros dependientes del tiempo del sistema de ecuaciones
         # Variables globales ¿es necesario que asi lo sean?
         alp=alpha[i]
-        #b=beta[i]*(1+random.normalvariate(0.,.3))
-        b=beta[i]*(1+random.normalvariate(0.,.1)) 
+        b=beta[i]*(1+random.normalvariate(0.,.3))
+        #b=beta[i]*(1+random.normalvariate(0.,.1)) 
         destimulodt = (fil1[N-1]-fil1[N-2])/dt
         
         # Integracion
@@ -298,7 +298,9 @@ for n_canto in range(1):
         #elbeta1.append(beta[i])
   
    
-    sonido = [s*1000 for s in sonido]
+    #sonido = [s*1000 for s in sonido]
+    #s_max = max([abs(max(sonido)), abs(min(sonido))])
+    #sonido = [s + s_max*random.normalvariate(0.,.001) for s in sonido]
     sonido = np.asarray(sonido)
 
 
@@ -307,8 +309,10 @@ for n_canto in range(1):
     # Guardo canto sintetico
     # ----------------------
     
+    # Este paso es necesario para que el archivo wav se guarde correctamente
+    # Ver la documentacion de: scipy.io.wavfile.write
     scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-    write('sintesis_finch_error_beta_{}.wav'.format(n_canto), 44100, scaled)
+    write('sintesis_finch_error_sonido_{}.wav'.format(n_canto), 44100, scaled)
 
 
 '''
