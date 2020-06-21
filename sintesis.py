@@ -20,7 +20,7 @@ import numpy as np
 from scipy.io.wavfile import write
 import random
 #from scipy import signal
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 global alp
 global b
@@ -101,7 +101,7 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        alpha[i+k]=-0.150 # alpha suficiente para fonar 150
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
         #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.1)) +factor/10 * (1+random.normalvariate(0.,.02))
     return frequencias,amplitudes
@@ -113,7 +113,7 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wi+(wf-wi)*(t-ti)/(tf-ti) 
-        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        alpha[i+k]=-0.150 # alpha suficiente para fonar 150
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
         #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
     return frequencias,amplitudes #150*
@@ -125,7 +125,7 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
     for k in range((j-i)):
         t = ti+k*dt
         frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        alpha[i+k]=-0.150 # alpha suficiente para fonar 150
         amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
         #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
     return frequencias,amplitudes
@@ -219,7 +219,8 @@ for n_canto in range(1):
     
     # Ajustamos was vs bes a un polinomio de grado 5
     # z es una lista de los coeficientes del polinomio ajustado
-    z = np.polyfit(was, bes, 5)
+    #z = np.polyfit(was, bes, 5)
+    z = np.polyfit(was, bes, 2)    
     
     # Generamos objeto p, que es un polinomio de grado 5 (es z, hecho objeto)
     p = np.poly1d(z)
@@ -312,7 +313,7 @@ for n_canto in range(1):
     # Este paso es necesario para que el archivo wav se guarde correctamente
     # Ver la documentacion de: scipy.io.wavfile.write
     scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-    write('sintesis_finch_error_sonido_{}.wav'.format(n_canto), 44100, scaled)
+    write('sintesis_finch_{}.wav'.format(n_canto), 44100, scaled)
 
 
 '''
