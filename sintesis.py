@@ -20,7 +20,7 @@ import numpy as np
 from scipy.io.wavfile import write
 import random
 #from scipy import signal
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 global alp
 global b
@@ -102,8 +102,8 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
         alpha[i+k]=-0.150 # alpha suficiente para fonar 150
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.1)) +factor/10 * (1+random.normalvariate(0.,.02))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
     return frequencias,amplitudes
 
 
@@ -114,8 +114,8 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
         t=ti+k*dt
         frequencias[i+k]=wi+(wf-wi)*(t-ti)/(tf-ti) 
         alpha[i+k]=-0.150 # alpha suficiente para fonar 150
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
     return frequencias,amplitudes #150*
 
 
@@ -126,8 +126,8 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
         t = ti+k*dt
         frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
         alpha[i+k]=-0.150 # alpha suficiente para fonar 150
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
     return frequencias,amplitudes
 
 
@@ -136,16 +136,15 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 # Deficion de parametros
 # ----------------------
 
-
 # Parametros especificos del modelo
 # ---------------------------------
 
-gamma = 12300 #1250
+gamma = 12300 #12500
 
 # Parametros tracto vocal
-uoch = 40*2700*2700
-uolg =  1./1. #
-rdis = 5000/1.0
+uoch = 40*2700*2700 # 40*2700*2700
+uolg =  1./1. # 1./1.
+rdis = 5000/1.0 # 5000/1.0
 
 v = np.zeros(5)
 v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
@@ -175,6 +174,11 @@ for i in range(np.int(tiempo_total/(dt))):
 
 
 # Para cada silaba defino: alpha, frecuencias fundamentales y amplitudes
+# expo(ti,tf,wi,wf,factor,frequencias,amplitudes)
+# rectas(ti,tf,wi,wf,factor,frequencias,amplitudes)
+# senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes)
+
+
 expo(0.021233,0.070797,869.3,475.2,0.2239/0.944,frequencias, amplitudes)
 expo(0.163317,0.205335,825.5,453,0.2714/0.944,frequencias, amplitudes)
 expo(0.271632,0.313879,847.4,475.1,0.3216/0.944,frequencias, amplitudes)
@@ -184,12 +188,16 @@ expo(0.479152,0.527799,897,518.9,0.325/0.944,frequencias,amplitudes)
 rectas(0.592287,0.631223,573,431,0.3074/0.944,frequencias, amplitudes)
 rectas(0.699323,0.726651,847.4,497,0.2258/0.944,frequencias, amplitudes)
 rectas(0.794424,0.824770,1550,1550,0.08599/0.944,frequencias, amplitudes)
-expo(0.824771,0.929312,900,518.9,0.7771/0.944,frequencias, amplitudes)#1110
+expo(0.824771,0.929312,900,518.9,0.7771/0.944,frequencias, amplitudes)
 rectas(0.956319,0.969585,475,781,0.3498/0.944,frequencias, amplitudes)
 rectas(0.969586,1.000902,871,871,0.4434/0.944,frequencias, amplitudes)
-rectas(1.035779,1.036574,475,570,0.389/0.944,frequencias, amplitudes)
-rectas(1.036578,1.099138,579.72,559.72,0.9205/0.944,frequencias, amplitudes)
-rectas(1.099139,1.107158,579.72,409.4,0.2376/0.944,frequencias, amplitudes)
+
+#rectas(1.035779,1.036574,475,570,0.389/0.944,frequencias, amplitudes)
+#rectas(1.036578,1.099138,579.72,559.72,0.9205/0.944,frequencias, amplitudes)
+#rectas(1.099139,1.107158,579.72,409.4,0.2376/0.944,frequencias, amplitudes)
+rectas(1.035681,1.108332,576,576,0.9205/0.944,frequencias, amplitudes)
+
+
 rectas(1.134231,1.139772,935,1548,0.1221/0.944,frequencias, amplitudes)
 rectas(1.141474,1.160209,546.62,546.62,0.1221/0.944,frequencias, amplitudes)
 rectas(1.160210,1.173081,546.62,344,0.4057/0.944,frequencias, amplitudes)
@@ -221,7 +229,7 @@ print('was:',was[0])
 # Ajustamos was vs bes a un polinomio de grado 5
 # z es una lista de los coeficientes del polinomio ajustado
 #z = np.polyfit(was, bes, 5)
-z = np.polyfit(was, bes, 2)    
+z = np.polyfit(was, bes, 5)    
 
 # Generamos objeto p, que es un polinomio de grado 5 (es z, hecho objeto)
 p = np.poly1d(z)
@@ -247,11 +255,11 @@ n = 5 # TAMANO DEL SISTEMA DE ECUACIONES
 sonido = []
 
 # Variables de interes de la integracion que quizas quiera guardar
-#x1 = []
-#y1 = []
+x_out = []
+y_out = []
 #tiempo1 = []
 #amplitud1 = []
-#forzado1 = []
+forzado_out = []
 #dforzadodt1 = []
 #elbeta1 = []
 
@@ -268,8 +276,8 @@ for i in range(np.int(tiempo_total/(dt))):
     # Parametros dependientes del tiempo del sistema de ecuaciones
     # Variables globales ¿es necesario que asi lo sean?
     alp=alpha[i]
-    b=beta[i]*(1+random.normalvariate(0.,.3))
-    #b=beta[i]*(1+random.normalvariate(0.,.1)) 
+    #b=beta[i]*(1+random.normalvariate(0.,.3))
+    b=beta[i]*(1+random.normalvariate(0.,.2)) 
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
@@ -278,8 +286,8 @@ for i in range(np.int(tiempo_total/(dt))):
    
     
     # Actualizo las siguientes variables ?   
-    #estimulo=fil1[N-1]
-    fil1[0]=v[1]+back1[N-1]
+    estimulo=fil1[N-1]
+    fil1[0]= v[1] + back1[N-1]
     back1[0]=-0.35*fil1[N-1]
     fil1[1:]=fil1[:-1]
     back1[1:]=back1[:-1]
@@ -291,11 +299,11 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Guarda variables de interes de la integracion
     # no esta chequeado que ande
-    #x1.append(v[0])  
-    #y1.append(v[1])
+    x_out.append(v[0])  
+    y_out.append(v[1])
     #tiempo1.append(t)
     #amplitud1.append(amplitudes[i])
-    #forzado1.append(estimulo)
+    forzado_out.append(estimulo)
     #dforzadodt1.append(destimulodt)
     #elbeta1.append(beta[i])
   
@@ -314,11 +322,15 @@ sonido = np.asarray(sonido)
 # Este paso es necesario para que el archivo wav se guarde correctamente
 # Ver la documentacion de: scipy.io.wavfile.write
 scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-write('sintesis_finch_uolg_2_{}.wav', 44100, scaled)
+write('sintesis_finch_pol5.wav', 44100, scaled)
 
+
+
+# -------
+# Ploteos
+# -------
 
 '''
-# -------------------------------
 # Ploteo espectrograma del sonido
 # -------------------------------
 
@@ -337,10 +349,43 @@ plt.axis('off')
             #transparent=False, bbox_inches=None, pad_inches=0.1,
             #frameon=None)
 plt.show()
-
 '''
 
+# Ploteo sonido y otras salidas
+# -----------------------------
+
+plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
+plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
+plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
+plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
+plt.legend()
+
+
+
+
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
 
