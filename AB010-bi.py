@@ -1,48 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Jul 21 10:28:48 2020
 
 @author: javi_lassaortiz
 """
 
-
-# Parametros especificos del canto
-# --------------------------------
 nombre_ave = 'AB010-bi'
-dt = 1/44100.0
-tiempo_total = 2.07
 
 
+# Calculamos trazas de frecuencias fundamentales de este canto en particular
+# --------------------------------------------------------------------------
 
-# -----------------------------------------
-# INICIALIZO VARIABLES. NO TOCAR ESTA PARTE
-# -----------------------------------------
-
-# Inicializo las frecuencias fundamentales y amplitudes
-frequencias = np.zeros(np.int(tiempo_total/(dt)))
-amplitudes = np.zeros(np.int(tiempo_total/(dt)))
-
-# Inicializo los parametros de control
-alpha = np.zeros(np.int(tiempo_total/(dt)))
-beta = np.zeros(np.int(tiempo_total/(dt)))
-
-# Modifico valores variables que cree arriba
-for i in range(np.int(tiempo_total/(dt))):
-    alpha[i] = 0.15 # sistema no fona en este valor
-    beta[i] = 0.15 # sistema no fona en este valor
-# -------------------------
-#  FIN INICIALIZO VARIABLES
-# -------------------------
-
-
-
-
-
-# Parametros especificos del canto
-# --------------------------------
-
-# Para cada silaba defino: alpha, frecuencias fundamentales y amplitudes
+# Para cada silaba defino: alpha, frecuencias fundamentales y amplitud
+    
 # expo(ti,tf,wi,wf,factor,frequencias,amplitudes)
 # rectas(ti,tf,wi,wf,factor,frequencias,amplitudes)
 # senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes)

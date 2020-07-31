@@ -10,8 +10,11 @@ It creates .wav
 Estructura del codigo:
     - Definicion de funciones
     - Definicion de parametros
+    - Calculamos trazas de frecuencias fundamentales
+    - Calculamos beta
     - Integracion
     - Guardo canto sintetico
+    - Ploteo
 
 """
 
@@ -97,10 +100,10 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
     return frequencias,amplitudes
 
 
@@ -110,10 +113,10 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti) 
-        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
     return frequencias,amplitudes
 
 
@@ -123,10 +126,10 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
     for k in range((j-i)):
         t = ti+k*dt
         frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-        alpha[i+k]=-0.150 # alpha suficiente para fonar
+        alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125  
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
     return frequencias,amplitudes
 
 
@@ -135,10 +138,17 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 # Deficion de parametros
 # ----------------------
 
-# Nombre archivo de parámetros específicos del ave
-# ------------------------------------------------
+# Nombre archivo donde se calculan las frecuencias fundamentales del canto
+# -----------------------------------------------------------------------
 
 ave_fname = 'AB010-bi.py'
+tiempo_total = 2.07 # segundos
+
+# ave_fname = 'bu49.py'
+# tiempo_total = 1.048 # segundos
+
+
+version = 'ori'
 
 
 
@@ -149,21 +159,42 @@ gamma = 12300 #12500
 
 # Parametros tracto vocal
 uoch = 40*2700*2700 # 40*2700*2700
-uolg =  1./1. # 1./1.
 rdis = 5000/1.0 # 5000/1.0
 
+uolg =  1./1. # 1./1.
+
+# Condiciones iniciales
 v = np.zeros(5)
 v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
 
+# No se lo que es
 L =  0.036 # No se que es !!!
 # L =  0.025
 
+# Parametros de frecuencia y ventana temporal
+sampling_freq = 44100 # Hz
+dt = 1/sampling_freq
+
+# Inicializo los parametros de control
+alpha = np.zeros(np.int(tiempo_total/(dt)))
+beta = np.zeros(np.int(tiempo_total/(dt)))
+
+# Modifico valores variables que cree arriba
+for i in range(np.int(tiempo_total/(dt))):
+    alpha[i] = 0.15 # sistema no fona en este valor
+    beta[i] = 0.15 # sistema no fona en este valor
 
 
-# Cargo los parametros especificos del canto
-# ------------------------------------------
 
-# Cargo datos básicos del canto y genero trazas de frec fundamental
+
+
+# ----------------------------------------------
+# Calculamos trazas de frecuencias fundamentales
+# ----------------------------------------------
+
+# Inicializo las frecuencias fundamentales y amplitudes
+frequencias = np.zeros(np.int(tiempo_total/(dt)))
+amplitudes = np.zeros(np.int(tiempo_total/(dt)))
 
 with open(ave_fname) as f:
     code = compile(f.read(), ave_fname, 'exec')
@@ -171,11 +202,9 @@ with open(ave_fname) as f:
 
 
 
-
-
-# ---------------
-# Calculamos Beta
-# ---------------
+# ----------------------------------------------
+# Calculamos Beta (a partir de las trazas de ff)
+# ----------------------------------------------
 
 # Abro el archivo b_w (re)
 bes,was = np.loadtxt('b_w_12300.txt',unpack=True)
@@ -233,12 +262,13 @@ for i in range(np.int(tiempo_total/(dt))):
     b=beta[i]*(1+random.normalvariate(0.,.2)) 
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
+    
     # Integracion
     t =i*dt
     rk4(ecuaciones,v,n,t,dt) # modifica v
    
     
-    # Actualizo las siguientes variables ?   
+    # Actualizo las siguientes variables (?) 
     estimulo=fil1[N-1]
     fil1[0]= v[1] + back1[N-1]
     back1[0]=-0.35*fil1[N-1]
@@ -250,6 +280,7 @@ for i in range(np.int(tiempo_total/(dt))):
     # Guardo resultado de integracion v[3] en sonido
     sonido.append(v[3]*amplitudes[i])
     
+    
     # Guarda variables de interes de la integracion
     # no esta chequeado que ande
     x_out.append(v[0])  
@@ -260,10 +291,7 @@ for i in range(np.int(tiempo_total/(dt))):
     #dforzadodt1.append(destimulodt)
     #elbeta1.append(beta[i])
   
-   
-#sonido = [s*1000 for s in sonido]
-#s_max = max([abs(max(sonido)), abs(min(sonido))])
-#sonido = [s + s_max*random.normalvariate(0.,.001) for s in sonido]
+
 sonido = np.asarray(sonido)
 
 
@@ -274,14 +302,12 @@ sonido = np.asarray(sonido)
 
 # Este paso es necesario para que el archivo wav se guarde correctamente
 # Ver la documentacion de: scipy.io.wavfile.write
-#scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-scaled = np.int16(sonido/np.max(np.abs(sonido)) * 15000)
-
-write('sintesis_finch_uolg_30.wav', 44100, scaled)
+scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
+write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
 # Guardo salida de fuente.
 y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
-write('y_alpha.wav', 44100, y_scaled)
+write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
 
 
 
