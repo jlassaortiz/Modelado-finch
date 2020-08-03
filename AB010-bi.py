@@ -5,6 +5,7 @@ Created on Tue Jul 21 10:28:48 2020
 """
 
 nombre_ave = 'AB010-bi'
+nombre_BOS = 'zfAB010-bi_BOS03_44100.wav'
 
 
 # Calculamos trazas de frecuencias fundamentales de este canto en particular
@@ -26,7 +27,7 @@ expo(0.479152,0.527799,897,518.9,0.325/0.944,frequencias,amplitudes)
 rectas(0.592287,0.631223,573,431,0.3074/0.944,frequencias, amplitudes)
 rectas(0.699323,0.726651,847.4,497,0.2258/0.944,frequencias, amplitudes)
 
-rectas(0.794424,0.824770,1550,1550,0.08599/0.944,frequencias, amplitudes)
+rectas(0.794424,0.824770,1550,1550,0.8599/0.944,frequencias, amplitudes)
 # C 
 expo(0.824771,0.929312,900,518.9,0.7771/0.944,frequencias, amplitudes)
 

@@ -5,7 +5,7 @@ Created on Tue Jul 21 10:28:48 2020
 """
 
 nombre_ave = 'bu49'
-
+nombre_BOS = 'bu49-BOS-2mc.wav.wav'
 
 # Calculamos trazas de frecuencias fundamentales de este canto en particular
 # --------------------------------------------------------------------------
