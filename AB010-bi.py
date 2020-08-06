@@ -5,7 +5,7 @@ Created on Tue Jul 21 10:28:48 2020
 """
 
 nombre_ave = 'AB010-bi'
-nombre_BOS = 'zfAB010-bi_BOS03_44100.wav'
+nombre_BOS = '/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/zfAB010-bi_BOS03_44100.wav'
 
 
 # Calculamos trazas de frecuencias fundamentales de este canto en particular
