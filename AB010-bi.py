@@ -27,15 +27,15 @@ expo(0.479152,0.527799,897,518.9,0.325/0.944,frequencias,amplitudes)
 rectas(0.592287,0.631223,573,431,0.3074/0.944,frequencias, amplitudes)
 rectas(0.699323,0.726651,847.4,497,0.2258/0.944,frequencias, amplitudes)
 
-rectas(0.794424,0.824770,1550,1550,0.8599/0.944,frequencias, amplitudes)
-# C 
+# B
+rectas(0.794424,0.824770,1550,1550,0.8599/0.944,frequencias, amplitudes) 
 expo(0.824771,0.929312,900,518.9,0.7771/0.944,frequencias, amplitudes)
 
-# B
-rectas(0.956319,0.969585,475,781,0.3498/0.944,frequencias, amplitudes)
-rectas(0.969586,1.000902,871,871,0.4434/0.944,frequencias, amplitudes)
+# C
+rectas(0.956319,0.969585,475,850,0.3498/0.944,frequencias, amplitudes)
+rectas(0.969586,1.000902,850,850,0.4434/0.944,frequencias, amplitudes)
 
-# A
+# D
 #rectas(1.035779,1.036574,475,570,0.389/0.944,frequencias, amplitudes)
 #rectas(1.036578,1.099138,579.72,559.72,0.9205/0.944,frequencias, amplitudes)
 #rectas(1.099139,1.107158,579.72,409.4,0.2376/0.944,frequencias, amplitudes)
