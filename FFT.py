@@ -16,6 +16,9 @@ Grafica FFT del segmento especificado de BOS y SYN.
 import numpy as np     	
 from scipy.io.wavfile import read
 import matplotlib.pyplot as plt
+from scipy.signal import find_peaks as find_peaks
+
+
 
 # ----------------
 # Defino variables
@@ -40,6 +43,7 @@ tf = 1.11 # en segundos
 # Cargo BOS y SYN como np.array y conservo ademas los sampling rate
 rate_bos, BOS = read(nombre_BOS)
 rate_syn, SYN = read(nombre_SYN)
+print(rate_bos)
 
 # Conservo solo la parte del canto de interes
 BOS = BOS[int(ti*rate_bos):int(tf*rate_bos)]
@@ -65,17 +69,18 @@ timePeriod  = tpCount/rate_syn
 frequencies_SYN = values/timePeriod
 
 
-
-
-
-
 # ----------
 # Ploteo FFT
 # ----------
+
+# Escala Log
 plt.figure()
 plt.plot(frequencies_BOS, abs(BOS_fft), label = 'BOS')
 plt.plot(frequencies_SYN, abs(SYN_fft), label = 'SYN')
+plt.yscale('log')
 plt.xlim(0,10000)
-plt.legend()
+
+plt.xlabel('Frecuencias')
 plt.title(nombre_SYN)
+plt.legend()
 plt.show() 

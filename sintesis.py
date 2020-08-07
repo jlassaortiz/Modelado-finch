@@ -15,11 +15,10 @@ Estructura del codigo:
     - Integracion
     - Guardo canto sintetico
     - Ploteo
-
 """
 
 import numpy as np     	
-from scipy.io.wavfile import write
+#from scipy.io.wavfile import write, read
 import random
 #from scipy import signal
 import matplotlib.pyplot as plt
@@ -102,8 +101,10 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
+        
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
+    
     return frequencias,amplitudes
 
 
@@ -115,8 +116,10 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti) 
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+    
     return frequencias,amplitudes
 
 
@@ -127,9 +130,11 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
         t = ti+k*dt
         frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
         alpha[i+k]= -0.150 # alpha suficiente para fonar
-        #alpha[i+k]=-0.125  
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+        #alpha[i+k]=-0.125 
+        
+        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+    
     return frequencias,amplitudes
 
 
@@ -141,21 +146,21 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = 'AB010-bi.py'
-tiempo_total = 2.07 # segundos
+# ave_fname = 'AB010-bi.py'
+# tiempo_total = 2.07 # segundos
 
-# ave_fname = 'bu49.py'
-# tiempo_total = 1.048 # segundos
+ave_fname = 'bu49.py'
+tiempo_total = 1.048 # segundos
 
 
-version = 'ori'
+version = 'ruido'
 
 
 
 # Parametros especificos del modelo
 # ---------------------------------
 
-gamma = 12300 #12500
+gamma = 12300 #12500 camilo: 13781 (media)
 
 # Parametros tracto vocal
 uoch = 40*2700*2700 # 40*2700*2700
@@ -168,7 +173,7 @@ v = np.zeros(5)
 v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
 
 # No se lo que es
-L =  0.036 # No se que es !!!
+L =  0.036 # No se que es !!! =  longitud tubo (charla con Camilo) 
 # L =  0.025
 
 # Parametros de frecuencia y ventana temporal
@@ -247,7 +252,7 @@ forzado_out = []
 
 
 # No saco lo de abajo porque lo necesita destimulodt pero no se bien que hacen
-N = int((L /(350*dt))//1)
+N = int((L /(350*dt))//1) # 350 velocidad sonido en el aire (charla con camilo)
 fil1 = np.zeros(N)
 back1 = np.zeros(N)
 # feedback1 = 0
@@ -258,8 +263,10 @@ for i in range(np.int(tiempo_total/(dt))):
     # Parametros dependientes del tiempo del sistema de ecuaciones
     # Variables globales ¿es necesario que asi lo sean?
     alp=alpha[i]
+    
     #b=beta[i]*(1+random.normalvariate(0.,.3))
     b=beta[i]*(1+random.normalvariate(0.,.2)) 
+    
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     
@@ -271,7 +278,7 @@ for i in range(np.int(tiempo_total/(dt))):
     # Actualizo las siguientes variables (?) 
     estimulo=fil1[N-1]
     fil1[0]= v[1] + back1[N-1]
-    back1[0]=-0.35*fil1[N-1]
+    back1[0]=-0.35*fil1[N-1] #-0.35 coef de reflexion  
     fil1[1:]=fil1[:-1]
     back1[1:]=back1[:-1]
     #feedback1=back1[N-1]
@@ -339,16 +346,15 @@ plt.show()
 # Ploteo sonido y otras salidas
 # -----------------------------
 
+plt.figure()
 plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
 plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
 plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
 plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
 plt.legend()
+plt.show()
 
 
-
-
-    
 
 
 

@@ -365,7 +365,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
     # plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
     # plt.legend()
     # plt.show()
-    
+     
     # plt.close()
     
     
