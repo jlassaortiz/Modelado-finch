@@ -14,6 +14,8 @@ import random
 #from scipy import signal
 import matplotlib.pyplot as plt
 import glob
+from tqdm import tqdm
+
 
 global alp
 global b
@@ -213,7 +215,7 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 
 # Hago lista de valores de gamma de cada mapa
 gammas = []
-for mapa_fn in lista_mapas_b_w:
+for mapa_fn in tqdm(lista_mapas_b_w):
     gamma = int(mapa_fn[86:91])
     gammas.append(gamma)
     
@@ -356,39 +358,39 @@ for mapa_fn in lista_mapas_b_w:
     # Ploteo sonido y otras salidas
     # -----------------------------
     
-    plt.figure()
-    plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
-    plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
-    plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
-    plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
-    plt.legend()
-    plt.show()
+    # plt.figure()
+    # plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
+    # plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
+    # plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
+    # plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
+    # plt.legend()
+    # plt.show()
+    
+    # plt.close()
     
     
     # ------------------------
     # Calculo FFT de BOS y SYN
     # ------------------------
     
-    # Cargo BOS, fuente y SYN como np.array y conservo ademas los sampling rate
-    rate_bos, BOS = read(nombre_BOS)
-    rate_y , Y = sampling_freq, y_scaled
-    rate_syn, SYN = sampling_freq, scaled
-        
     
     for silaba in silabas.items():
         
+        # Cargo BOS, fuente y SYN como np.array y conservo ademas los sampling rate
+        rate_bos, BOS = read(nombre_BOS)
+        rate_y , Y = sampling_freq, y_scaled
+        rate_syn, SYN = sampling_freq, scaled
+               
         # Defino comienzo y fin de la silaba
         ti = silaba[1][0]
         tf = silaba[1][1]
         silaba_id = silaba[0]
         
-        
         # Conservo solo la parte del canto de interes
         BOS = BOS[int(ti*rate_bos):int(tf*rate_bos)]
         Y = Y[int(ti*rate_syn):int(tf*rate_syn)]
         SYN = SYN[int(ti*rate_syn):int(tf*rate_syn)]
-        
-        
+               
         # Calculo fft
         BOS_fft = np.fft.fft(BOS) /len(BOS)
         Y_fft = np.fft.fft(Y) / len(Y)
@@ -443,6 +445,7 @@ for mapa_fn in lista_mapas_b_w:
         
         plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}.pdf')
         plt.show()
+        plt.close()
         
 
 
