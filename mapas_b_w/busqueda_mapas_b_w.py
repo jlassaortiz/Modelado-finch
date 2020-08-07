@@ -5,8 +5,13 @@ Created on Wed Aug  5 11:28:50 2020
 
 @author: javi_lassaortiz
 
-Busqueda parámetros
+Determinacion de mapas beta-omega para gammas determinados
 
+Secciones:
+    
+    - Definición de funciones
+    - Definición de parámetros
+    - Calculos de mapas b-w
 """
 import numpy as np     	
 #from scipy.io.wavfile import write, read
@@ -105,26 +110,36 @@ def find_ff(y_list, sampling_freq):
     return w
 
 
+# ---------------------
+# Definicion parametros
+# ---------------------
+
+# GAMMAS
+gammas = [12300]
+#gammas = np.arange(12000, 30000, 500)
+
+# BETAS
+# betas,was = np.loadtxt('b_w_12300.txt',unpack=True)
+betas =np.arange(-3.5, -0.01, 0.005)
+
 
 # Parametros de frecuencia y ventana temporal
 tiempo_total = 1.0 # segundos
 sampling_freq = 44100 # Hz
 dt = 1/sampling_freq
 
-n = 2 # TAMANO DEL SISTEMA DE ECUACIONES
+# TAMANO DEL SISTEMA DE ECUACIONES
+n = 2 
 
-alp = - 0.150 # alpha suficiente para fonar
+# Alpha suficiente para fonar
+alp = - 0.150 
 
-# GAMMAS
-#gammas = [12300]
-gammas = np.arange(12000, 30000, 500)
 
-# BETAS
-# bes,was = np.loadtxt('b_w_12300.txt',unpack=True)
-# betas = bes
+# ---------------------
+# Calculos de mapas b-w
+# ---------------------
 
-betas =np.arange(-3.5, -0.01, 0.005)
-
+# Hago un mapa b-w para cada gamma
 for g in tqdm(gammas):
     
     gamma = g
