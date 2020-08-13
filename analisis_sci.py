@@ -151,7 +151,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'betaSinRuido_bw-3-1'
+version = 'betaSinRuido_mapa_javi_1'
 
 # T inicial y final en segundos de silabas que voy analisar y plotear
 silabas = {'B':[0.794424, 0.824770], 
