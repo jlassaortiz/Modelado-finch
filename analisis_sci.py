@@ -151,7 +151,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'ruido'
+version = 'betaSinRuido_bw-3-1'
 
 # T inicial y final en segundos de silabas que voy analisar y plotear
 silabas = {'B':[0.794424, 0.824770], 
@@ -278,7 +278,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
         alp=alpha[i]
         
         #b=beta[i]*(1+random.normalvariate(0.,.3))
-        b=beta[i]*(1+random.normalvariate(0.,.2)) 
+        #b=beta[i]*(1+random.normalvariate(0.,.2))
+        b=beta[i]
         
         destimulodt = (fil1[N-1]-fil1[N-2])/dt
         
@@ -426,7 +427,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
         # Escala Log
         fig, axs = plt.subplots(3, 1,sharex=True, figsize=(60, 20))    
         
-        fig.suptitle(f'{gamma}_silaba_{silaba_id}')
+        fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}')
         
         axs[0].plot(frequencies_BOS, abs(BOS_fft))
         axs[0].set_title('BOS')
@@ -445,7 +446,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
         
         plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}.pdf')
         plt.show()
-        plt.close()
+        #plt.close()
         
 
 
