@@ -117,13 +117,13 @@ def find_ff(y_list, sampling_freq):
 version = '1'
 
 # GAMMAS
-gammas = [24000]
+gammas = [16000]
 #gammas = np.arange(12000, 30000, 500)
 
 # BETAS
 # betas,was = np.loadtxt('b_w_12300.txt',unpack=True)
 # betas =np.arange(-3.5, 0.001, 0.001)
-betas =np.arange(-0.140, 0.001, 0.001)
+betas =np.arange(-0.445 , 0.0, 0.001)
 
 # Parametros de frecuencia y ventana temporal
 tiempo_total = 1.0 # segundos
