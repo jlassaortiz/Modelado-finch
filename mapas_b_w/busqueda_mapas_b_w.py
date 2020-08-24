@@ -94,7 +94,7 @@ def find_ff(y_list, sampling_freq):
     freq = values/timePeriod   
     
     # Busco picos en fft
-    picos, info_picos = find_peaks(y_fft, height= max(y_fft)*0.2)
+    picos, info_picos = find_peaks(y_fft, height= max(y_fft)*0.5)
         
     # Busco que frecuencias corresponden a esos picos
     picos = [freq[pico] for pico in picos]
