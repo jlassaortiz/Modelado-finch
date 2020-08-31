@@ -104,6 +104,8 @@ def find_ff(y_list, sampling_freq):
     # Calculo diferencias entre picos
     w_list = np.diff(picos)
     
+    print(w_list)
+    
     # Calculo promedio de las diferencias
     w = np.mean(w_list)
 
@@ -114,16 +116,17 @@ def find_ff(y_list, sampling_freq):
 # Definicion parametros
 # ---------------------
 
-version = '1'
+version = '4'
 
 # GAMMAS
-gammas = [16000]
+gammas = [24000]
+#gammas = [16000, 24000, 29000]
 #gammas = np.arange(16000, 24000, 29000)
 
 # BETAS
 # betas,was = np.loadtxt('b_w_12300.txt',unpack=True)
 # betas =np.arange(-3.5, 0.001, 0.001)
-betas =np.arange(-0.445 , 0.0, 0.001)
+betas =np.arange(-0.445 , 0.0, 0.0001)
 
 # Parametros de frecuencia y ventana temporal
 tiempo_total = 1.0 # segundos
@@ -146,6 +149,7 @@ for g in tqdm(gammas):
     
     gamma = g
     ws = []
+    betas_aux = []
     
     for b in tqdm(betas):
         
@@ -168,10 +172,15 @@ for g in tqdm(gammas):
             y_out.append(v[1])
         
         w = find_ff(y_out, sampling_freq )
-        ws.append(w)
+        
+        if w > 300 and w < 2100:
+            betas_aux.append(b)
+            ws.append(w)
     
-    b_w = [betas, ws]
+    b_w = [betas_aux, ws]
     b_w = np.array(b_w).T
+        
+    
     
     np.savetxt(f'b_w_{g}_javi_{version}.txt', b_w, delimiter = ' ', fmt = '%1.3f')
     
