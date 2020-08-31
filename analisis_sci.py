@@ -3,17 +3,25 @@
 """
 Created on Thu Aug  6 11:39:05 2020
 
-@author: javi_lassaortiz
+Calcula similitud entre fragmentos de cantos sintéticos y reales
+usando un rango de parámetros para gamma (fuente sonora), R y C (filtros)
 
-Análisis riqueza espectral
+Devuelve el gamma, R y C que sintetiza el canto mas similar al canto real
+
+BOS tiene que estar sampleado a 44100 Hz
+
+@author: javi_lassaortiz
 
 """
 import numpy as np     	
-from scipy.io.wavfile import write, read
 import random
-#from scipy import signal
+import pandas as pd
 import matplotlib.pyplot as plt
 import glob
+
+from scipy.io.wavfile import write, read
+from scipy import signal
+from scipy.signal import sosfiltfilt
 from tqdm import tqdm
 
 
@@ -136,6 +144,51 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
     return frequencias,amplitudes
 
 
+# Genera FFT de np.array
+def array2fft(npArray, samplingRate, ti, tf, log = False):
+    
+    # Conservo solo la parte de la señal de interes
+    section = npArray[int(ti*samplingRate):int(tf*samplingRate)]
+    
+    # Calculo fft
+    section_fft = np.fft.fft(section) /len(section)
+ 
+    # No se bien porque pero necesito sacar las frecuencias de la mitad superior
+    section_fft = abs(section_fft[range(int(len(section)/2))])   
+    
+    # Paso a escala log
+    if log:
+        section_fft = np.log(section_fft)                     
+        
+    # Hago vector de frecuencias para poder graficar
+    tpCount     = len(section)
+    values      = np.arange(int(tpCount/2))
+    timePeriod  = tpCount/samplingRate
+   
+    frequencies = values/timePeriod
+    freq_sampligRate = max(frequencies) / len(frequencies) 
+    
+    return frequencies, freq_sampligRate, section_fft
+
+
+# Filtra npArray y conserva ancho de banda 300Hz - 12000 Hz
+def denoisear(npArray, samplingRate):
+    
+    sos1 = signal.butter(4, 300, 'high', fs = samplingRate, output ='sos')
+    sos2 = signal.butter(4, 12000, 'low',fs = samplingRate, output ='sos')
+    
+    arrayFiltered = sosfiltfilt(sos1, npArray)
+    arrayFiltered = sosfiltfilt(sos2, arrayFiltered)
+    
+    return arrayFiltered
+
+
+# Calculo de Chi2
+def chi_2(fft1, fft2):
+    
+    chi = sum(abs(fft1 - fft2))
+        
+    return chi
 
 # ----------------------
 # Deficion de parametros
@@ -144,33 +197,45 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = 'AB010-bi.py'
-tiempo_total = 2.07 # segundos
-
+# ave_fname = 'AB010-bi.py'
+# tiempo_total = 2.07 # segundos
 
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'betaSinRuido_mapa_javi_1'
+ave_fname = 'AB010-bi_silabaC.py'
+tiempo_total = 2.07 # segundos
+
+version = 'betaSinRuido_TEST_ajuste_GCR'
 
 # T inicial y final en segundos de silabas que voy analisar y plotear
-silabas = {'B':[0.794424, 0.824770], 
-           'C':[0.969586,1.000902],
-           'D':[1.035681,1.108332]}
+
+# silabas = {'B':[0.794424, 0.824770], 
+#            'C':[0.969586,1.000902],
+#            'D':[1.035681,1.108332]}
+
+silabas = {'C':[0.969586,1.000902]}
+
 
 
 # Parametros especificos del modelo
 # ---------------------------------
 
 # Parametros tracto vocal
-uoch = 40*2700*2700 # 40*2700*2700
-rdis = 5000/1.0 # 5000/1.0
+
+# f_rango = np.arange(1500, 6001, 100)
+# uoch = [f*f*40 for f in f_rango]
+# rdis = np.arange(3000, 25000, 100)
+
+# uoch_list = [int(40*2000*2000), int(40*2500*2500)]
+# rdis_list = list(np.arange(3000.0, 25001.0, 11000.0))
+
+uoch_list = [40*2700*2700] # 40*2700*2700
+rdis_list = [5000/1.0] # 5000/1.0
 
 uolg =  1./1. # 1./1.
 
-# No se lo que es
-L =  0.036 # No se que es !!! =  longitud tubo (charla con Camilo) 
-# L =  0.025
+L =  0.036 # longitud tubo ( en m? )
 
 # Parametros de frecuencia y ventana temporal
 sampling_freq = 44100 # Hz
@@ -184,9 +249,6 @@ beta = np.zeros(np.int(tiempo_total/(dt)))
 for i in range(np.int(tiempo_total/(dt))):
     alpha[i] = 0.15 # sistema no fona en este valor
     beta[i] = 0.15 # sistema no fona en este valor
-
-
-
 
 
 # ----------------------------------------------
@@ -207,24 +269,22 @@ with open(ave_fname) as f:
 # Calculamos Beta (a partir de las trazas de ff)
 # ----------------------------------------------
 
-# Lista con nombres de mapas b_w para para gamma
+# Lista con nombres de mapas b_w para cada gamma
 lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/mapas_b_w/*.txt')
 
+# Listas donde guardo todos los valores de Chi, C, R y Gamma explorados
+chi_resultados = []
+c_resultados = []
+r_resultados = []
+gamma_resultados = []
 
-
-
-# Hago lista de valores de gamma de cada mapa
-gammas = []
+# Para cada gamma calculo betas a partir de las trazas de frecuencias
 for mapa_fn in tqdm(lista_mapas_b_w):
-    gamma = int(mapa_fn[86:91])
-    gammas.append(gamma)
+    gamma = int(mapa_fn[86:91]) # Extraigo valor del gamma del nombre del archivo
     
-    
-    
-    # Abro el archivo b_w (re)
+    # Abro el archivo b_w
     bes,was = np.loadtxt(mapa_fn ,unpack=True)
-    
-    
+       
     # Ajustamos was vs bes a un polinomio de grado 5
     # z es una lista de los coeficientes del polinomio ajustado
     z = np.polyfit(was, bes, 5)
@@ -246,207 +306,189 @@ for mapa_fn in tqdm(lista_mapas_b_w):
     # Integracion
     # -----------
     
-    # Condiciones iniciales
-    v = np.zeros(5)
-    v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
     
-    
-    n = 5 # TAMANO DEL SISTEMA DE ECUACIONES
-    sonido = []
-    
-    # Variables intermedias  de la integracion que quizas quiera guardar
-    x_out = []
-    y_out = []
-    #tiempo1 = []
-    #amplitud1 = []
-    forzado_out = []
-    #dforzadodt1 = []
-    #elbeta1 = []
-    
-    
-    # No saco lo de abajo porque lo necesita destimulodt pero no se bien que hacen
-    N = int((L /(350*dt))//1) # 350 velocidad sonido en el aire (charla con camilo)
-    fil1 = np.zeros(N)
-    back1 = np.zeros(N)
-    # feedback1 = 0
-    
-    # Integro
-    for i in range(np.int(tiempo_total/(dt))):
-        
-        # Parametros dependientes del tiempo del sistema de ecuaciones
-        # Variables globales ¿es necesario que asi lo sean?
-        alp=alpha[i]
-        
-        #b=beta[i]*(1+random.normalvariate(0.,.3))
-        #b=beta[i]*(1+random.normalvariate(0.,.2))
-        b=beta[i]
-        
-        destimulodt = (fil1[N-1]-fil1[N-2])/dt
-        
-        
-        # Integracion
-        t =i*dt
-        rk4(ecuaciones,v,n,t,dt) # modifica v
-       
-        
-        # Actualizo las siguientes variables (?) 
-        estimulo=fil1[N-1]
-        fil1[0]= v[1] + back1[N-1]
-        back1[0]=-0.35*fil1[N-1] #-0.35 coef de reflexion  
-        fil1[1:]=fil1[:-1]
-        back1[1:]=back1[:-1]
-        #feedback1=back1[N-1]
-    
-    
-        # Guardo resultado de integracion v[3] en sonido
-        sonido.append(v[3]*amplitudes[i])
-        
-        
-        # Guarda variables de interes de la integracion
-        # no esta chequeado que ande
-        x_out.append(v[0])  
-        y_out.append(v[1])
-        #tiempo1.append(t)
-        #amplitud1.append(amplitudes[i])
-        forzado_out.append(estimulo)
-        #dforzadodt1.append(destimulodt)
-        #elbeta1.append(beta[i])
-      
-    
-    sonido = np.asarray(sonido)
-    
-    
-    
-    # ----------------------
-    # Guardo canto sintetico
-    # ----------------------
-    
-    # Este paso es necesario para que el archivo wav se guarde correctamente
-    # Ver la documentacion de: scipy.io.wavfile.write
-    scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-    write(f'{gamma}_{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
-    
-    # Guardo salida de fuente.
-    y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
-    write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
-    
-    
-    
-    # -------
-    # Ploteos
-    # -------
-    
-    '''
-    # Ploteo espectrograma del sonido
-    # -------------------------------
-    
-    f, t, Sxx = signal.spectrogram(sonido, 44100, window=('gaussian',20*128),nperseg=10*1024,noverlap=18*512,scaling='spectrum')
-    Sxx = np.clip(Sxx, a_min=np.amax(Sxx)/10**3, a_max=np.amax(Sxx))
-    
-    plt.pcolormesh(t,f,np.log10(Sxx),rasterized=True,cmap=plt.get_cmap('Greys'))
-    #plt.pcolormesh(t,f,Sxx,cmap=plt.get_cmap('Greys'))
-    plt.ylim(10,10000)
-    #plt.ylabel('Frequency [Hz]')
-    #plt.xlabel('Time [sec]')
-    plt.axis('off')
-    #plt.savefig('sonograma_{}.jpeg'.format(n_canto), dpi=50, facecolor='w', edgecolor='w',
-                #orientation='portrait', papertype=None, format=None,
-                #transparent=False, bbox_inches=None, pad_inches=0.1,
-                #frameon=None)
-    plt.show()
-    '''
-    
-    # Ploteo sonido y otras salidas
-    # -----------------------------
-    
-    # plt.figure()
-    # plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
-    # plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
-    # plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
-    # plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
-    # plt.legend()
-    # plt.show()
-     
-    # plt.close()
-    
-    
-    # ------------------------
-    # Calculo FFT de BOS y SYN
-    # ------------------------
-    
-    
-    for silaba in silabas.items():
-        
-        # Cargo BOS, fuente y SYN como np.array y conservo ademas los sampling rate
-        rate_bos, BOS = read(nombre_BOS)
-        rate_y , Y = sampling_freq, y_scaled
-        rate_syn, SYN = sampling_freq, scaled
+    # Recorro grilla de valores de C y R (parametros del tracto vocal)
+    for c in uoch_list:
+        for r in rdis_list:
+            
+            uoch = c
+            rdis = r
+            
+            # Condiciones iniciales
+            v = np.zeros(5)
+            v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
+            
+            
+            n = 5 # TAMANO DEL SISTEMA DE ECUACIONES
+            sonido = []
+            
+            # Variables intermedias  de la integracion que quizas quiera guardar
+            x_out = []
+            y_out = []
+            #tiempo1 = []
+            #amplitud1 = []
+            forzado_out = []
+            #dforzadodt1 = []
+            #elbeta1 = []
+            
+            
+            # No saco lo de abajo porque lo necesita destimulodt pero no se bien que hacen
+            N = int((L /(350*dt))//1) # 350 velocidad sonido en el aire (charla con camilo)
+            fil1 = np.zeros(N)
+            back1 = np.zeros(N)
+            # feedback1 = 0
+            
+            # Integro
+            for i in range(np.int(tiempo_total/(dt))):
+                
+                # Parametros dependientes del tiempo del sistema de ecuaciones
+                # Variables globales ¿es necesario que asi lo sean?
+                alp=alpha[i]
+                
+                #b=beta[i]*(1+random.normalvariate(0.,.3))
+                #b=beta[i]*(1+random.normalvariate(0.,.2))
+                b=beta[i]
+                
+                destimulodt = (fil1[N-1]-fil1[N-2])/dt
+                
+                
+                # Integracion
+                t =i*dt
+                rk4(ecuaciones,v,n,t,dt) # modifica v
                
-        # Defino comienzo y fin de la silaba
-        ti = silaba[1][0]
-        tf = silaba[1][1]
-        silaba_id = silaba[0]
-        
-        # Conservo solo la parte del canto de interes
-        BOS = BOS[int(ti*rate_bos):int(tf*rate_bos)]
-        Y = Y[int(ti*rate_syn):int(tf*rate_syn)]
-        SYN = SYN[int(ti*rate_syn):int(tf*rate_syn)]
-               
-        # Calculo fft
-        BOS_fft = np.fft.fft(BOS) /len(BOS)
-        Y_fft = np.fft.fft(Y) / len(Y)
-        SYN_fft = np.fft.fft(SYN) /len(SYN)
-        
-        # No se bien porque pero necesito sacar las frecuencias de la mitad superior
-        BOS_fft = BOS_fft[range(int(len(BOS)/2))]
-        Y_fft = Y_fft[range(int(len(Y)/2))]
-        SYN_fft = SYN_fft[range(int(len(SYN)/2))]
-        
-        
-        # Hago vector de frecuencias para poder graficar
-        tpCount     = len(BOS)
-        values      = np.arange(int(tpCount/2))
-        timePeriod  = tpCount/rate_bos
-        frequencies_BOS = values/timePeriod
-        
-        tpCount     = len(Y)
-        values      = np.arange(int(tpCount/2))
-        timePeriod  = tpCount/rate_y
-        frequencies_Y = values/timePeriod
-        
-        tpCount     = len(SYN)
-        values      = np.arange(int(tpCount/2))
-        timePeriod  = tpCount/rate_syn
-        frequencies_SYN = values/timePeriod
-        
-        
-        # ----------
-        # Ploteo FFT
-        # ----------
-        
-        # Escala Log
-        fig, axs = plt.subplots(3, 1,sharex=True, figsize=(60, 20))    
-        
-        fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}')
-        
-        axs[0].plot(frequencies_BOS, abs(BOS_fft))
-        axs[0].set_title('BOS')
-        axs[0].set_yscale('log')
-        
-        axs[1].plot(frequencies_Y, abs(Y_fft), 'tab:orange')
-        axs[1].set_title('Y')
-        axs[1].set_yscale('log')
-        
-        axs[2].plot(frequencies_SYN, abs(SYN_fft), 'tab:green')
-        axs[2].set_title('SYN')
-        axs[2].set_yscale('log')
+                
+                # Actualizo las siguientes variables
+                estimulo=fil1[N-1]
+                fil1[0]= v[1] + back1[N-1]
+                back1[0]=-0.35*fil1[N-1] #-0.35 coef de reflexion  
+                fil1[1:]=fil1[:-1]
+                back1[1:]=back1[:-1]
+                #feedback1=back1[N-1]
+            
+            
+                # Guardo resultado de integracion v[3] en sonido
+                sonido.append(v[3]*amplitudes[i])
+                
+                
+                # Guarda variables intermedias de interes
+                x_out.append(v[0])  
+                y_out.append(v[1])
+                #tiempo1.append(t)
+                #amplitud1.append(amplitudes[i])
+                forzado_out.append(estimulo)
+                #dforzadodt1.append(destimulodt)
+                #elbeta1.append(beta[i])
+              
+            
+            sonido = np.asarray(sonido)
+            
+            
+            
+            # ----------------------
+            # Guardo canto sintetico
+            # ----------------------
+            
+            # Este paso es necesario para que el archivo wav se guarde correctamente
+            # Ver la documentacion de: scipy.io.wavfile.write
+            scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
+            #write(f'{gamma}_{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
+            
+            # Guardo salida de fuente.
+            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
+            #write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
+            
+            # -------
+            # Ploteos
+            # -------
+            
+            # Ploteo sonido y otras salidas
+            # -----------------------------
+            
+            # plt.figure()
+            # plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
+            # plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
+            # plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
+            # plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
+            # plt.legend()
+            # plt.show()
+             
+            # plt.close()
+            
+            
+            
+            
+            # ------------------------
+            # Calculo FFT de BOS y SYN
+            # ------------------------
 
-        axs[2].set_xlim([0,10000])
-        axs[2].set_xlabel('Frecuencias (Hz)')
+            for silaba in silabas.items():
+                    
+                # Cargo BOS, fuente y SYN como np.array y conservo ademas los sampling rate
+                rate_bos, BOS = read(nombre_BOS)
+                rate_y , Y = sampling_freq, y_scaled
+                rate_syn, SYN = sampling_freq, scaled
+                
+                # Filtro BOS y SYN
+                BOS = denoisear(BOS, rate_bos)
+                SYN = denoisear(SYN, rate_syn)
+                       
+                # Defino comienzo y fin de la silaba
+                tin = silaba[1][0]
+                tfin = silaba[1][1]
+                silaba_id = silaba[0]
+                
+                frequencies_BOS, frequencies_BOS_sr, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
+                frequencies_Y, frequencies_Y_sr, Y_fft = array2fft(Y, rate_y, tin, tfin, log = True)
+                frequencies_SYN, frequencies_SYN_sr, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
+                
+                
+                # ------------
+                # Calculo Chi2
+                # ------------
+                
+                chi_2 = chi_2(BOS_fft, SYN_fft)
+                
+                # ----------
+                # Ploteo FFT
+                # ----------
+                
+                # Escala Log
+                fig, axs = plt.subplots(3, 1,sharex=True, figsize=(60, 20))    
+                
+                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi_2}')
+                
+                axs[0].plot(frequencies_BOS, abs(BOS_fft))
+                axs[0].set_title('BOS')
+                #axs[0].set_yscale('log')
+                
+                axs[1].plot(frequencies_Y, abs(Y_fft), 'tab:orange')
+                axs[1].set_title('Y')
+                #axs[1].set_yscale('log')
+                
+                axs[2].plot(frequencies_SYN, abs(SYN_fft), 'tab:green')
+                axs[2].set_title('SYN')
+                #axs[2].set_yscale('log')
         
-        plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}.pdf')
-        plt.show()
-        #plt.close()
+                axs[2].set_xlim([0,10000])
+                axs[2].set_xlabel('Frecuencias (Hz)')
+                
+                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}.pdf')
+                plt.show()
+                #plt.close()
+                
+
+            chi_resultados.append(chi_2)
+            c_resultados.append(c)
+            r_resultados.append(r)
+            gamma_resultados.append(gamma)
+
+resultados = {'G': gamma_resultados, 
+              'C': c_resultados, 
+              'R': r_resultados,
+              'Chi2': chi_resultados}
+
+resultados = pd.DataFrame(resultados)
+ 
+resultados       
         
-
-
+        

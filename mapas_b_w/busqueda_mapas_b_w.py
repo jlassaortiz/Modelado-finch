@@ -118,7 +118,7 @@ version = '1'
 
 # GAMMAS
 gammas = [16000]
-#gammas = np.arange(12000, 30000, 500)
+#gammas = np.arange(16000, 24000, 29000)
 
 # BETAS
 # betas,was = np.loadtxt('b_w_12300.txt',unpack=True)
