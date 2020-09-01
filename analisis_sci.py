@@ -183,12 +183,13 @@ def denoisear(npArray, samplingRate):
     return arrayFiltered
 
 
-# Calculo de Chi2
+# Calculo de Chi2 de dos FFT
 def chi_2(fft1, fft2):
     
     chi = sum(abs(fft1 - fft2))
+    mod = np.linalg.norm(fft1 - fft2)
         
-    return chi
+    return chi, mod
 
 # ----------------------
 # Deficion de parametros
@@ -223,15 +224,15 @@ silabas = {'C':[0.969586,1.000902]}
 
 # Parametros tracto vocal
 
-# f_rango = np.arange(1500, 6001, 100)
-# uoch = [f*f*40 for f in f_rango]
-# rdis = np.arange(3000, 25000, 100)
+f_rango = np.arange(1500, 6001, 500)
+uoch_list = [f*f*40 for f in f_rango]
+rdis_list = np.arange(3000, 25000, 5000)
 
 # uoch_list = [int(40*2000*2000), int(40*2500*2500)]
 # rdis_list = list(np.arange(3000.0, 25001.0, 11000.0))
 
-uoch_list = [40*2700*2700] # 40*2700*2700
-rdis_list = [5000/1.0] # 5000/1.0
+# uoch_list = [40*2700*2700] # 40*2700*2700
+# rdis_list = [5000/1.0] # 5000/1.0
 
 uolg =  1./1. # 1./1.
 
@@ -274,6 +275,7 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 
 # Listas donde guardo todos los valores de Chi, C, R y Gamma explorados
 chi_resultados = []
+modulo_resultados = []
 c_resultados = []
 r_resultados = []
 gamma_resultados = []
@@ -446,7 +448,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Calculo Chi2
                 # ------------
                 
-                chi_2 = chi_2(BOS_fft, SYN_fft)
+                chi2, modulo = chi_2(BOS_fft, SYN_fft)
                 
                 # ----------
                 # Ploteo FFT
@@ -455,7 +457,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Escala Log
                 fig, axs = plt.subplots(3, 1,sharex=True, figsize=(60, 20))    
                 
-                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi_2}')
+                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi2}_mod_{modulo}')
                 
                 axs[0].plot(frequencies_BOS, abs(BOS_fft))
                 axs[0].set_title('BOS')
@@ -472,12 +474,12 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 axs[2].set_xlim([0,10000])
                 axs[2].set_xlabel('Frecuencias (Hz)')
                 
-                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}.pdf')
+                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                 plt.show()
                 #plt.close()
                 
-
-            chi_resultados.append(chi_2)
+            chi_resultados.append(chi2)
+            modulo_resultados.append(modulo)
             c_resultados.append(c)
             r_resultados.append(r)
             gamma_resultados.append(gamma)
@@ -485,10 +487,17 @@ for mapa_fn in tqdm(lista_mapas_b_w):
 resultados = {'G': gamma_resultados, 
               'C': c_resultados, 
               'R': r_resultados,
-              'Chi2': chi_resultados}
+              'Chi2': chi_resultados,
+              'Mod': modulo_resultados}
 
 resultados = pd.DataFrame(resultados)
  
-resultados       
-        
+resultados
+
+m = min(resultados.Mod)   
+ch = min(resultados.Chi2)
+
+print(resultados[resultados.Mod == m])
+
+print(resultados[resultados.Chi2 == ch] )       
         
