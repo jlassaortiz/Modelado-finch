@@ -20,8 +20,8 @@ import matplotlib.pyplot as plt
 import glob
 
 from scipy.io.wavfile import write, read
-from scipy import signal
-from scipy.signal import sosfiltfilt
+from scipy.signal import sosfiltfilt, butter
+from scipy.stats import pearsonr
 from tqdm import tqdm
 
 
@@ -174,8 +174,8 @@ def array2fft(npArray, samplingRate, ti, tf, log = False):
 # Filtra npArray y conserva ancho de banda 300Hz - 12000 Hz
 def denoisear(npArray, samplingRate):
     
-    sos1 = signal.butter(4, 300, 'high', fs = samplingRate, output ='sos')
-    sos2 = signal.butter(4, 12000, 'low',fs = samplingRate, output ='sos')
+    sos1 = butter(4, 300, 'high', fs = samplingRate, output ='sos')
+    sos2 = butter(4, 12000, 'low',fs = samplingRate, output ='sos')
     
     arrayFiltered = sosfiltfilt(sos1, npArray)
     arrayFiltered = sosfiltfilt(sos2, arrayFiltered)
@@ -188,8 +188,9 @@ def chi_2(fft1, fft2):
     
     chi = sum(abs(fft1 - fft2))
     mod = np.linalg.norm(fft1 - fft2)
+    r, p_value = pearsonr(fft1, fft2)
         
-    return chi, mod
+    return chi, mod, r
 
 # ----------------------
 # Deficion de parametros
@@ -276,6 +277,7 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 # Listas donde guardo todos los valores de Chi, C, R y Gamma explorados
 chi_resultados = []
 modulo_resultados = []
+pearson_resultados = []
 c_resultados = []
 r_resultados = []
 gamma_resultados = []
@@ -448,7 +450,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Calculo Chi2
                 # ------------
                 
-                chi2, modulo = chi_2(BOS_fft, SYN_fft)
+                chi2, modulo, pearson = chi_2(BOS_fft, SYN_fft)
                 
                 # ----------
                 # Ploteo FFT
@@ -457,7 +459,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Escala Log
                 fig, axs = plt.subplots(3, 1,sharex=True, figsize=(60, 20))    
                 
-                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi2}_mod_{modulo}')
+                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi2}_mod_{modulo}_P_{pearson}')
                 
                 axs[0].plot(frequencies_BOS, abs(BOS_fft))
                 axs[0].set_title('BOS')
@@ -475,11 +477,13 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 axs[2].set_xlabel('Frecuencias (Hz)')
                 
                 plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
-                plt.show()
-                #plt.close()
+                #plt.show()
+                plt.close()
                 
             chi_resultados.append(chi2)
             modulo_resultados.append(modulo)
+            pearson_resultados.append(pearson)
+            
             c_resultados.append(c)
             r_resultados.append(r)
             gamma_resultados.append(gamma)
@@ -488,16 +492,23 @@ resultados = {'G': gamma_resultados,
               'C': c_resultados, 
               'R': r_resultados,
               'Chi2': chi_resultados,
-              'Mod': modulo_resultados}
+              'Mod': modulo_resultados,
+              'P': pearson_resultados}
 
 resultados = pd.DataFrame(resultados)
  
 resultados
 
+
+# Busco minimos
 m = min(resultados.Mod)   
 ch = min(resultados.Chi2)
+p = min(resultados.P)
+
+
+print(resultados[resultados.Chi2 == ch] )  
 
 print(resultados[resultados.Mod == m])
 
-print(resultados[resultados.Chi2 == ch] )       
+print(resultados[resultados.P == p] )       
         
