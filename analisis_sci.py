@@ -8,7 +8,7 @@ usando un rango de parámetros para gamma (fuente sonora), R y C (filtros)
 
 Devuelve el gamma, R y C que sintetiza el canto mas similar al canto real
 
-BOS tiene que estar sampleado a 44100 Hz
+** BOS tiene que estar sampleado a 44100 Hz **
 
 @author: javi_lassaortiz
 
@@ -183,7 +183,7 @@ def denoisear(npArray, samplingRate):
     return arrayFiltered
 
 
-# Calculo de Chi2 de dos FFT
+# Calculo de Chi2 de dos señales tipo npArray 1D
 def chi_2(fft1, fft2):
     
     chi = sum(abs(fft1 - fft2))
@@ -191,6 +191,22 @@ def chi_2(fft1, fft2):
     r, p_value = pearsonr(fft1, fft2)
         
     return chi, mod, r
+
+
+# Extra pequeña sección de sonido al rededor de la máxima amplitud
+def silaba_chopper(sound, ti, tf, fs):
+    
+    # Conservo silaba de interes
+    silaba = sound[int(ti*fs):int(tf*fs)]
+    
+    # Conservo solo parte de la silaba de los alrededores de la máxima amplitud
+    # la ventana que uso es tal que si la ff es de 300Hz, agarro 6 oscilaciones
+    ventana = int((3/300)*fs)
+    index_max = np.argmax(silaba)
+    
+    silaba = silaba[index_max - ventana : index_max + ventana]
+    
+    return silaba
 
 # ----------------------
 # Deficion de parametros
@@ -278,6 +294,11 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 chi_resultados = []
 modulo_resultados = []
 pearson_resultados = []
+
+chi_resultados_S = []
+modulo_resultados_S = []
+pearson_resultados_S = []
+
 c_resultados = []
 r_resultados = []
 gamma_resultados = []
@@ -420,37 +441,48 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
             
             
+
             
             # ------------------------
             # Calculo FFT de BOS y SYN
             # ------------------------
 
+            # Cargo BOS, fuente y SYN como npArray y conservo ademas los sampling rate
+            rate_bos, BOS = read(nombre_BOS)
+            rate_y , Y = sampling_freq, y_scaled
+            rate_syn, SYN = sampling_freq, scaled
+            
+            # Filtro BOS y SYN
+            BOS = denoisear(BOS, rate_bos)
+            SYN = denoisear(SYN, rate_syn)
+        
+
             for silaba in silabas.items():
-                    
-                # Cargo BOS, fuente y SYN como np.array y conservo ademas los sampling rate
-                rate_bos, BOS = read(nombre_BOS)
-                rate_y , Y = sampling_freq, y_scaled
-                rate_syn, SYN = sampling_freq, scaled
-                
-                # Filtro BOS y SYN
-                BOS = denoisear(BOS, rate_bos)
-                SYN = denoisear(SYN, rate_syn)
                        
                 # Defino comienzo y fin de la silaba
                 tin = silaba[1][0]
                 tfin = silaba[1][1]
                 silaba_id = silaba[0]
                 
+                
+                # Calculo FFT de la sílaba de ineteres
                 frequencies_BOS, frequencies_BOS_sr, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
                 frequencies_Y, frequencies_Y_sr, Y_fft = array2fft(Y, rate_y, tin, tfin, log = True)
                 frequencies_SYN, frequencies_SYN_sr, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
                 
+                # Extraigo pequeña parte del sonido de la sílaba de interes
+                BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
+                SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
+                                
                 
                 # ------------
                 # Calculo Chi2
                 # ------------
                 
                 chi2, modulo, pearson = chi_2(BOS_fft, SYN_fft)
+                
+                chi2_s, modulo_s, pearson_s = chi_2(BOS_chop, SYN_chop)
+                
                 
                 # ----------
                 # Ploteo FFT
@@ -459,7 +491,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Escala Log
                 fig, axs = plt.subplots(3, 1,sharex=True, figsize=(60, 20))    
                 
-                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi2}_mod_{modulo}_P_{pearson}')
+                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_chi2_{chi2}_mod_{modulo}_P_{pearson} \n chi2.S_{chi2_s}_mod.S_{modulo_s}_P.S_{pearson_s}')
                 
                 axs[0].plot(frequencies_BOS, abs(BOS_fft))
                 axs[0].set_title('BOS')
@@ -484,6 +516,10 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             modulo_resultados.append(modulo)
             pearson_resultados.append(pearson)
             
+            chi_resultados_S.append(chi2_s)
+            modulo_resultados_S.append(modulo_s)
+            pearson_resultados_S.append(pearson_s)            
+            
             c_resultados.append(c)
             r_resultados.append(r)
             gamma_resultados.append(gamma)
@@ -493,22 +529,64 @@ resultados = {'G': gamma_resultados,
               'R': r_resultados,
               'Chi2': chi_resultados,
               'Mod': modulo_resultados,
-              'P': pearson_resultados}
+              'P': pearson_resultados,
+              'Chi2_S': chi_resultados_S,
+              'Mod_S': modulo_resultados_S,
+              'P_S': pearson_resultados_S}
 
 resultados = pd.DataFrame(resultados)
  
 resultados
 
+pd.set_option("display.max_columns",300)
 
-# Busco minimos
-m = min(resultados.Mod)   
+# Busco minimos FFT 
 ch = min(resultados.Chi2)
-p = min(resultados.P)
+m = min(resultados.Mod) 
+p = max(resultados.P)
+# p = max(resultados[resultados.G == 29000].P)
 
-
-print(resultados[resultados.Chi2 == ch] )  
-
+print(resultados[resultados.Chi2 == ch])  
 print(resultados[resultados.Mod == m])
+print(resultados[resultados.P == p])       
 
-print(resultados[resultados.P == p] )       
-        
+
+
+# Busco minimos SONIDO
+ch_s = min(resultados.Chi2_S)
+m_s = min(resultados.Mod_S)   
+p_s = max(resultados.P_S)
+# p = max(resultados[resultados.G == 29000].P)
+
+print(resultados[resultados.Chi2_S == ch_s])  
+print(resultados[resultados.Mod_S == m_s])
+print(resultados[resultados.P_S == p_s])  
+
+
+
+resumen = resultados[resultados.Chi2 == ch] 
+resumen = resumen.append(resultados[resultados.Mod == m])
+resumen = resumen.append(resultados[resultados.P == p])       
+
+resumen = resumen.append(resultados[resultados.Chi2_S == ch_s])  
+resumen = resumen.append(resultados[resultados.Mod_S == m_s])
+resumen = resumen.append(resultados[resultados.P_S == p_s])  
+
+
+resumen.to_csv('resumen.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
+
+resultados.to_csv('resultados.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
