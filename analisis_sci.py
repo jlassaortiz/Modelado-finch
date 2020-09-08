@@ -160,7 +160,7 @@ def array2fft(npArray, samplingRate, ti, tf, log = False):
     
     # Paso a escala log
     if log:
-        section_fft = np.log(section_fft)                     
+        section_fft = np.log(section_fft)                   
         
     # Hago vector de frecuencias para poder graficar
     tpCount     = len(section)
@@ -186,7 +186,7 @@ def denoisear(npArray, samplingRate):
 # Calculo de Chi2 de dos señales tipo npArray 1D
 def buen_ajuste(obs, pred): # obs = BOS,   pred = SYN
     
-    chi = sum( ((obs - pred)**2)/pred )
+    chi = sum( ((obs - pred)**2)/ abs(pred) )
     
     pearson_r, p_value = pearsonr(obs, pred)
     sperman_r, p_value = spearmanr(obs, pred)
@@ -217,6 +217,8 @@ def silaba_chopper(sound, ti, tf, fs):
 # ----------------------
 # Deficion de parametros
 # ----------------------
+
+random.seed(123)
 
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
