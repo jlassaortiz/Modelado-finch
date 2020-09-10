@@ -211,7 +211,7 @@ def silaba_chopper(sound, ti, tf, fs):
     index_max = np.argmax(silaba)
     
     silaba = silaba[index_max - ventana : index_max + ventana]
-    silaba = silaba / max(abs(silaba))
+    #silaba = silaba / max(abs(silaba))
     
     return silaba
 
@@ -437,11 +437,11 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
             # Este paso es necesario para que el archivo wav se guarde correctamente
             # Ver la documentacion de: scipy.io.wavfile.write
-            scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
+            scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767 * 0.4434) # * 0.4434 Agrego factor de tamaño de la silaba.
             #write(f'{gamma}_{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
             
             # Guardo salida de fuente.
-            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
+            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767 * 0.4434) # * 0.4434 Agrego factor de tamaño de la silaba.
             #write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
             
             # -------
@@ -542,8 +542,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # axs[2].legend(['abs(BOS - SYN)'])
                 # #axs[2].set_yscale('log')
                 
-                axs[2].plot(np.arange(len(BOS_chop))/sampling_freq, BOS_chop)
-                axs[2].plot(np.arange(len(SYN_chop))/sampling_freq, SYN_chop, 'tab:green')
+                axs[2].plot(np.arange(len(BOS_chop))*1000/sampling_freq, BOS_chop)
+                axs[2].plot(np.arange(len(SYN_chop))*1000/sampling_freq, SYN_chop, 'tab:green')
                 #axs[2].set_title('abs(BOS - SYN)')
                 axs[2].legend(['BOS sound', 'SYN sound'])
                 #axs[2].set_yscale('log')
@@ -556,7 +556,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 axs[1].set_ylim([0,9])
                 axs[1].set_xlabel('Frecuencias (Hz)')
                 
-                axs[2].set_xlabel('seconds')
+                axs[2].set_xlabel('ms')
                 
                 plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                 #plt.show()
