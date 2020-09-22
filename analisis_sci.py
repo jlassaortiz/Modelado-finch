@@ -473,106 +473,106 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
 
             
-#             # ------------------------
-#             # Calculo FFT de BOS y SYN
-#             # ------------------------
+            # ------------------------
+            # Calculo FFT de BOS y SYN
+            # ------------------------
 
-#             # Cargo BOS, fuente y SYN como npArray y conservo ademas los sampling rate
-#             rate_bos, BOS = read(nombre_BOS)
-#             rate_y , Y = sampling_freq, y_scaled
-#             rate_syn, SYN = sampling_freq, scaled
+            # Cargo BOS, fuente y SYN como npArray y conservo ademas los sampling rate
+            rate_bos, BOS = read(nombre_BOS)
+            rate_y , Y = sampling_freq, y_scaled
+            rate_syn, SYN = sampling_freq, scaled
             
-#             # Filtro BOS y SYN
-#             BOS = denoisear(BOS, rate_bos)
-#             SYN = denoisear(SYN, rate_syn)
+            # Filtro BOS y SYN
+            BOS = denoisear(BOS, rate_bos)
+            SYN = denoisear(SYN, rate_syn)
         
 
-#             for silaba in silabas.items():
+            for silaba in silabas.items():
                        
-#                 # Defino comienzo y fin de la silaba
-#                 tin = silaba[1][0]
-#                 tfin = silaba[1][1]
-#                 silaba_id = silaba[0]
+                # Defino comienzo y fin de la silaba
+                tin = silaba[1][0]
+                tfin = silaba[1][1]
+                silaba_id = silaba[0]
                 
                 
-#                 # Calculo FFT de la sílaba de ineteres escala LOG
-#                 frequencies_BOS, frequencies_BOS_sr, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
-#                 frequencies_Y, frequencies_Y_sr, Y_fft = array2fft(Y, rate_y, tin, tfin, log = True)
-#                 frequencies_SYN, frequencies_SYN_sr, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
+                # Calculo FFT de la sílaba de ineteres escala LOG
+                frequencies_BOS, frequencies_BOS_sr, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
+                frequencies_Y, frequencies_Y_sr, Y_fft = array2fft(Y, rate_y, tin, tfin, log = True)
+                frequencies_SYN, frequencies_SYN_sr, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
                 
-#                 # Calculo FFT de la sílaba de ineteres escala LINEAL
-#                 frequencies_BOS, frequencies_BOS_sr, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
-#                 frequencies_Y, frequencies_Y_sr, Y_fft_lin = array2fft(Y, rate_y, tin, tfin, log = False)
-#                 frequencies_SYN, frequencies_SYN_sr, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
+                # Calculo FFT de la sílaba de ineteres escala LINEAL
+                frequencies_BOS, frequencies_BOS_sr, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
+                frequencies_Y, frequencies_Y_sr, Y_fft_lin = array2fft(Y, rate_y, tin, tfin, log = False)
+                frequencies_SYN, frequencies_SYN_sr, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
                 
-#                 # Extraigo pequeña parte del sonido de la sílaba de interes
-#                 BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
-#                 SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
+                # Extraigo pequeña parte del sonido de la sílaba de interes
+                BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
+                SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
                                 
                 
-#                 # -----------------------------------
-#                 # Calculo indices de bondad de ajuste
-#                 # -----------------------------------
+                # # -----------------------------------
+                # # Calculo indices de bondad de ajuste
+                # # -----------------------------------
 
-#                 chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
+                # chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
                 
-#                 chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
+                # chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
                 
-#                 chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
+                # chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
                 
                 
-#                 # ----------
-#                 # Ploteo FFT
-#                 # ----------
+                # ----------
+                # Ploteo FFT
+                # ----------
                 
-#                 # Escala Log
-#                 # fig, axs = plt.subplots(3, 1,sharex=True, sharey = True, figsize=(150, 70))    
-#                 fig, axs = plt.subplots(3, 1, figsize=(110, 100))    
+                # Escala Log
+                # fig, axs = plt.subplots(3, 1,sharex=True, sharey = True, figsize=(150, 70))    
+                fig, axs = plt.subplots(3, 1, figsize=(110, 100))    
 
                 
-#                 fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
+#                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
                 
-#                 axs[0].plot(frequencies_BOS, abs(BOS_fft))
-#                 axs[0].plot(frequencies_SYN, abs(SYN_fft), 'tab:green')
-#                 #axs[0].set_title('BOS & SYN')
-#                 axs[0].legend(['BOS FFT','SYN FFT'])
+                axs[0].plot(frequencies_BOS, abs(BOS_fft))
+                axs[0].plot(frequencies_SYN, abs(SYN_fft), 'tab:green')
+                #axs[0].set_title('BOS & SYN')
+                axs[0].legend(['BOS FFT','SYN FFT'])
                 
-#                 #axs[0].set_yscale('log')
+                #axs[0].set_yscale('log')
                 
-#                 axs[1].plot(frequencies_Y, abs(Y_fft), 'tab:orange')
-#                 #axs[1].set_title('Y')
-#                 axs[1].legend(['Fuente FFT'])
-#                 #axs[1].set_yscale('log')
+                axs[1].plot(frequencies_Y, abs(Y_fft), 'tab:orange')
+                #axs[1].set_title('Y')
+                axs[1].legend(['Fuente FFT'])
+                #axs[1].set_yscale('log')
                 
-#                 # diff_BOS_SYN_FFT = abs(BOS_fft - SYN_fft)
-#                 # axs[2].plot(frequencies_BOS, diff_BOS_SYN_FFT, 'tab:gray')
-#                 # #axs[2].set_title('abs(BOS - SYN)')
-#                 # axs[2].legend(['abs(BOS - SYN)'])
-#                 # #axs[2].set_yscale('log')
+                # diff_BOS_SYN_FFT = abs(BOS_fft - SYN_fft)
+                # axs[2].plot(frequencies_BOS, diff_BOS_SYN_FFT, 'tab:gray')
+                # #axs[2].set_title('abs(BOS - SYN)')
+                # axs[2].legend(['abs(BOS - SYN)'])
+                # #axs[2].set_yscale('log')
                 
-#                 axs[2].plot(np.arange(len(BOS_chop))*1000/sampling_freq, BOS_chop)
-#                 axs[2].plot(np.arange(len(SYN_chop))*1000/sampling_freq, SYN_chop, 'tab:green')
-#                 #axs[2].set_title('abs(BOS - SYN)')
-#                 axs[2].legend(['BOS sound', 'SYN sound'])
-#                 #axs[2].set_yscale('log')
+                axs[2].plot(np.arange(len(BOS_chop))*1000/sampling_freq, BOS_chop)
+                axs[2].plot(np.arange(len(SYN_chop))*1000/sampling_freq, SYN_chop, 'tab:green')
+                #axs[2].set_title('abs(BOS - SYN)')
+                axs[2].legend(['BOS sound', 'SYN sound'])
+                #axs[2].set_yscale('log')
         
-#                 axs[0].set_xlim([0,sampling_freq/2])
-#                 axs[0].set_ylim([0,9])
-#                 axs[0].set_xlabel('Frecuencias (Hz)')
+                axs[0].set_xlim([0,sampling_freq/2])
+                axs[0].set_ylim([0,9])
+                axs[0].set_xlabel('Frecuencias (Hz)')
                 
-#                 axs[1].set_xlim([0,sampling_freq/2])
-#                 axs[1].set_ylim([0,9])
-#                 axs[1].set_xlabel('Frecuencias (Hz)')
+                axs[1].set_xlim([0,sampling_freq/2])
+                axs[1].set_ylim([0,9])
+                axs[1].set_xlabel('Frecuencias (Hz)')
                 
-#                 axs[2].set_xlabel('ms')
+                axs[2].set_xlabel('ms')
                 
-#                 plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
-#                 #plt.show()
-#                 plt.close()
+                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
+                #plt.show()
+#                plt.close()
                 
-#                 # plt.plot(BOS_chop)
-#                 # plt.plot(SYN_chop)
-#                 # print(xxx)
+                # plt.plot(BOS_chop)
+                # plt.plot(SYN_chop)
+                # print(xxx)
                 
 #                 chi2_log_resultados.append(chi2_log)
 #                 pearsonR_log_resultados.append(pearsonR_log)
