@@ -42,7 +42,7 @@ def ecuaciones(v, dv):
     dv[0]=y
     dv[1]=gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
     dv[2]= i2
-    dv[3]=-uolg*uoch*i1-(rdis*uolg)*i2+uolg*destimulodt
+    dv[3]= - uolg*uoch*i1 - (rdis*uolg)*i2 + uolg*destimulodt
     dv[4]=0.
     return dv
 
