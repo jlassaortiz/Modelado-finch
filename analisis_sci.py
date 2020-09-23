@@ -151,26 +151,25 @@ def array2fft(npArray, samplingRate, ti, tf, log = False):
     
     # Conservo solo la parte de la señal de interes
     section = npArray[int(ti*samplingRate):int(tf*samplingRate)]
+    n = len(section)
     
     # Calculo fft
-    section_fft = np.fft.fft(section) /len(section)
+    # section_fft = np.fft.fft(section) /len(section)
+    section_fft = abs(np.fft.fft(section))**2
+
  
     # No se bien porque pero necesito sacar las frecuencias de la mitad superior
-    section_fft = abs(section_fft[range(int(len(section)/2))])   
-    
+    section_fft = section_fft[range(int(n/2))]
+
     # Paso a escala log
     if log:
-        section_fft = np.log(section_fft)                   
-        
-    # Hago vector de frecuencias para poder graficar
-    tpCount     = len(section)
-    values      = np.arange(int(tpCount/2))
-    timePeriod  = tpCount/samplingRate
-   
-    frequencies = values/timePeriod
-    freq_sampligRate = max(frequencies) / len(frequencies) 
+        section_fft = np.log(section_fft)  
     
-    return frequencies, freq_sampligRate, section_fft
+    # Genero vector con Frecuencias
+    frequencies = np.fft.fftfreq(n , d = 1/samplingRate)
+    frequencies = frequencies[range(int(n/2))] 
+    
+    return frequencies, section_fft
 
 
 # Filtra npArray y conserva ancho de banda 300Hz - 12000 Hz
@@ -230,11 +229,11 @@ random.seed(123)
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-# ave_fname = 'AB010-bi_silabaC.py'
-# tiempo_total = 2.07 # segundos 
+ave_fname = 'AB010-bi_silabaC.py'
+tiempo_total = 2.07 # segundos 
 
-ave_fname = 'test.py'
-tiempo_total = 1.2 # segundos 
+# ave_fname = 'test.py'
+# tiempo_total = 1.2 # segundos 
 
 version = 'betaSinRuido_TEST_ajuste_GCR'
 
@@ -244,7 +243,9 @@ version = 'betaSinRuido_TEST_ajuste_GCR'
 #            'C':[0.969586,1.000902],
 #            'D':[1.035681,1.108332]}
 
-silabas = {'a':[0.09, 0.9]}
+silabas = {'C':[0.969586, 1.000902]}
+
+# silabas = {'a':[0.09, 0.9]}
 
 
 
@@ -254,26 +255,19 @@ silabas = {'a':[0.09, 0.9]}
 # Parametros tracto vocal
 
 # f_rango = np.arange(1500, 6001, 500)
-#uoch_list = [f*f*40 for f in f_rango]
-#rdis_list = np.arange(3000, 25000, 5000)
+# uoch_list = [f*f*40 for f in f_rango]
+# rdis_list = np.arange(3000, 25000, 5000)
 
-uoch_list = [60*3800*3800]
-rdis_list = [3800/1.0]
-
-# uoch_list = [40*2700*2700] # 40*2700*2700
-# rdis_list = [5000/1.0] # 5000/1.0
+uoch_list = [360000000]
+rdis_list = [3000]
 
 uolg =  1./1. # 1./1.
 
 L =  0.036 # longitud tubo ( en m )
 
-# # Parametros de frecuencia y ventana temporal
-# sampling_freq = 44100 # Hz
-# dt = 1/sampling_freq
-
 # Parametros de frecuencia y ventana temporal
-dt = 1/882000.0
-sampling_freq = 1/dt # Hz
+sampling_freq = 44100 # Hz
+dt = 1/sampling_freq
 
 
 # Inicializo los parametros de control
@@ -446,8 +440,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # Este paso es necesario para que el archivo wav se guarde correctamente
             # Ver la documentacion de: scipy.io.wavfile.write
             scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767 * 0.4434) # * 0.4434 Agrego factor de tamaño de la silaba.
-            write(f'{gamma}_{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
-            
+            # write(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
+                    
             # Guardo salida de fuente.
             y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767 * 0.4434) # * 0.4434 Agrego factor de tamaño de la silaba.
             #write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
@@ -482,43 +476,51 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             rate_y , Y = sampling_freq, y_scaled
             rate_syn, SYN = sampling_freq, scaled
             
-            # Filtro BOS y SYN
-            BOS = denoisear(BOS, rate_bos)
-            SYN = denoisear(SYN, rate_syn)
+            # # Filtro BOS y SYN
+            # BOS = denoisear(BOS, rate_bos)
+            # SYN = denoisear(SYN, rate_syn)
         
 
             for silaba in silabas.items():
-                       
+                 
+                
                 # Defino comienzo y fin de la silaba
                 tin = silaba[1][0]
                 tfin = silaba[1][1]
                 silaba_id = silaba[0]
                 
                 
+                
+                
+                ##### GUARDO AUDIO SYN #####
+                write(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
+                
+
+                
                 # Calculo FFT de la sílaba de ineteres escala LOG
-                frequencies_BOS, frequencies_BOS_sr, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
-                frequencies_Y, frequencies_Y_sr, Y_fft = array2fft(Y, rate_y, tin, tfin, log = True)
-                frequencies_SYN, frequencies_SYN_sr, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
+                frequencies_BOS, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
+                frequencies_Y, Y_fft = array2fft(Y, rate_y, tin, tfin, log = True)
+                frequencies_SYN, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
                 
                 # Calculo FFT de la sílaba de ineteres escala LINEAL
-                frequencies_BOS, frequencies_BOS_sr, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
-                frequencies_Y, frequencies_Y_sr, Y_fft_lin = array2fft(Y, rate_y, tin, tfin, log = False)
-                frequencies_SYN, frequencies_SYN_sr, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
+                frequencies_BOS, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
+                frequencies_Y, Y_fft_lin = array2fft(Y, rate_y, tin, tfin, log = False)
+                frequencies_SYN, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
                 
                 # Extraigo pequeña parte del sonido de la sílaba de interes
                 BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
                 SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
                                 
                 
-                # # -----------------------------------
-                # # Calculo indices de bondad de ajuste
-                # # -----------------------------------
+                # -----------------------------------
+                # Calculo indices de bondad de ajuste
+                # -----------------------------------
 
-                # chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
+                chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
                 
-                # chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
+                chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
                 
-                # chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
+                chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
                 
                 
                 # ----------
@@ -530,10 +532,10 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 fig, axs = plt.subplots(3, 1, figsize=(110, 100))    
 
                 
-#                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
+                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
                 
-                axs[0].plot(frequencies_BOS, abs(BOS_fft))
-                axs[0].plot(frequencies_SYN, abs(SYN_fft), 'tab:green')
+                axs[0].plot(frequencies_BOS, BOS_fft)
+                axs[0].plot(frequencies_SYN, SYN_fft, 'tab:green')
                 #axs[0].set_title('BOS & SYN')
                 axs[0].legend(['BOS FFT','SYN FFT'])
                 
@@ -557,103 +559,103 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 #axs[2].set_yscale('log')
         
                 axs[0].set_xlim([0,sampling_freq/2])
-                axs[0].set_ylim([0,9])
+                axs[0].set_ylim([0,30])
                 axs[0].set_xlabel('Frecuencias (Hz)')
                 
                 axs[1].set_xlim([0,sampling_freq/2])
-                axs[1].set_ylim([0,9])
+                axs[1].set_ylim([0,30])
                 axs[1].set_xlabel('Frecuencias (Hz)')
                 
                 axs[2].set_xlabel('ms')
                 
                 plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                 #plt.show()
-#                plt.close()
+                # plt.close()
                 
                 # plt.plot(BOS_chop)
                 # plt.plot(SYN_chop)
                 # print(xxx)
                 
-#                 chi2_log_resultados.append(chi2_log)
-#                 pearsonR_log_resultados.append(pearsonR_log)
-#                 spermanR_log_resultados.append(spermanR_log)
-#                 kendalT_log_resultados.append(kendalT_log)
-#                 infoM_log_resultados.append(infoM_log)
-#                 R2_log_resultados.append(R2_log)
+                chi2_log_resultados.append(chi2_log)
+                pearsonR_log_resultados.append(pearsonR_log)
+                spermanR_log_resultados.append(spermanR_log)
+                kendalT_log_resultados.append(kendalT_log)
+                infoM_log_resultados.append(infoM_log)
+                R2_log_resultados.append(R2_log)
                 
-#                 chi2_lin_resultados.append(chi2_lin)
-#                 pearsonR_lin_resultados.append(pearsonR_lin)
-#                 spermanR_lin_resultados.append(spermanR_lin)
-#                 kendalT_lin_resultados.append(kendalT_lin)
-#                 infoM_lin_resultados.append(infoM_lin)
-#                 R2_lin_resultados.append(R2_lin)
+                chi2_lin_resultados.append(chi2_lin)
+                pearsonR_lin_resultados.append(pearsonR_lin)
+                spermanR_lin_resultados.append(spermanR_lin)
+                kendalT_lin_resultados.append(kendalT_lin)
+                infoM_lin_resultados.append(infoM_lin)
+                R2_lin_resultados.append(R2_lin)
                 
-#                 chi2_s_resultados.append(chi2_s)
-#                 pearsonR_s_resultados.append(pearsonR_s)
-#                 spermanR_s_resultados.append(spermanR_s)
-#                 kendalT_s_resultados.append(kendalT_s)
-#                 infoM_s_resultados.append(infoM_s)
-#                 R2_s_resultados.append(R2_s)          
+                chi2_s_resultados.append(chi2_s)
+                pearsonR_s_resultados.append(pearsonR_s)
+                spermanR_s_resultados.append(spermanR_s)
+                kendalT_s_resultados.append(kendalT_s)
+                infoM_s_resultados.append(infoM_s)
+                R2_s_resultados.append(R2_s)          
                 
-#                 c_resultados.append(c)
-#                 r_resultados.append(r)
-#                 gamma_resultados.append(gamma)
+                c_resultados.append(c)
+                r_resultados.append(r)
+                gamma_resultados.append(gamma)
 
-# resultados = {'G': gamma_resultados, 
-#               'C': c_resultados, 
-#               'R': r_resultados,              
-#               'Chi2_log': chi2_log_resultados,
-#               'Pearson_log': pearsonR_log_resultados,
-#               'Spearman_log': spermanR_log_resultados,
-#               'Kendal_log': kendalT_log_resultados,
-#               'Info_Mutua_log': infoM_log_resultados,
-#               'R2_log': R2_log_resultados,
-#               'Chi2_lin': chi2_lin_resultados,
-#               'Pearson_lin': pearsonR_lin_resultados,
-#               'Spearman_lin': spermanR_lin_resultados,
-#               'Kendal_lin': kendalT_lin_resultados,
-#               'Info_Mutua_lin': infoM_lin_resultados,
-#               'R2_lin': R2_lin_resultados,              
-#               'Chi2_s': chi2_s_resultados,
-#               'Pearson_s': pearsonR_s_resultados,
-#               'Spearman_s': spermanR_s_resultados,
-#               'Kendal_s': kendalT_s_resultados,
-#               'Info_Mutua_s': infoM_s_resultados,
-#               'R2_s': R2_s_resultados}
+resultados = {'G': gamma_resultados, 
+              'C': c_resultados, 
+              'R': r_resultados,              
+              'Chi2_log': chi2_log_resultados,
+              'Pearson_log': pearsonR_log_resultados,
+              'Spearman_log': spermanR_log_resultados,
+              'Kendal_log': kendalT_log_resultados,
+              'Info_Mutua_log': infoM_log_resultados,
+              'R2_log': R2_log_resultados,
+              'Chi2_lin': chi2_lin_resultados,
+              'Pearson_lin': pearsonR_lin_resultados,
+              'Spearman_lin': spermanR_lin_resultados,
+              'Kendal_lin': kendalT_lin_resultados,
+              'Info_Mutua_lin': infoM_lin_resultados,
+              'R2_lin': R2_lin_resultados,              
+              'Chi2_s': chi2_s_resultados,
+              'Pearson_s': pearsonR_s_resultados,
+              'Spearman_s': spermanR_s_resultados,
+              'Kendal_s': kendalT_s_resultados,
+              'Info_Mutua_s': infoM_s_resultados,
+              'R2_s': R2_s_resultados}
 
-# # Genero tabla con todos los resultados
-# resultados = pd.DataFrame(resultados)
+# Genero tabla con todos los resultados
+resultados = pd.DataFrame(resultados)
 
 
-# # ------------------------
-# # Busco mejores ajuste FFT 
-# # ------------------------
+# ------------------------
+# Busco mejores ajuste FFT 
+# ------------------------
 
-# # Genero tabla resumen
-# resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
-# resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)])
-# resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)])       
-# resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)])  
-# resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)])
-# resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)])  
+# Genero tabla resumen
+resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
+resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)])
+resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)])       
+resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)])
+resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)])  
 
-# resumen = resumen.append(resultados[resultados.Chi2_lin == min(resultados.Chi2_lin)])
-# resumen = resumen.append(resultados[resultados.Pearson_lin == max(resultados.Pearson_lin)])
-# resumen = resumen.append(resultados[resultados.Spearman_lin == max(resultados.Spearman_lin)])       
-# resumen = resumen.append(resultados[resultados.Kendal_lin == max(resultados.Kendal_lin)])  
-# resumen = resumen.append(resultados[resultados.Info_Mutua_lin == max(resultados.Info_Mutua_lin)])
-# resumen = resumen.append(resultados[resultados.R2_lin == max(resultados.R2_lin)])  
+resumen = resumen.append(resultados[resultados.Chi2_lin == min(resultados.Chi2_lin)])
+resumen = resumen.append(resultados[resultados.Pearson_lin == max(resultados.Pearson_lin)])
+resumen = resumen.append(resultados[resultados.Spearman_lin == max(resultados.Spearman_lin)])       
+resumen = resumen.append(resultados[resultados.Kendal_lin == max(resultados.Kendal_lin)])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_lin == max(resultados.Info_Mutua_lin)])
+resumen = resumen.append(resultados[resultados.R2_lin == max(resultados.R2_lin)])  
 
-# resumen = resumen.append(resultados[resultados.Chi2_s == min(resultados.Chi2_s)])
-# resumen = resumen.append(resultados[resultados.Pearson_s == max(resultados.Pearson_s)])
-# resumen = resumen.append(resultados[resultados.Spearman_s == max(resultados.Spearman_s)])       
-# resumen = resumen.append(resultados[resultados.Kendal_s == max(resultados.Kendal_s)])  
-# resumen = resumen.append(resultados[resultados.Info_Mutua_s == max(resultados.Info_Mutua_s)])
-# resumen = resumen.append(resultados[resultados.R2_s == max(resultados.R2_s)])  
+resumen = resumen.append(resultados[resultados.Chi2_s == min(resultados.Chi2_s)])
+resumen = resumen.append(resultados[resultados.Pearson_s == max(resultados.Pearson_s)])
+resumen = resumen.append(resultados[resultados.Spearman_s == max(resultados.Spearman_s)])       
+resumen = resumen.append(resultados[resultados.Kendal_s == max(resultados.Kendal_s)])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_s == max(resultados.Info_Mutua_s)])
+resumen = resumen.append(resultados[resultados.R2_s == max(resultados.R2_s)])  
 
-# # GUARDO todo en tabla resumen
-# resumen.to_csv('resumen.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
-# resultados.to_csv('resultados.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
+# GUARDO todo en tabla resumen
+resumen.to_csv('resumen.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
+resultados.to_csv('resultados.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
 
 
 
