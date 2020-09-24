@@ -483,9 +483,9 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             rate_y , Y = sampling_freq, y_scaled
             rate_syn, SYN = sampling_freq, scaled
             
-            # # Filtro BOS y SYN
-            # BOS = denoisear(BOS, rate_bos)
-            # SYN = denoisear(SYN, rate_syn)
+            # Filtro BOS y SYN
+            BOS = denoisear(BOS, rate_bos)
+            SYN = denoisear(SYN, rate_syn)
         
 
             for silaba in silabas.items():
