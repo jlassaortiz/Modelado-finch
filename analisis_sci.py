@@ -153,19 +153,17 @@ def array2fft(npArray, samplingRate, ti, tf, log = False):
     section = npArray[int(ti*samplingRate):int(tf*samplingRate)]
     n = len(section)
     
-    # Calculo fft
-    # section_fft = np.fft.fft(section) /len(section)
+    # Calculo el Power Frequencies (ver documentacion de np.fft)
     section_fft = abs(np.fft.fft(section))**2
 
- 
-    # No se bien porque pero necesito sacar las frecuencias de la mitad superior
+    # Saco frecuencias negativas (mitad superior del array. Ver documentacion np.fft)
     section_fft = section_fft[range(int(n/2))]
 
     # Paso a escala log
     if log:
         section_fft = np.log(section_fft)  
     
-    # Genero vector con Frecuencias
+    # Genero vector de Frecuencias (conservo solo las positivas)
     frequencies = np.fft.fftfreq(n , d = 1/samplingRate)
     frequencies = frequencies[range(int(n/2))] 
     
@@ -185,14 +183,23 @@ def denoisear(npArray, samplingRate):
 # Calculo de Chi2 de dos señales tipo npArray 1D
 def buen_ajuste(obs, pred): # obs = BOS,   pred = SYN
     
-    chi = sum( ((obs - pred)**2)/ abs(pred) )
-    
+    # Traslado la señal para que no contengan ceros y chi2 esté bien definido
+    minimo = abs(min(pred)) + 1 
+    obs_aux = obs + minimo
+    pred_aux = pred + minimo
+
+    # Calculo Chi2    
+    chi = sum( ((obs_aux - pred_aux)**2)/ pred_aux )
+
+    # Calculo varios parámetros de correlación
     pearson_r, p_value = pearsonr(obs, pred)
     sperman_r, p_value = spearmanr(obs, pred)
     kendal_t, p_value = kendalltau(obs, pred)
     
+    # Calculo la información mutua
     info_m = mutual_info_regression(obs.reshape(-1,1), pred)[0]
     
+    # Calculo el coeficiente de determinación
     R2 = r2_score(obs, pred)
     
     return chi, pearson_r, sperman_r, kendal_t, info_m, R2
@@ -254,12 +261,12 @@ silabas = {'C':[0.969586, 1.000902]}
 
 # Parametros tracto vocal
 
-# f_rango = np.arange(1500, 6001, 500)
-# uoch_list = [f*f*40 for f in f_rango]
-# rdis_list = np.arange(3000, 25000, 5000)
+f_rango = np.arange(1500, 6001, 500)
+uoch_list = [f*f*40 for f in f_rango]
+rdis_list = np.arange(3000, 25000, 5000)
 
-uoch_list = [360000000]
-rdis_list = [3000]
+# uoch_list = [360000000]
+# rdis_list = [3000]
 
 uolg =  1./1. # 1./1.
 
@@ -570,7 +577,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 
                 plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                 #plt.show()
-                # plt.close()
+                plt.close()
                 
                 # plt.plot(BOS_chop)
                 # plt.plot(SYN_chop)
