@@ -173,9 +173,9 @@ def array2fft(npArray, samplingRate, ti, tf, log = False):
 # Filtra npArray y conserva ancho de banda 300Hz - 12000 Hz
 def denoisear(npArray, samplingRate):
     
-    sos1 = butter(4, 300, 'high', fs = samplingRate, output ='sos')
+    sos = butter(4, 300, 'high', fs = samplingRate, output ='sos')
     
-    arrayFiltered = sosfiltfilt(sos1, npArray)
+    arrayFiltered = sosfiltfilt(sos, npArray)
     
     return arrayFiltered
 
@@ -183,7 +183,7 @@ def denoisear(npArray, samplingRate):
 # Calculo de Chi2 de dos señales tipo npArray 1D
 def buen_ajuste(obs, pred): # obs = BOS,   pred = SYN
     
-    # Traslado la señal para que no contengan ceros y chi2 esté bien definido
+    # Traslado la señal para que no contengan ceros y chi2 esté bien definido siempre
     minimo = abs(min(pred)) + 1 
     obs_aux = obs + minimo
     pred_aux = pred + minimo
@@ -213,11 +213,11 @@ def silaba_chopper(sound, ti, tf, fs):
     
     # Conservo solo parte de la silaba de los alrededores de la máxima amplitud
     # la ventana que uso es tal que si la ff es de 300Hz, agarro 6 oscilaciones
-    ventana = int((3/300)*fs)
+    ventana = int((3/300)*fs) # Ventana de 10 ms
+    # ventana = int(0.005 * fs) # Ventana de 5 ms
     index_max = np.argmax(silaba)
     
     silaba = silaba[index_max - ventana : index_max + ventana]
-    #silaba = silaba / max(abs(silaba))
     
     return silaba
 
@@ -352,7 +352,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
     for i in range(np.int(tiempo_total/(dt))):
         # if se cumple siempre que aplique senito(), recta() o exp()
         # es decir: si el sistema esta fonando
-        if(alpha[i]<0):
+        if (alpha[i]<0):
             # beta es el polinomio p valuado en frecuencias[i]
             beta[i] = p(frequencias[i])
      
@@ -483,9 +483,12 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             rate_y , Y = sampling_freq, y_scaled
             rate_syn, SYN = sampling_freq, scaled
             
-            # Filtro BOS y SYN
-            BOS = denoisear(BOS, rate_bos)
-            SYN = denoisear(SYN, rate_syn)
+            BOS = np.array(BOS, dtype= 'float64')
+            SYN = np.array(SYN, dtype= 'float64')
+            
+            # # Filtro BOS y SYN
+            # BOS = denoisear(BOS, rate_bos)
+            # SYN = denoisear(SYN, rate_syn)
         
 
             for silaba in silabas.items():
