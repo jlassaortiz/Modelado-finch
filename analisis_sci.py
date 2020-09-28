@@ -213,8 +213,8 @@ def silaba_chopper(sound, ti, tf, fs):
     
     # Conservo solo parte de la silaba de los alrededores de la máxima amplitud
     # la ventana que uso es tal que si la ff es de 300Hz, agarro 6 oscilaciones
-    ventana = int((3/300)*fs) # Ventana de 10 ms
-    # ventana = int(0.005 * fs) # Ventana de 5 ms
+    # ventana = int((3/300)*fs) # Ventana de 10 ms
+    ventana = int(0.005 * fs) # Ventana de 5 ms
     index_max = np.argmax(silaba)
     
     silaba = silaba[index_max - ventana : index_max + ventana]
@@ -333,6 +333,8 @@ R2_s_resultados = []
 c_resultados = []
 r_resultados = []
 gamma_resultados = []
+
+Id = 0
 
 # Para cada gamma calculo betas a partir de las trazas de frecuencias
 for mapa_fn in tqdm(lista_mapas_b_w):
@@ -503,7 +505,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 
                 
                 ##### GUARDO AUDIO SYN #####
-                write(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
+                write(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
                 
 
                 
@@ -542,7 +544,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 fig, axs = plt.subplots(3, 1, figsize=(110, 100))    
 
                 
-                fig.suptitle(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
+                fig.suptitle(f'{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
                 
                 axs[0].plot(frequencies_BOS, BOS_fft)
                 axs[0].plot(frequencies_SYN, SYN_fft, 'tab:green')
@@ -578,7 +580,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 
                 axs[2].set_xlabel('ms')
                 
-                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
+                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                 #plt.show()
                 plt.close()
                 
@@ -610,6 +612,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 c_resultados.append(c)
                 r_resultados.append(r)
                 gamma_resultados.append(gamma)
+                
+                Id = Id + 1
 
 resultados = {'G': gamma_resultados, 
               'C': c_resultados, 
