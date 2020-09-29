@@ -448,11 +448,11 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
             # Este paso es necesario para que el archivo wav se guarde correctamente
             # Ver la documentacion de: scipy.io.wavfile.write
-            scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767 * (0.4434/0.944)) # * (0.4434/0.944) Agrego factor de tamaño de la silaba.
+            scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767 * (0.4434)) # * (0.4434) Agrego factor de tamaño de la silaba.
             # write(f'{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
                     
             # Guardo salida de fuente.
-            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767 * (0.4434/0.944)) # * (0.4434/0.944) Agrego factor de tamaño de la silaba.
+            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767 * (0.4434)) # * (0.4434) Agrego factor de tamaño de la silaba.
             #write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
             
             # -------
