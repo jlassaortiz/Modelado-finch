@@ -18,9 +18,9 @@ Estructura del codigo:
 """
 
 import numpy as np     	
-#from scipy.io.wavfile import write, read
+from scipy.io.wavfile import write, read
 import random
-#from scipy import signal
+from scipy import signal
 import matplotlib.pyplot as plt
 
 global alp
@@ -100,10 +100,11 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
         alpha[i+k]= -0.150 # alpha suficiente para fonar
-        #alpha[i+k]=-0.125
         
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
+        # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
+        # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) + factor/10
+
     
     return frequencias,amplitudes
 
@@ -117,8 +118,10 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125
         
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
+        # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))
+        
     
     return frequencias,amplitudes
 
@@ -132,8 +135,10 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125 
         
-        #amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+        # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
+        # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
+        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))
+    
     
     return frequencias,amplitudes
 
@@ -146,25 +151,29 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-# ave_fname = 'AB010-bi.py'
-# tiempo_total = 2.07 # segundos
+ave_fname = 'AB010-bi.py'
+tiempo_total = 2.07 # segundos
 
-ave_fname = 'bu49.py'
-tiempo_total = 1.048 # segundos
+# ave_fname = 'bu49.py'
+# tiempo_total = 1.048 # segundos
 
 
-version = 'ruido'
+version = 'intento_11'
 
 
 
 # Parametros especificos del modelo
 # ---------------------------------
 
-gamma = 12300 #12500 camilo: 13781 (media)
+gamma = 16000
 
 # Parametros tracto vocal
-uoch = 40*2700*2700 # 40*2700*2700
-rdis = 5000/1.0 # 5000/1.0
+# uoch = 40*2700*2700 # 40*2700*2700
+# rdis = 5000/1.0 # 5000/1.0
+
+# Parametros iteracion 115 del intento 11
+uoch = 40*3000*3000 # 360.000.000
+rdis = 3000/1.0 #
 
 uolg =  1./1. # 1./1.
 
@@ -212,7 +221,7 @@ with open(ave_fname) as f:
 # ----------------------------------------------
 
 # Abro el archivo b_w (re)
-bes,was = np.loadtxt('b_w_12300.txt',unpack=True)
+bes,was = np.loadtxt('b_w_16000_javi_1.txt',unpack=True)
 print('bes:', bes[0])
 print('was:',was[0])
 
@@ -229,7 +238,7 @@ for i in range(np.int(tiempo_total/(dt))):
     # es decir: si el sistema esta fonando
     if(alpha[i]<0):
         # beta es el polinomio p valuado en frecuencias[i]
-        beta[i] = p(frequencias[i])
+        beta[i] = p(frequencias[i] + random.normalvariate(0.0 , 10.0)) # error en freq media 0 desvío 10Hz
  
     
 
@@ -265,7 +274,7 @@ for i in range(np.int(tiempo_total/(dt))):
     alp=alpha[i]
     
     #b=beta[i]*(1+random.normalvariate(0.,.3))
-    b=beta[i]*(1+random.normalvariate(0.,.2)) 
+    b=beta[i]
     
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
@@ -285,7 +294,8 @@ for i in range(np.int(tiempo_total/(dt))):
 
 
     # Guardo resultado de integracion v[3] en sonido
-    sonido.append(v[3]*amplitudes[i])
+    sonido.append(v[3] * (amplitudes[i]  + random.normalvariate(0.0 , 0.01))) # error amplitud tiene media 0 y desvío 0.01
+
     
     
     # Guarda variables de interes de la integracion
