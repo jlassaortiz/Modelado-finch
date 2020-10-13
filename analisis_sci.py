@@ -213,8 +213,8 @@ def silaba_chopper(sound, ti, tf, fs):
     
     # Conservo solo parte de la silaba de los alrededores de la máxima amplitud
     # la ventana que uso es tal que si la ff es de 300Hz, agarro 6 oscilaciones
-    # ventana = int((3/300)*fs) # Ventana de 10 ms
-    ventana = int(0.005 * fs) # Ventana de 5 ms
+    ventana = int( 0.010 * fs) # Ventana de 10 ms
+    #ventana = int(0.005 * fs) # Ventana de 5 ms
     index_max = np.argmax(silaba)
     
     silaba = silaba[index_max - ventana : index_max + ventana]
@@ -242,7 +242,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'test.py'
 # tiempo_total = 1.2 # segundos 
 
-version = 'betaSinRuido_TEST_ajuste_GCR'
+version = 'ajuste_GCR_ruido'
 
 # T inicial y final en segundos de silabas que voy analisar y plotear
 
@@ -356,7 +356,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
         # es decir: si el sistema esta fonando
         if (alpha[i]<0):
             # beta es el polinomio p valuado en frecuencias[i]
-            beta[i] = p(frequencias[i])
+            beta[i] = p(frequencias[i] + random.normalvariate(0.0 , 10.0)) # error en freq media 0 desvío 10Hz
      
         
     
@@ -405,7 +405,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 
                 #b=beta[i]*(1+random.normalvariate(0.,.3))
                 #b=beta[i]*(1+random.normalvariate(0.,.2))
-                b=beta[i]
+                b = beta[i]
                 
                 destimulodt = (fil1[N-1]-fil1[N-2])/dt
                 
@@ -425,7 +425,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
             
                 # Guardo resultado de integracion v[3] en sonido
-                sonido.append(v[3]*amplitudes[i])
+                sonido.append(v[3] * (amplitudes[i]  + random.normalvariate(0.0 , 0.01))) # error amplitud tiene media 0 y desvío 0.01
                 
                 
                 # Guarda variables intermedias de interes
