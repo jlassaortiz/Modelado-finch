@@ -13,59 +13,221 @@ nombre_BOS = '/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-
 
 # Para cada silaba defino: alpha, frecuencias fundamentales y amplitud
     
-# expo(ti,tf,wi,wf,factor,frequencias,amplitudes)
-# rectas(ti,tf,wi,wf,factor,frequencias,amplitudes)
-# senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes)
+# expo(ti,tf,
+# wi,wf,
+# factor,frequencias,amplitudes)
+
+# rectas(ti,tf,
+# wi,wf,factor,
+# frequencias,amplitudes)
+
+# senito(ti,tf,
+# media,amplitud,
+# alphai,alphaf,
+# factor,frequencias, amplitudes)
 
 # Notas intro
-expo(0.021233,0.070797,869.3,475.2,0.2239/0.944,frequencias, amplitudes)
-expo(0.163317,0.205335,825.5,453,0.2714/0.944,frequencias, amplitudes)
-expo(0.271632,0.313879,847.4,475.1,0.3216/0.944,frequencias, amplitudes)
-expo(0.383282,0.425770,891,475.1,0.3449/0.944,frequencias, amplitudes)
-rectas(0.467733,0.479150,812.64,812.64,0.08789/0.944,frequencias, amplitudes)
-expo(0.479152,0.527799,897,518.9,0.325/0.944,frequencias,amplitudes)
-rectas(0.592287,0.631223,573,431,0.3074/0.944,frequencias, amplitudes)
-rectas(0.699323,0.726651,847.4,497,0.2258/0.944,frequencias, amplitudes)
+
+# i1
+expo(0.021233, 0.070797,
+     869.3, 430.0,
+     0.2278,frequencias, amplitudes)
+
+#i2
+expo(0.163317, 0.205335,
+     825.5, 453.0,
+     0.2731, frequencias, amplitudes)
+
+# i3
+rectas(0.25319, 0.269447,
+       830.0, 830.0,
+       0.07104, frequencias, amplitudes)
+expo(0.269447, 0.313879,
+     830.0, 430.0,
+     0.3325, frequencias, amplitudes)
+
+# i4
+rectas(0.366935, 0.378824,
+       850.0, 850.0,
+       0.0874, frequencias, amplitudes)
+expo(0.383282, 0.424622,
+     850, 430.0,
+     0.346,frequencias, amplitudes)
+
+# i5
+rectas(0.467733, 0.483101,
+       843.0, 843.0,
+       0.08789,frequencias, amplitudes)
+expo(0.479152,0.526642,
+     843.0,450.0,
+     0.3283,frequencias,amplitudes)
+
+
+# A
+rectas(0.59097,0.606553,
+       550.0 ,550.0 ,
+       0.3109,frequencias, amplitudes)
+
+rectas(0.606553,0.629293,
+       550.0, 400.0,
+       0.2937,frequencias, amplitudes)
+
 
 # B
-rectas(0.794424,0.824770,1550,1550,0.8599/0.944,frequencias, amplitudes) 
-expo(0.824771,0.929312,900,518.9,0.7771/0.944,frequencias, amplitudes)
+senito(0.661079,0.692761,
+       2500.0,900.0,
+       3*np.pi/2, 19*np.pi/2,
+       0.5227/2,frequencias, amplitudes)
+
+rectas(0.692761,0.699490,
+       2000.0,2000.0,
+       0.4112,frequencias, amplitudes) 
+
+expo(0.699490,0.724839,
+     750.0,430.0,
+     0.2258,frequencias, amplitudes)
+
 
 # C
-rectas(0.956319,0.969585,475,850,0.3498/0.944,frequencias, amplitudes)
-rectas(0.969586,1.000902,850,850,0.4434/0.944,frequencias, amplitudes)
+rectas(0.781955,0.792721,
+       700.0, 1500.0,
+       0.08829,frequencias, amplitudes) 
+
+rectas(0.795595,0.803877,
+       1600.0,1600.0,
+       0.5502,frequencias, amplitudes)
+
+rectas(0.803877,0.822859,
+       1600.0,1600.0,
+       0.8584,frequencias, amplitudes)
+
+rectas(0.822859,0.825773,
+       1600.0,1150.0,
+       0.8642,frequencias, amplitudes)
+
+expo(0.825773, 0.929312,
+     1150.0, 450.0,
+     0.7624,frequencias, amplitudes)
+
 
 # D
-#rectas(1.035779,1.036574,475,570,0.389/0.944,frequencias, amplitudes)
-#rectas(1.036578,1.099138,579.72,559.72,0.9205/0.944,frequencias, amplitudes)
-#rectas(1.099139,1.107158,579.72,409.4,0.2376/0.944,frequencias, amplitudes)
-rectas(1.035681,1.108332,576,576,0.9205/0.944,frequencias, amplitudes)
+rectas(0.956319,0.969585,
+       475.0, 850.0,
+       0.4216,frequencias, amplitudes)
+
+rectas(0.969585,1.000902,
+       850.0, 850.0,
+       0.4389,frequencias, amplitudes)
+
+# E
+rectas(1.035681,1.108332,
+       576.0, 576.0,
+       0.9502,frequencias, amplitudes)
+
+# F
+rectas(1.134231,1.158998,
+       550.0,550.0,
+       0.4627,frequencias, amplitudes)
+
+rectas(1.158998, 1.175064,
+       550.0, 430.0,
+       0.3988,frequencias, amplitudes)
 
 
-rectas(1.134231,1.139772,935,1548,0.1221/0.944,frequencias, amplitudes)
-rectas(1.141474,1.160209,546.62,546.62,0.1221/0.944,frequencias, amplitudes)
-rectas(1.160210,1.173081,546.62,344,0.4057/0.944,frequencias, amplitudes)
+# G
+rectas(1.2136,1.220276,
+       800.0,1450.0,
+       0.2095,frequencias, amplitudes)
 
-senito(1.212321,1.223899,1132,1877,-np.pi/2,np.pi/2,0.2076/0.944,frequencias, amplitudes)
-senito(1.2240,1.251077,2534,963,-3*np.pi/2,15*np.pi/2,0.3622/0.944,frequencias, amplitudes)
-expo(1.259591,1.284083,1263,803,0.3622/0.944,frequencias, amplitudes)
+senito(1.220276, 1.249285,
+       2500.0, 900.0,
+       np.pi/2, 10*np.pi,
+       0.3627/2,frequencias, amplitudes)
 
-rectas(1.357033,1.364902,1571,1571,0.531/0.944,frequencias, amplitudes)
-rectas(1.366208,1.382211,1592,1592,0.8903/0.944,frequencias,amplitudes)
-rectas(1.386501,1.486461,1023,475,0.7487/0.944,frequencias,amplitudes)
-rectas(1.521486,1.529366,497,847,0.3285/0.944,frequencias,amplitudes)
-rectas(1.530969,1.564968,977,828,0.4556/0.944,frequencias,amplitudes)
+rectas(1.249285, 1.255925,
+       1800.0, 1600.0,
+       0.2162,frequencias, amplitudes)
 
-# A2
-#rectas(1.599836,1.606783,497,565,0.3814/0.944,frequencias,amplitudes)
-#rectas(1.606784,1.660270,558,558,0.7228/0.944,frequencias,amplitudes)
-#rectas(1.660270,1.670171,558,387.5,0.4041/0.944,frequencias,amplitudes)
-rectas(1.599836,1.670171,564,564.5,0.7228/0.944,frequencias,amplitudes)
+rectas(1.255925, 1.259131,
+       1600.0, 1500.0,
+       0.03391,frequencias, amplitudes)
 
-rectas(1.699486,1.726439,540.73,540.73,0.4691/0.944,frequencias,amplitudes)
-rectas(1.726440,1.737927,540.73,365.6,0.2306/0.944,frequencias,amplitudes)
-senito(1.775943,1.787108,1142,563,-np.pi,np.pi,0.1919/0.944,frequencias, amplitudes)
-senito(1.787778,1.817603,2414,927,-np.pi/2,15*np.pi/2,0.2852/0.944,frequencias, amplitudes)
-expo(1.824992,1.848924,737,387,0.1677/0.944,frequencias,amplitudes)
-rectas(1.931650,1.948097,1550,1550,0.944/0.944,frequencias,amplitudes)
-expo(1.948099,2.06,1023,431,0.7555/0.944,frequencias,amplitudes)
+expo(1.259591,1.284083,
+     700.0 ,450.0,
+     0.1756,frequencias, amplitudes)
+
+
+# H
+rectas(1.341623, 1.352737,
+       800.0, 1500.0,
+       0.07736,frequencias, amplitudes)
+
+rectas(1.355512, 1.363994,
+       1560.0, 1560.0,
+       0.5309,frequencias,amplitudes)
+
+rectas(1.363994, 1.382595,
+       1560.0, 1560.0,
+       1.0,frequencias,amplitudes)
+
+expo(1.382595, 1.489505,
+     1100.0, 450.0,
+     0.97, frequencias, amplitudes)
+
+
+# I
+rectas(1.520093, 1.533520,
+       500.0, 850.0,
+       0.3243,frequencias,amplitudes)
+
+rectas(1.530969,1.566696,
+       850,850,
+       0.4615,frequencias,amplitudes)
+
+
+# J
+rectas(1.599750, 1.670138,
+       565.0, 565.0,
+       0.7212,frequencias,amplitudes)
+
+
+# K
+rectas(1.698986,1.725609,
+       540.0,540.0,
+       0.4762,frequencias,amplitudes)
+
+expo(1.725609, 1.739792,
+       540.0,400.0,
+       0.3274,frequencias,amplitudes)
+
+
+# L
+rectas(1.778981,1.785611,
+       750.0,1450.0,
+       0.1903,frequencias, amplitudes)
+
+senito(1.785611, 1.815664,
+       2300,900,np.pi/2, 10*np.pi,
+       0.282/2,frequencias, amplitudes)
+
+rectas(1.815664, 1.821483,
+       2000.0, 1500.0,
+       0.1869,frequencias, amplitudes)
+
+rectas(1.821483, 1.824357,
+       1500.0, 1500.0,
+       0.03351,frequencias, amplitudes)
+
+expo(1.824357,1.850393,
+     700.0 ,450.0,
+     0.1653,frequencias, amplitudes)
+
+
+# M (versión mas sencilla de esta sílaba)
+rectas(1.931650,1.948097,
+       1550.0,1550.0,
+       0.944,frequencias,amplitudes)
+
+expo(1.948099,2.06,
+     1023.0,431.0,
+     0.7555,frequencias,amplitudes)

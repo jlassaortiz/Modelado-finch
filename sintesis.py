@@ -103,7 +103,7 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
         
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) + factor/10
+        amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
 
     
     return frequencias,amplitudes
@@ -120,7 +120,7 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
         
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))
+        amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
         
     
     return frequencias,amplitudes
@@ -131,13 +131,13 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
     j=np.int(tf/dt)
     for k in range((j-i)):
         t = ti+k*dt
-        frequencias[i+k]=media+amplitud*np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
+        frequencias[i+k]= media + amplitud * np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         #alpha[i+k]=-0.125 
         
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
-        amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))
+        amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
     
     
     return frequencias,amplitudes
@@ -158,7 +158,7 @@ tiempo_total = 2.07 # segundos
 # tiempo_total = 1.048 # segundos
 
 
-version = 'intento_11'
+version = 'intento_11_correcionEnvolv_ruido_06'
 
 
 
@@ -214,7 +214,8 @@ with open(ave_fname) as f:
     code = compile(f.read(), ave_fname, 'exec')
     exec(code)
 
-
+# Cargo el BOS
+rate_bos, BOS = read(nombre_BOS)
 
 # ----------------------------------------------
 # Calculamos Beta (a partir de las trazas de ff)
@@ -253,6 +254,7 @@ sonido = []
 # Variables intermedias  de la integracion que quizas quiera guardar
 x_out = []
 y_out = []
+v_3 = []
 #tiempo1 = []
 #amplitud1 = []
 forzado_out = []
@@ -294,7 +296,8 @@ for i in range(np.int(tiempo_total/(dt))):
 
 
     # Guardo resultado de integracion v[3] en sonido
-    sonido.append(v[3] * (amplitudes[i]  + random.normalvariate(0.0 , 0.01))) # error amplitud tiene media 0 y desvío 0.01
+
+    sonido.append(v[3] * (amplitudes[i]  + random.normalvariate(0.0 , 0.06))) # error amplitud tiene media 0 y desvío 0.01
 
     
     
@@ -302,6 +305,7 @@ for i in range(np.int(tiempo_total/(dt))):
     # no esta chequeado que ande
     x_out.append(v[0])  
     y_out.append(v[1])
+    v_3.append(v[3])
     #tiempo1.append(t)
     #amplitud1.append(amplitudes[i])
     forzado_out.append(estimulo)
@@ -322,9 +326,9 @@ sonido = np.asarray(sonido)
 scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
 write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
-# Guardo salida de fuente.
-y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
-write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
+# # Guardo salida de fuente.
+# y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
+# write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
 
 
 
@@ -356,20 +360,43 @@ plt.show()
 # Ploteo sonido y otras salidas
 # -----------------------------
 
-plt.figure()
-plt.plot(sonido/np.max(np.abs(sonido)) + 6, label= 'sonido')
-plt.plot(x_out/np.max(np.abs(x_out)) + 4 ,label = 'x')
-plt.plot(y_out/np.max(np.abs(y_out)) + 2, label = 'y')
-plt.plot(forzado_out/np.max(np.abs(forzado_out)) , label = 'forzado')
-plt.legend()
+# plt.figure()
+# # plt.plot(x_out/np.max(np.abs(x_out)) + 6 ,label = 'x')
+# plt.plot(y_out/np.max(np.abs(y_out)) + 6, label = 'y')
+# plt.plot(v_3 / np.max(np.abs(v_3)) + 4, label = 'v[3] norm')
+# # plt.plot(sonido + 2, label= 'sonido')
+# plt.plot(sonido/np.max(np.abs(sonido)) + 2, label= 'sonido norm')
+# # plt.plot(scaled, label = 'scaled')
+# plt.plot(scaled/np.max(np.abs(scaled)), label = 'scaled norm')
+# plt.plot(amplitudes + 2, label = 'amplitudes')
+# plt.legend()
+# plt.show()
+
+
+fig, axs = plt.subplots(6, sharex=True)
+axs[0].plot(y_out, 'tab:gray')
+axs[0].legend(['y_out'])
+
+axs[1].plot(v_3, 'tab:gray')
+axs[1].plot(amplitudes * np.max(np.abs(v_3)), 'tab:brown')
+axs[1].legend(['v[3]', 'amplitudes norm'])
+
+axs[2].plot(amplitudes, 'tab:brown')
+axs[2].legend(['amplitudes'])
+
+axs[3].plot(sonido, 'tab:orange')
+axs[3].plot(amplitudes * np.max(np.abs(sonido)), 'tab:brown')
+axs[3].legend(['sonido SYN', 'amplitudes norm'])
+
+axs[4].plot(scaled, 'tab:red')
+axs[4].plot(amplitudes * np.max(np.abs(scaled)), 'tab:brown')
+axs[4].legend(['scaled', 'amplitudes norm'])
+
+axs[5].plot(BOS)
+axs[5].plot(amplitudes * np.max(np.abs(BOS)), 'tab:brown')
+axs[5].legend(['BOS', 'amplitudes norm'])
+
 plt.show()
-
-
-
-
-
-
-
 
 
 
