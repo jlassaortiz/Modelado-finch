@@ -20,7 +20,8 @@ Estructura del codigo:
 import numpy as np     	
 from scipy.io.wavfile import write, read
 import random
-from scipy import signal
+from scipy.signal import hilbert, savgol_filter, savgol_coeffs , convolve
+from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 global alp
@@ -28,6 +29,8 @@ global b
 global feedback1 
 global estimulo1
 global destimulodt1
+global hilb
+global tau
 
     
 # -----------------------
@@ -44,7 +47,16 @@ def ecuaciones(v, dv):
     dv[2]= i2
     dv[3]= - uolg*uoch*i1 - (rdis*uolg)*i2 + uolg*destimulodt
     dv[4]=0.
+    
     return dv
+
+
+def takens(v, dv):
+    x = v[0]
+    dv[0] = -(1/tau) * x + np.abs(hilb)
+    
+    return dv
+
 
 # Integrador RK4
 def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
@@ -86,6 +98,7 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
         
     for x in range(0, n):
         v[x]=v[x]+dt6*(2.0*(k2[x]+k3[x])+k1[x]+k4[x])
+    
     return v
 
 
@@ -104,8 +117,7 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes):
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.4)) +factor/10 * (1+random.normalvariate(0.,.02))
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i)) * (1+random.normalvariate(0.,.2)) +factor/10 * (1+random.normalvariate(0.,.01))
         amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
-
-    
+  
     return frequencias,amplitudes
 
 
@@ -121,8 +133,7 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes):
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.4))
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
         amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
-        
-    
+          
     return frequencias,amplitudes
 
 
@@ -138,7 +149,6 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.2))
         # amplitudes[i+k]=factor*np.sin(np.pi*k/(j-i))*(1+random.normalvariate(0.,.1))
         amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
-    
     
     return frequencias,amplitudes
 
@@ -202,9 +212,9 @@ for i in range(np.int(tiempo_total/(dt))):
 
 
 
-# ----------------------------------------------
-# Calculamos trazas de frecuencias fundamentales
-# ----------------------------------------------
+# ------------------------------------------------------------
+# Calculamos trazas de frecuencias fundamentales y envolventes
+# ------------------------------------------------------------
 
 # Inicializo las frecuencias fundamentales y amplitudes
 frequencias = np.zeros(np.int(tiempo_total/(dt)))
@@ -216,6 +226,29 @@ with open(ave_fname) as f:
 
 # Cargo el BOS
 rate_bos, BOS = read(nombre_BOS)
+
+# Calculo rransformada de Hilbert
+envolvente_h = hilbert(BOS)
+envolvente_h_abs = np.abs(envolvente_h)
+
+# Integro para suavizar
+envolvente_int = []
+
+e = [0.0]    
+
+for i in range(np.int(tiempo_total/(dt))):
+    
+    hilb = envolvente_h[i]
+    tau = 0.001
+    
+    # Integracion
+    t = i*dt
+    rk4(takens,e,1,t,dt) # modifica e
+    
+    envolvente_int.append(e[0])
+
+# Aplico filtro Savitzky-Golay
+envolvente_sav = savgol_filter(envolvente_int, 513, 4)
 
 # ----------------------------------------------
 # Calculamos Beta (a partir de las trazas de ff)
@@ -321,10 +354,10 @@ sonido = np.asarray(sonido)
 # Guardo canto sintetico
 # ----------------------
 
-# Este paso es necesario para que el archivo wav se guarde correctamente
-# Ver la documentacion de: scipy.io.wavfile.write
+# # Este paso es necesario para que el archivo wav se guarde correctamente
+# # Ver la documentacion de: scipy.io.wavfile.write
 scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
+# write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
 # # Guardo salida de fuente.
 # y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
@@ -373,28 +406,42 @@ plt.show()
 # plt.show()
 
 
-fig, axs = plt.subplots(6, sharex=True)
-axs[0].plot(y_out, 'tab:gray')
-axs[0].legend(['y_out'])
+fig, axs = plt.subplots(8, sharex=True)
 
-axs[1].plot(v_3, 'tab:gray')
-axs[1].plot(amplitudes * np.max(np.abs(v_3)), 'tab:brown')
-axs[1].legend(['v[3]', 'amplitudes norm'])
+i= 0
+axs[i].plot(y_out, 'tab:gray')
+axs[i].legend(['y_out'])
 
-axs[2].plot(amplitudes, 'tab:brown')
-axs[2].legend(['amplitudes'])
+i = i+1
+axs[i].plot(v_3, 'tab:gray')
+axs[i].legend(['v[3]'])
 
-axs[3].plot(sonido, 'tab:orange')
-axs[3].plot(amplitudes * np.max(np.abs(sonido)), 'tab:brown')
-axs[3].legend(['sonido SYN', 'amplitudes norm'])
+i = i+1
+axs[i].plot(amplitudes, 'tab:brown')
+axs[i].legend(['amplitudes'])
 
-axs[4].plot(scaled, 'tab:red')
-axs[4].plot(amplitudes * np.max(np.abs(scaled)), 'tab:brown')
-axs[4].legend(['scaled', 'amplitudes norm'])
+i = i+1
+axs[i].plot(sonido, 'tab:orange')
+axs[i].legend(['sonido SYN'])
 
-axs[5].plot(BOS)
-axs[5].plot(amplitudes * np.max(np.abs(BOS)), 'tab:brown')
-axs[5].legend(['BOS', 'amplitudes norm'])
+i = i+1
+axs[i].plot(envolvente_h_abs, 'tab:red')
+axs[i].legend(['hilbert_abs'])
+
+i = i+1
+axs[i].plot(envolvente_int, 'tab:red')
+axs[i].legend(['envolvente_int'])
+
+i = i+1
+axs[i].plot(envolvente_sav, 'tab:red')
+axs[i].legend(['envolvente_sav'])
+
+i = i+1
+axs[i].plot(BOS/max(BOS))
+axs[i].plot(envolvente_sav/max(envolvente_sav), 'tab:red')
+axs[i].legend(['BOS_norm', 'envolvente_sav_norm'], loc = 'lower left')
+
+
 
 plt.show()
 
