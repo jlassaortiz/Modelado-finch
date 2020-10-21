@@ -154,6 +154,88 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes):
 
 
 
+
+
+
+def find_envolvente(sonido):
+    # Calculo rransformada de Hilbert
+    envolvente_h = hilbert(sonido)
+    
+    # Integro para suavizar
+    envolvente_int = []
+    
+    e = [0.0]    
+    
+    for i in range(np.int(tiempo_total/(dt))):
+        
+        hilb = envolvente_h[i]
+        tau = 0.001
+        
+        # Integracion RK4
+        t = i*dt
+        n = 1 # dimensión del sistema
+        
+        v1=[]
+        
+        # Inicializo cuatro dv (aunque se llaman kx son dv)
+        k1=[]
+        k2=[]
+        k3=[]
+        k4=[]
+        for x in range(0, n):
+            v1.append(x)
+            k1.append(x)
+            k2.append(x)
+            k3.append(x)
+            k4.append(x)
+            
+        dt2=dt/2.0
+        dt6=dt/6.0
+        
+        for x in range(0, n):
+            v1[x]=e[x]
+            
+        xi = v1[x]
+        k1[x] = -(1/tau) * xi + np.abs(hilb)       
+                         
+        for x in range(0, n):
+            v1[x]=e[x]+dt2*k1[x]
+            
+        xi = v1[x]
+        k2[x] = -(1/tau) * xi + np.abs(hilb)       
+        
+        for x in range(0, n):
+            v1[x]=e[x]+dt2*k2[x]
+
+        xi = v1[x]
+        k3[x] = -(1/tau) * xi + np.abs(hilb)       
+        
+        for x in range(0, n):
+            v1[x]=e[x]+dt*k3[x]
+
+        xi = v1[x]
+        k4[x] = -(1/tau) * xi + np.abs(hilb)       
+        
+        for x in range(0, n):
+            v1[x]=e[x]+dt*k4[x] #parece al pedo este paso
+            
+        for x in range(0, n):
+            e[x]=e[x]+dt6*(2.0*(k2[x]+k3[x])+k1[x]+k4[x])
+                
+        envolvente_int.append(e[0])
+    
+    # Aplico filtro Savitzky-Golay
+    envolvente = savgol_filter(envolvente_int, 513, 4)
+    
+    return envolvente
+
+
+
+
+
+
+
+
 # ----------------------
 # Deficion de parametros
 # ----------------------
@@ -224,31 +306,7 @@ with open(ave_fname) as f:
     code = compile(f.read(), ave_fname, 'exec')
     exec(code)
 
-# Cargo el BOS
-rate_bos, BOS = read(nombre_BOS)
-
-# Calculo rransformada de Hilbert
-envolvente_h = hilbert(BOS)
-envolvente_h_abs = np.abs(envolvente_h)
-
-# Integro para suavizar
-envolvente_int = []
-
-e = [0.0]    
-
-for i in range(np.int(tiempo_total/(dt))):
-    
-    hilb = envolvente_h[i]
-    tau = 0.001
-    
-    # Integracion
-    t = i*dt
-    rk4(takens,e,1,t,dt) # modifica e
-    
-    envolvente_int.append(e[0])
-
-# Aplico filtro Savitzky-Golay
-envolvente_sav = savgol_filter(envolvente_int, 513, 4)
+envolvente2 = find_envolvente(BOS)
 
 # ----------------------------------------------
 # Calculamos Beta (a partir de las trazas de ff)
@@ -406,7 +464,7 @@ plt.show()
 # plt.show()
 
 
-fig, axs = plt.subplots(8, sharex=True)
+fig, axs = plt.subplots(6, sharex=True)
 
 i= 0
 axs[i].plot(y_out, 'tab:gray')
@@ -425,21 +483,14 @@ axs[i].plot(sonido, 'tab:orange')
 axs[i].legend(['sonido SYN'])
 
 i = i+1
-axs[i].plot(envolvente_h_abs, 'tab:red')
-axs[i].legend(['hilbert_abs'])
-
-i = i+1
-axs[i].plot(envolvente_int, 'tab:red')
-axs[i].legend(['envolvente_int'])
-
-i = i+1
-axs[i].plot(envolvente_sav, 'tab:red')
-axs[i].legend(['envolvente_sav'])
+axs[i].plot(envolvente, 'tab:red')
+axs[i].plot(envolvente2, 'k:')
+axs[i].legend(['envolvente', 'envolvente2'])
 
 i = i+1
 axs[i].plot(BOS/max(BOS))
-axs[i].plot(envolvente_sav/max(envolvente_sav), 'tab:red')
-axs[i].legend(['BOS_norm', 'envolvente_sav_norm'], loc = 'lower left')
+axs[i].plot(envolvente/max(envolvente), 'tab:red')
+axs[i].legend(['BOS_norm', 'envolvente_norm'], loc = 'lower left')
 
 
 

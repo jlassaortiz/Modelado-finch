@@ -7,6 +7,31 @@ Created on Tue Jul 21 10:28:48 2020
 nombre_ave = 'AB010-bi'
 nombre_BOS = '/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/zfAB010-bi_BOS03_44100.wav'
 
+# Cargo el BOS
+rate_bos, BOS = read(nombre_BOS)
+
+# Calculo rransformada de Hilbert
+envolvente_h = hilbert(BOS)
+
+# Integro para suavizar
+envolvente_int = []
+
+e = [0.0]    
+
+for i in range(np.int(tiempo_total/(dt))):
+    
+    hilb = envolvente_h[i]
+    tau = 0.001
+    
+    # Integracion
+    t = i*dt
+    rk4(takens,e,1,t,dt) # modifica e
+    
+    envolvente_int.append(e[0])
+
+# Aplico filtro Savitzky-Golay
+envolvente = savgol_filter(envolvente_int, 513, 4)
+
 
 # Calculamos trazas de frecuencias fundamentales de este canto en particular
 # --------------------------------------------------------------------------
