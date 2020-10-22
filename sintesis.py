@@ -8,20 +8,26 @@ Integrator with rk4, and tube with delays
 It creates .wav
 
 Estructura del codigo:
+    - Importo librerias y seteo variables globales
     - Definicion de funciones
     - Definicion de parametros
     - Calculamos trazas de frecuencias fundamentales
     - Calculamos beta
     - Integracion
+    - Escaleo amplitud de cada uno de los gestos de frecuencia
     - Guardo canto sintetico
     - Ploteo
 """
 
+
+# --------------------------------------------
+# Importo librerias y seteo variables globales
+# --------------------------------------------
+
 import numpy as np     	
 from scipy.io.wavfile import write, read
 import random
-from scipy.signal import hilbert, savgol_filter, savgol_coeffs , convolve
-from scipy.integrate import odeint
+from scipy.signal import hilbert, savgol_filter
 import matplotlib.pyplot as plt
 from copy import deepcopy
 
@@ -33,11 +39,12 @@ global destimulodt1
 global hilb
 global tau
 
-    
+ 
+
+   
 # -----------------------
 # Definicion de funciones
 # -----------------------
-
 
 # Sistema de ecuaciones del modelo
 # Se utiliza asi: rk4(ecuaciones,v,n,t,dt)
@@ -103,11 +110,10 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
     return v
 
 
-
-
-# Toma a la frec fundamental de cada silaba como una expo, recta o seno y
-# modifica alpha para que fone el sistema y frecuencias y amplitudes
-def expo(ti,tf,wi,wf,factor,frequencias,amplitudes, silabas_timestamp):
+# Modela cada gesto de frec fundamental como una expo, recta o seno.
+# Modifica alpha para que el sistema fone.
+# Guarda inicio y finales de cada gestos de frecuencia.
+def expo(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
@@ -115,15 +121,13 @@ def expo(ti,tf,wi,wf,factor,frequencias,amplitudes, silabas_timestamp):
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         
-        amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
-        
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
   
-    return frequencias,amplitudes, silabas_timestamp
+    return frequencias, silabas_timestamp
 
 
-def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes, silabas_timestamp):
+def rectas(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
@@ -131,37 +135,29 @@ def rectas(ti,tf,wi,wf,factor,frequencias,amplitudes, silabas_timestamp):
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti) 
         alpha[i+k]= -0.150 # alpha suficiente para fonar
         
-        amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
-        
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)     
         
-    return frequencias,amplitudes, silabas_timestamp
+    return frequencias, silabas_timestamp
 
 
-def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, amplitudes, silabas_timestamp):
+def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
         t = ti+k*dt
         frequencias[i+k]= media + amplitud * np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
         alpha[i+k]= -0.150 # alpha suficiente para fonar
-        #alpha[i+k]=-0.125 
-        
-        amplitudes[i+k] = factor * np.sin(np.pi*k/(j-i))
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
         
-    return frequencias,amplitudes, silabas_timestamp
-
-
-
-
+    return frequencias,silabas_timestamp
 
 
 def find_envolvente(sonido):
-    # Calculo rransformada de Hilbert
+    
+    # Calculo transformada de Hilbert
     envolvente_h = hilbert(sonido)
     
     # Integro para suavizar
@@ -234,6 +230,8 @@ def find_envolvente(sonido):
 
 
 
+# Inicializo generador de números pseudo-random para poder replicar resultados
+random.seed(1992)
 
 
 
@@ -251,9 +249,14 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
+version = 'intento_12_R_23000'
 
-version = 'intento_12_nueva_envolvente'
 
+# Parametros de frecuencia y ventana temporal
+# --------------------------------------------
+
+sampling_freq = 44100 # Hz
+dt = 1/sampling_freq
 
 
 # Parametros especificos del modelo
@@ -262,26 +265,11 @@ version = 'intento_12_nueva_envolvente'
 gamma = 16000
 
 # Parametros tracto vocal
-# uoch = 40*2700*2700 # 40*2700*2700
-# rdis = 5000/1.0 # 5000/1.0
-
-# Parametros iteracion 115 del intento 11
 uoch = 40*3000*3000 # 360.000.000
-rdis = 3000/1.0 #
-
-uolg =  1./1. # 1./1.
-
-# Condiciones iniciales
-v = np.zeros(5)
-v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
-
-# No se lo que es
-L =  0.036 # No se que es !!! =  longitud tubo (charla con Camilo) 
-# L =  0.025
-
-# Parametros de frecuencia y ventana temporal
-sampling_freq = 44100 # Hz
-dt = 1/sampling_freq
+rdis = 23000.0
+uolg =  1.0
+L =  0.036 # Longitud tubo (en metros)
+coef_reflexion = -0.35
 
 # Inicializo los parametros de control
 alpha = np.zeros(np.int(tiempo_total/(dt)))
@@ -292,6 +280,12 @@ for i in range(np.int(tiempo_total/(dt))):
     alpha[i] = 0.15 # sistema no fona en este valor
     beta[i] = 0.15 # sistema no fona en este valor
 
+# Condiciones iniciales
+v = np.zeros(5)
+v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
+
+# Tamaño del sistema de ecuaciones
+n = 5 
 
 
 
@@ -300,21 +294,29 @@ for i in range(np.int(tiempo_total/(dt))):
 # Calculamos trazas de frecuencias fundamentales y envolventes
 # ------------------------------------------------------------
 
-# Inicializo las frecuencias fundamentales y amplitudes
+# Inicializo las frecuencias fundamentales y time_stamps de los gestos de ff
 frequencias = np.zeros(np.int(tiempo_total/(dt)))
-amplitudes = np.zeros(np.int(tiempo_total/(dt)))
 silabas_timestamp = []
 
+# Corro scritp que genera la traza de ff
 with open(ave_fname) as f:
     code = compile(f.read(), ave_fname, 'exec')
     exec(code)
+
+# Cargo el BOS
+rate_bos, BOS = read(nombre_BOS)
+
+# Calculo envolvente como en Boari 2015 ("automatic")
+envolvente = find_envolvente(BOS)
+
+
 
 
 # ----------------------------------------------
 # Calculamos Beta (a partir de las trazas de ff)
 # ----------------------------------------------
 
-# Abro el archivo b_w (re)
+# Abro el archivo b_w (mapa de betas - ff)
 bes,was = np.loadtxt('b_w_16000_javi_1.txt',unpack=True)
 print('bes:', bes[0])
 print('was:',was[0])
@@ -333,99 +335,101 @@ for i in range(np.int(tiempo_total/(dt))):
     if(alpha[i]<0):
         # beta es el polinomio p valuado en frecuencias[i]
         beta[i] = p(frequencias[i] + random.normalvariate(0.0 , 10.0)) # error en freq media 0 desvío 10Hz
- 
+        # SACAR error en frecuencia y REEMPLAZAR por error en beta
     
+
 
 # -----------
 # Integracion
 # -----------
 
+v_3 = [] # Salida del modelo
 
-n = 5 # TAMANO DEL SISTEMA DE ECUACIONES
-sonido = []
-
-# Variables intermedias  de la integracion que quizas quiera guardar
-x_out = []
+# Otras variables intermedias de la integracion que quizas quiera guardar
+# x_out = []
 y_out = []
-v_3 = []
-#tiempo1 = []
-#amplitud1 = []
-forzado_out = []
-#dforzadodt1 = []
-#elbeta1 = []
+# tiempo1 = []
+# forzado_out = []
+# dforzadodt1 = []
+# elbeta1 = []
 
-
-# No saco lo de abajo porque lo necesita destimulodt pero no se bien que hacen
-N = int((L /(350*dt))//1) # 350 velocidad sonido en el aire (charla con camilo)
+# Retro-propagación
+N = int((L /(350*dt))//1) # 350 velocidad sonido en el aire
 fil1 = np.zeros(N)
 back1 = np.zeros(N)
 # feedback1 = 0
 
+
 # Integro
+# -------
+
 for i in range(np.int(tiempo_total/(dt))):
     
-    # Parametros dependientes del tiempo del sistema de ecuaciones
-    # Variables globales ¿es necesario que asi lo sean?
+    # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp=alpha[i]
-    
-    #b=beta[i]*(1+random.normalvariate(0.,.3))
-    b=beta[i]
-    
+    b=beta[i] # falta agregar error 
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
-    
     
     # Integracion
     t =i*dt
     rk4(ecuaciones,v,n,t,dt) # modifica v
-   
-    
-    # Actualizo las siguientes variables (?) 
+     
+    # Actualizo las siguientes variables (retro-propagación)
     estimulo=fil1[N-1]
     fil1[0]= v[1] + back1[N-1]
-    back1[0]=-0.35*fil1[N-1] #-0.35 coef de reflexion  
+    back1[0]= coef_reflexion * fil1[N-1] 
     fil1[1:]=fil1[:-1]
     back1[1:]=back1[:-1]
     #feedback1=back1[N-1]
 
-
-    # Guardo resultado de integracion v[3] en sonido
-
-    #sonido.append(v[3] * (amplitudes[i]  + random.normalvariate(0.0 , 0.06))) # error amplitud tiene media 0 y desvío 0.01
-    #sonido.append(v[3])
+    # Guardo salida del modelo (falta escalearla con la envolvente)
+    v_3.append(v[3]) #
     
-    v_3.append(v[3]) # Salida del modelo, falta escalearlo con la envolvente
-    
-    
-    # Guarda variables de interes de la integracion
-    # no esta chequeado que ande
+    # Guarda otras variables de interes de la integracion
     # x_out.append(v[0])  
-    y_out.append(v[1])
+    y_out.append(v[1]) # Salida de la fuente! 
     # tiempo1.append(t)
-    # amplitud1.append(amplitudes[i])
-    forzado_out.append(estimulo)
+    # forzado_out.append(estimulo)
     # dforzadodt1.append(destimulodt)
     # elbeta1.append(beta[i])
   
-
+    
+  
+    
+# --------------------------------------------------------
 # Escaleo amplitud de cada uno de los gestos de frecuencia
+# --------------------------------------------------------
+
 v_3 = np.asarray(v_3) /max(v_3) # es necesario para encontrar k que escalee correctamente y evitar errores
 
+# Inicializo vector k para re-escaleo 
 k = deepcopy(envolvente)
 k = np.asarray(k)
 
+# Modifico vector k para que re-escale la salida del modelo v[3] correctamente
 i = 0
 while i < len(silabas_timestamp):
+    
+    # Tomo timestamp de inicio y final de cada gesto de frecuencia
     inicio = silabas_timestamp[i]
     fin = silabas_timestamp[i+1]
     
-    maximo_v_3= max(v_3[inicio:fin])
-        
+    # Calculo el maximo en cada uno de los gestos de frecuencia en la salida del modelo (v[3])
+    maximo_v_3 = max(v_3[inicio:fin])
+      
+    # Modifico k (era originalmente la envolvente)
     for j in np.arange(inicio, fin):
         k[j] = k[j] / maximo_v_3
-        
-    i = i + 2
     
-sonido = v_3 * k
+    # Paso al siguiente gesto de frecuencia
+    i = i + 2
+
+# Salida del modelo escaleada a la envolvente del BOS mediante el factor k   
+sonido = v_3 * k 
+
+
+# Falta agregarle error a la envolvente
+
 
 
 
@@ -433,8 +437,8 @@ sonido = v_3 * k
 # Guardo canto sintetico
 # ----------------------
 
-# # Este paso es necesario para que el archivo wav se guarde correctamente
-# # Ver la documentacion de: scipy.io.wavfile.write
+# Este paso es necesario para que el archivo wav se guarde correctamente
+# Ver la documentacion de: scipy.io.wavfile.write
 scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
 write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
@@ -444,49 +448,12 @@ write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
 
 
+
 # -------
 # Ploteos
 # -------
 
-'''
-# Ploteo espectrograma del sonido
-# -------------------------------
-
-
-f, t, Sxx = signal.spectrogram(sonido, 44100, window=('gaussian',20*128),nperseg=10*1024,noverlap=18*512,scaling='spectrum')
-Sxx = np.clip(Sxx, a_min=np.amax(Sxx)/10**3, a_max=np.amax(Sxx))
-
-plt.pcolormesh(t,f,np.log10(Sxx),rasterized=True,cmap=plt.get_cmap('Greys'))
-#plt.pcolormesh(t,f,Sxx,cmap=plt.get_cmap('Greys'))
-plt.ylim(10,10000)
-#plt.ylabel('Frequency [Hz]')
-#plt.xlabel('Time [sec]')
-plt.axis('off')
-#plt.savefig('sonograma_{}.jpeg'.format(n_canto), dpi=50, facecolor='w', edgecolor='w',
-            #orientation='portrait', papertype=None, format=None,
-            #transparent=False, bbox_inches=None, pad_inches=0.1,
-            #frameon=None)
-plt.show()
-'''
-
-# Ploteo sonido y otras salidas
-# -----------------------------
-
-# plt.figure()
-# # plt.plot(x_out/np.max(np.abs(x_out)) + 6 ,label = 'x')
-# plt.plot(y_out/np.max(np.abs(y_out)) + 6, label = 'y')
-# plt.plot(v_3 / np.max(np.abs(v_3)) + 4, label = 'v[3] norm')
-# # plt.plot(sonido + 2, label= 'sonido')
-# plt.plot(sonido/np.max(np.abs(sonido)) + 2, label= 'sonido norm')
-# # plt.plot(scaled, label = 'scaled')
-# plt.plot(scaled/np.max(np.abs(scaled)), label = 'scaled norm')
-# plt.plot(amplitudes + 2, label = 'amplitudes')
-# plt.legend()
-# plt.show()
-
-
 fig, axs = plt.subplots(4, sharex=True)
-
 
 i = 0
 axs[i].plot(v_3, 'tab:gray')
@@ -510,8 +477,6 @@ i = i+1
 axs[i].plot(BOS/max(BOS))
 axs[i].plot(envolvente/max(envolvente), 'tab:red')
 axs[i].legend(['BOS_norm', 'envolvente_norm'], loc = 'lower left')
-
-
 
 plt.show()
 
