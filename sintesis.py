@@ -249,7 +249,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_12_R_23000'
+version = 'intento_13'
 
 
 # Parametros de frecuencia y ventana temporal
@@ -334,8 +334,7 @@ for i in range(np.int(tiempo_total/(dt))):
     # es decir: si el sistema esta fonando
     if(alpha[i]<0):
         # beta es el polinomio p valuado en frecuencias[i]
-        beta[i] = p(frequencias[i] + random.normalvariate(0.0 , 10.0)) # error en freq media 0 desvío 10Hz
-        # SACAR error en frecuencia y REEMPLAZAR por error en beta
+        beta[i] = p(frequencias[i])
     
 
 
@@ -366,8 +365,8 @@ back1 = np.zeros(N)
 for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
-    alp=alpha[i]
-    b=beta[i] # falta agregar error 
+    alp = alpha[i]
+    b = beta[i] + random.normalvariate(0, 0.001) # La media del error es cero y el SD es el mínimo paso en los mapas beta-ff que construí
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
@@ -402,9 +401,18 @@ for i in range(np.int(tiempo_total/(dt))):
 
 v_3 = np.asarray(v_3) /max(v_3) # es necesario para encontrar k que escalee correctamente y evitar errores
 
-# Inicializo vector k para re-escaleo 
+# Inicializo vector k para re-escaleo. 
+# Este vector k multiplicado por la salida del modelo (v[3]) va a dar el 
+# sonido final (cuya envolvente va a ser muy similar a la del BOS)
 k = deepcopy(envolvente)
 k = np.asarray(k)
+
+# Agrego ruido para que el sonido final tenga una envolvente ruidosa y algo distinta a la del BOS
+maximo_envolvente = max(k)
+for i in range(len(k)):
+    # El ruido tiene media cero y un desvío estandar del 5% de la máxima amplitud
+    ruido = maximo_envolvente * random.normalvariate(0, 0.05)
+    k[i] = k[i] + ruido
 
 # Modifico vector k para que re-escale la salida del modelo v[3] correctamente
 i = 0
