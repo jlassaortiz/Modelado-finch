@@ -24,12 +24,14 @@ Estructura del codigo:
 # Importo librerias y seteo variables globales
 # --------------------------------------------
 
-import numpy as np     	
-from scipy.io.wavfile import write, read
+import glob
 import random
-from scipy.signal import hilbert, savgol_filter
+import numpy as np
 import matplotlib.pyplot as plt
-from copy import deepcopy
+     
+from copy import deepcopy	
+from scipy.io.wavfile import write, read
+from scipy.signal import hilbert, savgol_filter
 
 global alp
 global b
@@ -249,46 +251,51 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_13'
+version = 'intento_14_ruido-beta_0.001_ruido-ampl_0.01_G_24000'
+guardar_SYN = True
 
 
-# Parametros de frecuencia y ventana temporal
-# --------------------------------------------
+# Frecuencia y ventana temporal
+# -----------------------------
 
 sampling_freq = 44100 # Hz
 dt = 1/sampling_freq
+print(f'\n sampling freq: {sampling_freq}')
 
+# Parametros del modelo
+# ---------------------
 
-# Parametros especificos del modelo
-# ---------------------------------
+# Parámetros de la fuente
+mapa_b_w = glob.glob('*.txt') # Mapa b_w para determinado gamma
+gamma = int(mapa_b_w[0][4:9]) # determino el gamma del nombre del archivo del mapa
+print(f'\n mapa: {mapa_b_w[0]} \n gamma: {gamma}')
 
-gamma = 16000
+alpha = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de control
+beta = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de control
 
-# Parametros tracto vocal
-uoch = 40*3000*3000 # 360.000.000
-rdis = 23000.0
-uolg =  1.0
-L =  0.036 # Longitud tubo (en metros)
-coef_reflexion = -0.35
-
-# Inicializo los parametros de control
-alpha = np.zeros(np.int(tiempo_total/(dt)))
-beta = np.zeros(np.int(tiempo_total/(dt)))
-
-# Modifico valores variables que cree arriba
 for i in range(np.int(tiempo_total/(dt))):
     alpha[i] = 0.15 # sistema no fona en este valor
     beta[i] = 0.15 # sistema no fona en este valor
 
+# Parametros tracto vocal (filtro)
+uoch = 40*3000*3000 # 360.000.000
+rdis = 23000.0
+uolg =  1.0
+L =  0.036 # Longitud tubo (en metros) (0.036)
+coef_reflexion = - 0.35 # -0.35 
+print(f'\n C: {uoch} \n R: {rdis} \n Lg: {uolg} \n \n largo_traquea: {L} \n coef. reflexión: {coef_reflexion}')
+
 # Condiciones iniciales
 v = np.zeros(5)
-v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
+v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 
 # Tamaño del sistema de ecuaciones
 n = 5 
 
-
-
+# RUIDO
+ruido_beta = 0.001 # 0.001 es el mínimo paso 
+ruido_amplitud = 0.01 # porcentaje de la amplitud maxima del desvío del error
+print(f'\n ruido beta: {ruido_beta} \n ruido amplitud: {ruido_amplitud}')
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes
@@ -317,9 +324,7 @@ envolvente = find_envolvente(BOS)
 # ----------------------------------------------
 
 # Abro el archivo b_w (mapa de betas - ff)
-bes,was = np.loadtxt('b_w_16000_javi_1.txt',unpack=True)
-print('bes:', bes[0])
-print('was:',was[0])
+bes,was = np.loadtxt(mapa_b_w[0] ,unpack=True)
 
 # Ajustamos was vs bes a un polinomio de grado 5
 # z es una lista de los coeficientes del polinomio ajustado
@@ -366,7 +371,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i] + random.normalvariate(0, 0.001) # La media del error es cero y el SD es el mínimo paso en los mapas beta-ff que construí
+    b = beta[i] + random.normalvariate(0, ruido_beta) # La media del error es cero y el SD es ruido_beta
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
@@ -382,7 +387,7 @@ for i in range(np.int(tiempo_total/(dt))):
     #feedback1=back1[N-1]
 
     # Guardo salida del modelo (falta escalearla con la envolvente)
-    v_3.append(v[3]) #
+    v_3.append(v[3])
     
     # Guarda otras variables de interes de la integracion
     # x_out.append(v[0])  
@@ -408,11 +413,12 @@ k = deepcopy(envolvente)
 k = np.asarray(k)
 
 # Agrego ruido para que el sonido final tenga una envolvente ruidosa y algo distinta a la del BOS
-maximo_envolvente = max(k)
-for i in range(len(k)):
-    # El ruido tiene media cero y un desvío estandar del 5% de la máxima amplitud
-    ruido = maximo_envolvente * random.normalvariate(0, 0.05)
-    k[i] = k[i] + ruido
+if ruido_amplitud > 0:
+    maximo_envolvente = max(k)
+    for i in range(len(k)):
+        # El ruido tiene media cero y un desvío estandar del x % de la máxima amplitud
+        ruido = maximo_envolvente * random.normalvariate(0, ruido_amplitud)
+        k[i] = k[i] + ruido
 
 # Modifico vector k para que re-escale la salida del modelo v[3] correctamente
 i = 0
@@ -436,9 +442,6 @@ while i < len(silabas_timestamp):
 sonido = v_3 * k 
 
 
-# Falta agregarle error a la envolvente
-
-
 
 
 # ----------------------
@@ -448,7 +451,8 @@ sonido = v_3 * k
 # Este paso es necesario para que el archivo wav se guarde correctamente
 # Ver la documentacion de: scipy.io.wavfile.write
 scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
-write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
+if guardar_SYN:
+    write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
 # # Guardo salida de fuente.
 # y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
@@ -461,20 +465,20 @@ write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 # Ploteos
 # -------
 
-fig, axs = plt.subplots(4, sharex=True)
+fig, axs = plt.subplots(3, sharex=True)
 
 i = 0
 axs[i].plot(v_3, 'tab:gray')
 axs[i].legend(['v[3]'], loc = 'lower left')
 
-i = i+1
-axs[i].plot(k, 'tab:orange')
-axs[i].legend(['k'], loc = 'lower left')
+# i = i+1
+# axs[i].plot(k, 'tab:orange')
+# axs[i].legend(['k'], loc = 'lower left')
 
 i = i+1
 axs[i].plot(sonido, 'tab:orange')
 axs[i].plot(envolvente, 'tab:red')
-axs[i].legend(['sonido', 'envolvente'], loc = 'lower left')
+axs[i].legend(['SYN', 'envolvente_BOS'], loc = 'lower left')
 
 # i = i+1
 # axs[i].plot(sonido/max(sonido), 'tab:orange')
@@ -484,7 +488,7 @@ axs[i].legend(['sonido', 'envolvente'], loc = 'lower left')
 i = i+1
 axs[i].plot(BOS/max(BOS))
 axs[i].plot(envolvente/max(envolvente), 'tab:red')
-axs[i].legend(['BOS_norm', 'envolvente_norm'], loc = 'lower left')
+axs[i].legend(['BOS_norm', 'envolvente_BOS_norm'], loc = 'lower left')
 
 plt.show()
 
