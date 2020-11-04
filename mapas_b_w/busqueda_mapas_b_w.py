@@ -13,17 +13,15 @@ Secciones:
     - Definición de parámetros
     - Calculos de mapas b-w
 """
+import statistics
 import numpy as np     	
-#from scipy.io.wavfile import write, read
-from scipy.signal import find_peaks
-#import matplotlib.pyplot as plt
-from tqdm import tqdm
 
+from scipy.signal import find_peaks
+from tqdm import tqdm
 
 global alp
 global b
    
-
 # -----------------------
 # Definicion de funciones
 # -----------------------
@@ -79,19 +77,27 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
     return v
 
 # Calculadora frecuencia fundamental (ff)
-def find_ff(y_list, sampling_freq):
+def find_ff(y_list, sampling_freq, freq, n):
     
     # Calculo fft
-    y_fft = np.fft.fft(y_list) / len(y_list)
-    y_fft = abs(y_fft)
-    y_fft = y_fft[range(int(len(y_list)/2))]
-    #y_fft = np.log(y_fft) # Lo paso a escala log
+    
+    # y_fft = np.fft.fft(y_list) / len(y_list)
+    # y_fft = abs(y_fft)
+    # y_fft = y_fft[range(int(len(y_list)/2))]
+    # #y_fft = np.log(y_fft) # Lo paso a escala log
+    
+    # n = len(y_list)
+    y_array = np.array(y_list)
+    y_fft = abs(np.fft.fft(y_array))**2
+    y_fft = y_fft[range(int(n/2))]
 
     # Hago vector de frecuencias
-    tpCount     = len(y_list)
-    values      = np.arange(int(tpCount/2))
-    timePeriod  = tpCount/sampling_freq
-    freq = values/timePeriod   
+    
+    # tpCount     = len(y_list)
+    # values      = np.arange(int(tpCount/2))
+    # timePeriod  = tpCount/sampling_freq
+    # freq = values/timePeriod   
+    
     
     # Busco picos en fft
     picos, info_picos = find_peaks(y_fft, height= max(y_fft)*0.5)
@@ -103,11 +109,15 @@ def find_ff(y_list, sampling_freq):
     
     # Calculo diferencias entre picos
     w_list = np.diff(picos)
+    w_list = [int(w) for w in w_list]
     
-    print(w_list)
+    # Calculo moda de las diferencias 
+    try : 
+        w = statistics.mode(w_list)
+    except :
+        w = 0
     
-    # Calculo promedio de las diferencias
-    w = np.mean(w_list)
+    print(f'\n {w_list} \n {w}')
 
     return w
 
@@ -116,28 +126,29 @@ def find_ff(y_list, sampling_freq):
 # Definicion parametros
 # ---------------------
 
-version = '1'
+version = '4'
 
 # GAMMAS
-gammas = [25000]
-#gammas = [16000, 24000, 29000]
-#gammas = np.arange(16000, 24000, 29000)
+# gammas = [29000]
+gammas = [29000, 33000, 36000, 41000]
+# gammas = np.arange(29000, 40000, 2000)
 
 # BETAS
-# betas,was = np.loadtxt('b_w_12300.txt',unpack=True)
-# betas =np.arange(-3.5, 0.001, 0.001)
-betas =np.arange(-0.130 , 0.0, 0.0001)
+betas =np.arange(-0.100 , 0.0, 0.001)
+alp = - 0.150 # Alpha suficiente para fonar
 
 # Parametros de frecuencia y ventana temporal
-tiempo_total = 1.0 # segundos
+tiempo_total = 2.0 # segundos
 sampling_freq = 44100 # Hz
 dt = 1/sampling_freq
+len_syn = np.int(tiempo_total / dt)
 
 # TAMANO DEL SISTEMA DE ECUACIONES
 n = 2 
 
-# Alpha suficiente para fonar
-alp = - 0.150 
+# Vectror de freq para la FFT del SYN
+freq = np.fft.fftfreq(len_syn , d = 1/sampling_freq)
+freq = freq[range(int(len_syn/2))] 
 
 
 # ---------------------
@@ -162,7 +173,7 @@ for g in tqdm(gammas):
         y_out = []
     
         # Integro
-        for i in range(np.int(tiempo_total/(dt))):
+        for i in range(len_syn):
 
             t =i*dt
             rk4(ecuaciones,v,n,t,dt) # modifica v
@@ -171,9 +182,12 @@ for g in tqdm(gammas):
             x_out.append(v[0])  
             y_out.append(v[1])
         
-        w = find_ff(y_out, sampling_freq )
+        w = find_ff(y_out, sampling_freq, freq, len_syn)
         
-        if w > 300 and w < 2100:
+        if w > 300 and w < 2100 and len(ws) == 0:
+            betas_aux.append(b)
+            ws.append(w)
+        if w > 300 and w < 2100 and len(ws) > 0 and w < ws[-1]:
             betas_aux.append(b)
             ws.append(w)
     
