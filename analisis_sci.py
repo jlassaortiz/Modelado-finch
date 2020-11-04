@@ -13,22 +13,20 @@ Devuelve el gamma, R y C que sintetiza el canto mas similar al canto real
 @author: javi_lassaortiz
 
 """
-  	
-
-
-import numpy as np     	
+    	
 import random
-import matplotlib.pyplot as plt
-import pandas as pd
 import glob
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
 
+from sklearn.feature_selection import mutual_info_regression
 from scipy.io.wavfile import write, read
 from scipy.signal import sosfiltfilt, butter, hilbert, savgol_filter
 from scipy.stats import pearsonr, spearmanr, kendalltau
-from tqdm import tqdm
-from sklearn.feature_selection import mutual_info_regression
 from sklearn.metrics import r2_score
 from copy import deepcopy
+from tqdm import tqdm
 
 global alp
 global b

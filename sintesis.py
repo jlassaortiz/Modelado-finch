@@ -251,7 +251,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_14_ruido-beta_0.001_ruido-ampl_0.01_G_24000'
+version = 'intento_14_ruido-beta_0.001_ruido-ampl_0.01_G_41000'
 guardar_SYN = True
 
 
