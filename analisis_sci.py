@@ -210,8 +210,15 @@ def silaba_chopper(sound, ti, tf, fs):
     # Conservo solo parte de la silaba de los alrededores de la máxima amplitud
     # la ventana que uso es tal que si la ff es de 300Hz, agarro 6 oscilaciones
     ventana = int( 0.010 * fs) # Ventana de 10 ms
-    #ventana = int(0.005 * fs) # Ventana de 5 ms
+    # ventana = int(0.005 * fs) # Ventana de 5 ms
     index_max = np.argmax(silaba)
+
+    # Estrategia para salvar casos que el máximo esta muy cerca de los extremos de la silaba
+    if index_max - ventana < 0 or index_max + ventana > len(silaba):
+        mitad = int( len(silaba)/2 )
+        ventana_5ms = int(0.002*fs)
+        index_aux = np.argmax(silaba[mitad - ventana_5ms: mitad + ventana_5ms])        
+        index_max = mitad + (index_aux - ventana_5ms)
     
     silaba = silaba[index_max - ventana : index_max + ventana]
     
@@ -319,7 +326,7 @@ guardar_plot = True
 
 silabas = {'D': [0.969586, 1.000902],
            'E': [1.035681, 1.108332],
-           'C': [0.825773, 0.929312]} 
+           'C': [0.825773, 0.929312]}
 
 
 # Frecuencia y ventana temporal
@@ -341,9 +348,14 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-f_rango = np.arange(1500, 6001, 500)
+# f_rango = np.arange(1500, 6001, 500)
+# uoch_list = [f*f*40 for f in f_rango]
+# rdis_list = np.arange(3000, 25000, 5000)
+
+f_rango = [1500, 3500, 6001]
 uoch_list = [f*f*40 for f in f_rango]
-rdis_list = np.arange(3000, 25000, 5000)
+rdis_list = [3000, 13000, 23000, 33000]
+
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = - 0.35 # -0.35 
@@ -603,28 +615,21 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 tfin = silaba[1][1]
                 silaba_id = silaba[0]
                 
-                print(silaba_id)
-                print(0)
-                
                 # Calculo FFT de la sílaba de ineteres escala LOG
                 frequencies_BOS, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
                 frequencies_SYN, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
                 frequencies_Y,   Y_fft   = array2fft(Y,   rate_Y,   tin, tfin, log = True)
                 
-                print(1)
-                
                 # Calculo FFT de la sílaba de ineteres escala LINEAL
                 frequencies_BOS, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
                 frequencies_SYN, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
-                
-                print(2)
                 
                 # Extraigo pequeña parte del sonido de la sílaba de interes
                 BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
                 SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
                          
-                print(3)
                 
+
                 
                 # -----------------------------------
                 # Calculo indices de bondad de ajuste
@@ -663,10 +668,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 r_resultados.append(r)
                 gamma_resultados.append(gamma)
                 
-                silabas_resultados.append(silaba_id)
-                
-                Id = Id + 1
-                
+                silabas_resultados.append(silaba_id)          
+
                 
                 
                 
@@ -711,7 +714,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                     plt.close()
         
         
-
+            Id = Id + 1
 
 # --------------------------------------
 # Genero tabla con todos los resultados
