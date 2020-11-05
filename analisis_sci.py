@@ -348,13 +348,13 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-# f_rango = np.arange(1500, 6001, 500)
-# uoch_list = [f*f*40 for f in f_rango]
-# rdis_list = np.arange(3000, 25000, 5000)
-
-f_rango = [1500, 3500, 6001]
+f_rango = np.arange(1500, 6001, 500)
 uoch_list = [f*f*40 for f in f_rango]
-rdis_list = [3000, 13000, 23000, 33000]
+rdis_list = np.arange(3000, 35000, 5000)
+
+# f_rango = [3500, 6001]
+# uoch_list = [f*f*40 for f in f_rango]
+# rdis_list = [13000, 33000]
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
@@ -396,6 +396,13 @@ spermanR_s_resultados = []
 kendalT_s_resultados = []
 infoM_s_resultados = []
 R2_s_resultados = []
+
+chi2_all_resultados = []
+pearsonR_all_resultados = []
+spermanR_all_resultados = []
+kendalT_all_resultados = []
+infoM_all_resultados = []
+R2_all_resultados = []
 
 # Lista de parámetros C, R y Gamma
 c_resultados = []
@@ -607,6 +614,22 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # # Filtro BOS y SYN
             # BOS = denoisear(BOS, rate_bos)
             # SYN = denoisear(SYN, rate_syn)
+            
+            # Calculo FFT de TODO el BOS y SYN
+            frequencies_BOS_all, BOS_fft_all = array2fft(BOS, rate_bos, 0, tiempo_total, log = True)
+            frequencies_SYN_all, SYN_fft_all = array2fft(SYN, rate_syn, 0, tiempo_total, log = True)
+            
+            # Calculo índices de bondad de ajuste del FFT y SYN completos
+            chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
+
+            # # Guardo indices de bondad de ajuste del FFT del SYN completo            
+            # silabas_resultados.append('SYN all') 
+            # chi2_all_resultados.append(chi2_all)
+            # pearsonR_all_resultados.append(pearsonR_all)
+            # spermanR_all_resultados.append(spermanR_all)
+            # kendalT_all_resultados.append(kendalT_all)
+            # infoM_all_resultados.append(infoM_all)
+            # R2_all_resultados.append(R2_all)  
 
             for silaba in silabas.items():            
                 
@@ -630,7 +653,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                          
                 
 
-                
+            
                 # -----------------------------------
                 # Calculo indices de bondad de ajuste
                 # -----------------------------------
@@ -662,7 +685,14 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 spermanR_s_resultados.append(spermanR_s)
                 kendalT_s_resultados.append(kendalT_s)
                 infoM_s_resultados.append(infoM_s)
-                R2_s_resultados.append(R2_s)          
+                R2_s_resultados.append(R2_s)
+                
+                chi2_all_resultados.append(chi2_all)
+                pearsonR_all_resultados.append(pearsonR_all)
+                spermanR_all_resultados.append(spermanR_all)
+                kendalT_all_resultados.append(kendalT_all)
+                infoM_all_resultados.append(infoM_all)
+                R2_all_resultados.append(R2_all)  
                 
                 c_resultados.append(c)
                 r_resultados.append(r)
@@ -680,7 +710,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 if guardar_plot:
                     
                     # Escala Log
-                    fig, axs = plt.subplots(2, 1, figsize=(110, 100))    
+                    fig, axs = plt.subplots(3, 1, figsize=(110, 100))    
                     
                     fig.suptitle(f'{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
                     
@@ -694,14 +724,15 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                     axs[i].set_ylim([0,30])
                     axs[i].set_xlabel('Frecuencias (Hz)')
                     
-                    # i = i+1
-                    # axs[i].plot(frequencies_Y, abs(Y_fft), 'tab:orange')
-                    # axs[i].set_title('Y')
-                    # axs[i].legend(['Fuente FFT'])
-                    # axs[i].set_yscale('log')
-                    # axs[i].set_xlim([0,sampling_freq/2])
+                    i = i+1                
+                    axs[i].plot(frequencies_BOS_all, BOS_fft_all)
+                    axs[i].plot(frequencies_SYN_all, SYN_fft_all, 'tab:green')
+                    # axs[i].plot(frequencies_Y, Y_fft, 'tab:orange', linestyle = 'dotted')
+                    axs[i].legend(['BOS FFT','SYN FFT'])
+                    #axs[i].set_yscale('log')
+                    axs[i].set_xlim([0,sampling_freq/2])
                     # axs[i].set_ylim([0,30])
-                    # axs[i].set_xlabel('Frecuencias (Hz)')
+                    axs[i].set_xlabel('Frecuencias (Hz)')
                     
                     i = i+1                
                     axs[i].plot(np.arange(len(BOS_chop))*1000/sampling_freq, BOS_chop)
@@ -711,11 +742,49 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                     axs[i].set_xlabel('ms')
                     
                     plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
-                    plt.close()
+                    plt.close()     
         
         
+            # Guardo indices de bondad de ajuste del FFT del SYN completo
+            silabas_resultados.append('SYN_all')  
+            
+            chi2_log_resultados.append(chi2_log)
+            pearsonR_log_resultados.append(pearsonR_log)
+            spermanR_log_resultados.append(spermanR_log)
+            kendalT_log_resultados.append(kendalT_log)
+            infoM_log_resultados.append(infoM_log)
+            R2_log_resultados.append(R2_log)
+            
+            chi2_lin_resultados.append(chi2_lin)
+            pearsonR_lin_resultados.append(pearsonR_lin)
+            spermanR_lin_resultados.append(spermanR_lin)
+            kendalT_lin_resultados.append(kendalT_lin)
+            infoM_lin_resultados.append(infoM_lin)
+            R2_lin_resultados.append(R2_lin)
+            
+            chi2_s_resultados.append(chi2_s)
+            pearsonR_s_resultados.append(pearsonR_s)
+            spermanR_s_resultados.append(spermanR_s)
+            kendalT_s_resultados.append(kendalT_s)
+            infoM_s_resultados.append(infoM_s)
+            R2_s_resultados.append(R2_s)
+            
+            chi2_all_resultados.append(chi2_all)
+            pearsonR_all_resultados.append(pearsonR_all)
+            spermanR_all_resultados.append(spermanR_all)
+            kendalT_all_resultados.append(kendalT_all)
+            infoM_all_resultados.append(infoM_all)
+            R2_all_resultados.append(R2_all)  
+            
+            c_resultados.append(c)
+            r_resultados.append(r)
+            gamma_resultados.append(gamma)
+                
             Id = Id + 1
-
+            
+            
+            
+            
 # --------------------------------------
 # Genero tabla con todos los resultados
 # --------------------------------------
@@ -741,9 +810,16 @@ resultados = {'G': gamma_resultados,
               'Spearman_s': spermanR_s_resultados,
               'Kendal_s': kendalT_s_resultados,
               'Info_Mutua_s': infoM_s_resultados,
-              'R2_s': R2_s_resultados}
+              'R2_s': R2_s_resultados,
+              'Chi2_all': chi2_all_resultados,
+              'Pearson_all': pearsonR_all_resultados,
+              'Spearman_all': spermanR_all_resultados,
+              'Kendal_all': kendalT_all_resultados,
+              'Info_Mutua_all': infoM_all_resultados,
+              'R2_all': R2_all_resultados}
 
 resultados = pd.DataFrame(resultados)
+
 
 
 # Busco mejores ajuste FFT 
