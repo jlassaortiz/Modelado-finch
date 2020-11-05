@@ -414,6 +414,7 @@ silabas_resultados = []
 
 # Número de iteración (para facilitar la búsqueda)
 Id = 0
+Id_list = []
 
 
 
@@ -698,7 +699,9 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 r_resultados.append(r)
                 gamma_resultados.append(gamma)
                 
-                silabas_resultados.append(silaba_id)          
+                silabas_resultados.append(silaba_id)
+                
+                Id_list.append(Id)
 
                 
                 
@@ -743,43 +746,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                     
                     plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                     plt.close()     
-        
-        
-            # Guardo indices de bondad de ajuste del FFT del SYN completo
-            silabas_resultados.append('SYN_all')  
-            
-            chi2_log_resultados.append(chi2_log)
-            pearsonR_log_resultados.append(pearsonR_log)
-            spermanR_log_resultados.append(spermanR_log)
-            kendalT_log_resultados.append(kendalT_log)
-            infoM_log_resultados.append(infoM_log)
-            R2_log_resultados.append(R2_log)
-            
-            chi2_lin_resultados.append(chi2_lin)
-            pearsonR_lin_resultados.append(pearsonR_lin)
-            spermanR_lin_resultados.append(spermanR_lin)
-            kendalT_lin_resultados.append(kendalT_lin)
-            infoM_lin_resultados.append(infoM_lin)
-            R2_lin_resultados.append(R2_lin)
-            
-            chi2_s_resultados.append(chi2_s)
-            pearsonR_s_resultados.append(pearsonR_s)
-            spermanR_s_resultados.append(spermanR_s)
-            kendalT_s_resultados.append(kendalT_s)
-            infoM_s_resultados.append(infoM_s)
-            R2_s_resultados.append(R2_s)
-            
-            chi2_all_resultados.append(chi2_all)
-            pearsonR_all_resultados.append(pearsonR_all)
-            spermanR_all_resultados.append(spermanR_all)
-            kendalT_all_resultados.append(kendalT_all)
-            infoM_all_resultados.append(infoM_all)
-            R2_all_resultados.append(R2_all)  
-            
-            c_resultados.append(c)
-            r_resultados.append(r)
-            gamma_resultados.append(gamma)
-                
+
+                        
             Id = Id + 1
             
             
@@ -793,6 +761,7 @@ resultados = {'G': gamma_resultados,
               'C': c_resultados, 
               'R': r_resultados,
               'silaba': silabas_resultados,
+              'Id': Id_list,
               'Chi2_log': chi2_log_resultados,
               'Pearson_log': pearsonR_log_resultados,
               'Spearman_log': spermanR_log_resultados,
@@ -824,25 +793,32 @@ resultados = pd.DataFrame(resultados)
 
 # Busco mejores ajuste FFT 
 resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
-resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)])
-resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)])       
-resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)])
-resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)])  
+resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)][:1])
+resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1])       
+resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)][:1])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)][:1])
+resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)][:1])  
 
-resumen = resumen.append(resultados[resultados.Chi2_lin == min(resultados.Chi2_lin)])
-resumen = resumen.append(resultados[resultados.Pearson_lin == max(resultados.Pearson_lin)])
-resumen = resumen.append(resultados[resultados.Spearman_lin == max(resultados.Spearman_lin)])       
-resumen = resumen.append(resultados[resultados.Kendal_lin == max(resultados.Kendal_lin)])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_lin == max(resultados.Info_Mutua_lin)])
+resumen = resumen.append(resultados[resultados.Chi2_lin == min(resultados.Chi2_lin)][:1])
+resumen = resumen.append(resultados[resultados.Pearson_lin == max(resultados.Pearson_lin)][:1])
+resumen = resumen.append(resultados[resultados.Spearman_lin == max(resultados.Spearman_lin)][:1])       
+resumen = resumen.append(resultados[resultados.Kendal_lin == max(resultados.Kendal_lin)][:1])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_lin == max(resultados.Info_Mutua_lin)][:1])
 resumen = resumen.append(resultados[resultados.R2_lin == max(resultados.R2_lin)])  
 
-resumen = resumen.append(resultados[resultados.Chi2_s == min(resultados.Chi2_s)])
-resumen = resumen.append(resultados[resultados.Pearson_s == max(resultados.Pearson_s)])
-resumen = resumen.append(resultados[resultados.Spearman_s == max(resultados.Spearman_s)])       
-resumen = resumen.append(resultados[resultados.Kendal_s == max(resultados.Kendal_s)])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_s == max(resultados.Info_Mutua_s)])
-resumen = resumen.append(resultados[resultados.R2_s == max(resultados.R2_s)])  
+resumen = resumen.append(resultados[resultados.Chi2_s == min(resultados.Chi2_s)][:1])
+resumen = resumen.append(resultados[resultados.Pearson_s == max(resultados.Pearson_s)][:1])
+resumen = resumen.append(resultados[resultados.Spearman_s == max(resultados.Spearman_s)][:1])       
+resumen = resumen.append(resultados[resultados.Kendal_s == max(resultados.Kendal_s)][:1])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_s == max(resultados.Info_Mutua_s)][:1])
+resumen = resumen.append(resultados[resultados.R2_s == max(resultados.R2_s)][:1])
+
+resumen = resumen.append(resultados[resultados.Chi2_all == min(resultados.Chi2_all)][:1])
+resumen = resumen.append(resultados[resultados.Pearson_all == max(resultados.Pearson_all)][:1])
+resumen = resumen.append(resultados[resultados.Spearman_all == max(resultados.Spearman_all)][:1])       
+resumen = resumen.append(resultados[resultados.Kendal_all == max(resultados.Kendal_all)][:1])  
+resumen = resumen.append(resultados[resultados.Info_Mutua_all == max(resultados.Info_Mutua_all)][:1])
+resumen = resumen.append(resultados[resultados.R2_all == max(resultados.R2_all)][:1])    
 
 # GUARDO todo en tabla resumen
 resumen.to_csv('resumen_busqueda_GCR.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
