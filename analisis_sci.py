@@ -348,13 +348,14 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-f_rango = np.arange(1500, 6001, 500)
-uoch_list = [f*f*40 for f in f_rango]
-rdis_list = np.arange(3000, 35000, 5000)
 
-# f_rango = [3500, 6001]
+# f_rango = np.arange(1500, 6001, 500)
 # uoch_list = [f*f*40 for f in f_rango]
-# rdis_list = [13000, 33000]
+# rdis_list = np.arange(3000, 35000, 5000)
+
+f_rango = [3500, 6001]
+uoch_list = [f*f*40 for f in f_rango]
+rdis_list = [13000, 33000]
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
@@ -747,7 +748,9 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                     plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                     plt.close()     
 
-                        
+            
+            
+            
             Id = Id + 1
             
             
@@ -757,11 +760,11 @@ for mapa_fn in tqdm(lista_mapas_b_w):
 # Genero tabla con todos los resultados
 # --------------------------------------
 
-resultados = {'G': gamma_resultados, 
+resultados = {'Id': Id_list,
+              'G': gamma_resultados, 
               'C': c_resultados, 
               'R': r_resultados,
               'silaba': silabas_resultados,
-              'Id': Id_list,
               'Chi2_log': chi2_log_resultados,
               'Pearson_log': pearsonR_log_resultados,
               'Spearman_log': spermanR_log_resultados,
@@ -791,7 +794,7 @@ resultados = pd.DataFrame(resultados)
 
 
 
-# Busco mejores ajuste FFT 
+# Busco mejores ajuste FFT (resumen)
 resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
 resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)][:1])
 resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1])       
@@ -820,10 +823,27 @@ resumen = resumen.append(resultados[resultados.Kendal_all == max(resultados.Kend
 resumen = resumen.append(resultados[resultados.Info_Mutua_all == max(resultados.Info_Mutua_all)][:1])
 resumen = resumen.append(resultados[resultados.R2_all == max(resultados.R2_all)][:1])    
 
+
+# Resumen promediando por cada combinación de C,R y G (promedio los indices de cada silaba y el SYN total)
+indices = []
+columnas = ['Id', 'G', 'C', 'R', 
+            'Chi2_log', 'Pearson_log', 'Spearman_log', 'Kendal_log', 'Info_Mutua_log', 'R2_log', 
+            'Chi2_lin', 'Pearson_lin', 'Spearman_lin', 'Kendal_lin', 'Info_Mutua_lin', 'R2_lin', 
+            'Chi2_s',   'Pearson_s',   'Spearman_s',   'Kendal_s',   'Info_Mutua_s',   'R2_s', 
+            'Chi2_all', 'Pearson_all', 'Spearman_all', 'Kendal_all', 'Info_Mutua_all', 'R2_all']
+lista_promedios = []
+
+for i in range(Id):
+    indices.append(i)
+    lista_promedios.append(list(resultados[resultados.Id == i].mean()))
+     
+resumen_promedios = pd.DataFrame(lista_promedios, columns= columnas)
+
+
 # GUARDO todo en tabla resumen
 resumen.to_csv('resumen_busqueda_GCR.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
+resumen_promedios.to_csv('resumen_promedios_busqueda_GCR.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
 resultados.to_csv('resultados_busqueda_GCR.csv', header=True, decimal=',', sep=' ', float_format='%.3f')
-
 
 
 
