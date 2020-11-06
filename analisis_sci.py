@@ -602,9 +602,9 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
             
             
-            # ------------------------
-            # Calculo FFT de BOS y SYN
-            # ------------------------
+            # ------------------------------------
+            # Calculo FFT de BOS, SYN y Fuente (Y)
+            # ------------------------------------
 
             # Cargo SYN y FUENTE como npArray y conservo ademas los sampling rate
             rate_syn, SYN = sampling_freq, scaled
@@ -620,6 +620,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # Calculo FFT de TODO el BOS y SYN
             frequencies_BOS_all, BOS_fft_all = array2fft(BOS, rate_bos, 0, tiempo_total, log = True)
             frequencies_SYN_all, SYN_fft_all = array2fft(SYN, rate_syn, 0, tiempo_total, log = True)
+            frequencies_Y_all, Y_fft_all      = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
             
             # Calculo índices de bondad de ajuste del FFT y SYN completos
             chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
@@ -731,8 +732,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                     i = i+1                
                     axs[i].plot(frequencies_BOS_all, BOS_fft_all)
                     axs[i].plot(frequencies_SYN_all, SYN_fft_all, 'tab:green')
-                    # axs[i].plot(frequencies_Y, Y_fft, 'tab:orange', linestyle = 'dotted')
-                    axs[i].legend(['BOS FFT','SYN FFT'])
+                    axs[i].plot(frequencies_Y_all, Y_fft_all, 'tab:orange', linestyle = 'dotted')
+                    axs[i].legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
                     #axs[i].set_yscale('log')
                     axs[i].set_xlim([0,sampling_freq/2])
                     # axs[i].set_ylim([0,30])

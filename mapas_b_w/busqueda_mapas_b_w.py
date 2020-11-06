@@ -117,7 +117,7 @@ def find_ff(y_list, sampling_freq, freq, n):
     except :
         w = 0
     
-    print(f'\n {w_list} \n {w}')
+    print(f'\nPicos: {w_list}')
 
     return w
 
@@ -126,15 +126,15 @@ def find_ff(y_list, sampling_freq, freq, n):
 # Definicion parametros
 # ---------------------
 
-version = '4'
+version = '5'
 
 # GAMMAS
 # gammas = [29000]
-gammas = [29000, 33000, 36000, 41000]
-# gammas = np.arange(29000, 40000, 2000)
+# gammas = [16000, 33000]
+gammas = np.arange(10000, 40000, 1000)
 
 # BETAS
-betas =np.arange(-0.100 , 0.0, 0.001)
+betas =np.arange(-1.75 , 0.0, 0.0005)
 alp = - 0.150 # Alpha suficiente para fonar
 
 # Parametros de frecuencia y ventana temporal
@@ -162,7 +162,7 @@ for g in tqdm(gammas):
     ws = []
     betas_aux = []
     
-    for b in tqdm(betas):
+    for b in betas: #                          <- SACAR TQDM !!!
         
         # Condiciones iniciales
         v = np.zeros(2)
@@ -184,19 +184,21 @@ for g in tqdm(gammas):
         
         w = find_ff(y_out, sampling_freq, freq, len_syn)
         
+        print(f'w: {w} \nb: {b}')
+        
         if w > 300 and w < 2100 and len(ws) == 0:
             betas_aux.append(b)
             ws.append(w)
         if w > 300 and w < 2100 and len(ws) > 0 and w < ws[-1]:
             betas_aux.append(b)
-            ws.append(w)
+            ws.append(w)  
     
     b_w = [betas_aux, ws]
     b_w = np.array(b_w).T
         
     
     
-    np.savetxt(f'b_w_{g}_javi_{version}.txt', b_w, delimiter = ' ', fmt = '%1.3f')
+    np.savetxt(f'b_w_{g}_javi_{version}.txt', b_w, delimiter = ' ', fmt = '%1.4f')
     
     
         
