@@ -121,7 +121,7 @@ def expo(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-        alpha[i+k]= -0.150 # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
@@ -135,7 +135,7 @@ def rectas(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti) 
-        alpha[i+k]= -0.150 # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)     
@@ -149,7 +149,7 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, silabas_timest
     for k in range((j-i)):
         t = ti+k*dt
         frequencias[i+k]= media + amplitud * np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-        alpha[i+k]= -0.150 # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
@@ -251,7 +251,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_14_ruido-beta_0.001_ruido-ampl_0.01_G_41000'
+version = 'intento_15_mejor_ajuste'
 guardar_SYN = True
 
 
@@ -278,8 +278,8 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i] = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 40*3000*3000 # 360.000.000
-rdis = 23000.0
+uoch = 40*1500*1500 # 90.000.000
+rdis = 28000.0
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = - 0.35 # -0.35 
@@ -292,10 +292,11 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 # Tamaño del sistema de ecuaciones
 n = 5 
 
-# RUIDO
-ruido_beta = 0.001 # 0.001 es el mínimo paso 
-ruido_amplitud = 0.01 # porcentaje de la amplitud maxima del desvío del error
-print(f'\n ruido beta: {ruido_beta} \n ruido amplitud: {ruido_amplitud}')
+# RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
+ruido_beta = 0.001 # 0.001 es el mínimo paso  de beta en los mapas b-w
+ruido_alfa = 0.003 # 2% del valor del alfa necesario para fonar (-0.15)
+ruido_amplitud = 0.001 # el desvío del error es un porcentaje de la amplitud maxima del la envolvente
+print(f'\n ruido beta: {ruido_beta} \n ruido alfa: {ruido_alfa} \n ruido amplitud: {ruido_amplitud}')
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes
@@ -455,8 +456,8 @@ if guardar_SYN:
     write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
 
 # # Guardo salida de fuente.
-# y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
-# write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
+y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
+write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
 
 
 
@@ -465,17 +466,17 @@ if guardar_SYN:
 # Ploteos
 # -------
 
-fig, axs = plt.subplots(3, sharex=True)
+fig, axs = plt.subplots(2, sharex=True)
 
 i = 0
-axs[i].plot(v_3, 'tab:gray')
-axs[i].legend(['v[3]'], loc = 'lower left')
+# axs[i].plot(v_3, 'tab:gray')
+# axs[i].legend(['v[3]'], loc = 'lower left')
 
 # i = i+1
 # axs[i].plot(k, 'tab:orange')
 # axs[i].legend(['k'], loc = 'lower left')
 
-i = i+1
+# i = i+1
 axs[i].plot(sonido, 'tab:orange')
 axs[i].plot(envolvente, 'tab:red')
 axs[i].legend(['SYN', 'envolvente_BOS'], loc = 'lower left')
