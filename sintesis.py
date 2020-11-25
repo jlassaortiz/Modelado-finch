@@ -157,7 +157,7 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, silabas_timest
     return frequencias,silabas_timestamp
 
 
-def find_envolvente(sonido):
+def find_envolvente(sonido): # tiene que ser un np.array
     
     # Calculo transformada de Hilbert
     envolvente_h = hilbert(sonido)
@@ -251,7 +251,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_15_mejor_ajuste'
+version = 'intento_17_mejor_ajuste_ID-42245'
 guardar_SYN = True
 
 
@@ -260,15 +260,16 @@ guardar_SYN = True
 
 sampling_freq = 44100 # Hz
 dt = 1/sampling_freq
-print(f'\n sampling freq: {sampling_freq}')
+print(f'\nsampling freq: {sampling_freq}')
+
 
 # Parametros del modelo
 # ---------------------
 
-# Parámetros de la fuente
+# Parámetros de la fuente de sonido
 mapa_b_w = glob.glob('*.txt') # Mapa b_w para determinado gamma
 gamma = int(mapa_b_w[0][4:9]) # determino el gamma del nombre del archivo del mapa
-print(f'\n mapa: {mapa_b_w[0]} \n gamma: {gamma}')
+print(f'\nmapa: {mapa_b_w[0]} \ngamma: {gamma}')
 
 alpha = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de control
 beta = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de control
@@ -278,12 +279,12 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i] = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 40*1500*1500 # 90.000.000
-rdis = 28000.0
+uoch = 40*2900**2
+rdis = 6000.0
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = - 0.35 # -0.35 
-print(f'\n C: {uoch} \n R: {rdis} \n Lg: {uolg} \n \n largo_traquea: {L} \n coef. reflexión: {coef_reflexion}')
+print(f'\nC: {uoch} \nR: {rdis} \nLg: {uolg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
 
 # Condiciones iniciales
 v = np.zeros(5)
@@ -296,7 +297,12 @@ n = 5
 ruido_beta = 0.001 # 0.001 es el mínimo paso  de beta en los mapas b-w
 ruido_alfa = 0.003 # 2% del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.001 # el desvío del error es un porcentaje de la amplitud maxima del la envolvente
-print(f'\n ruido beta: {ruido_beta} \n ruido alfa: {ruido_alfa} \n ruido amplitud: {ruido_amplitud}')
+
+# ruido_beta = 0.0 
+# ruido_alfa = 0.0
+# ruido_amplitud = 0.0
+
+print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes

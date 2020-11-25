@@ -15,16 +15,19 @@ nombre_BOS = 'zfAB010-bi_BOS03_44100.wav'
     
 # expo(ti,tf,
 # wi,wf,
-# factor,frequencias, silabas_timestamp)
+# factor,
+# frequencias, silabas_timestamp)
 
 # rectas(ti,tf,
 # wi,wf,factor,
-# frequencias, silabas_timestamp)
+# frequencias, 
+# silabas_timestamp)
 
 # senito(ti,tf,
 # media,amplitud,
 # alphai,alphaf,
-# factor,frequencias, silabas_timestamp)
+# factor,frequencias, 
+# silabas_timestamp)
 
 # Notas intro
 

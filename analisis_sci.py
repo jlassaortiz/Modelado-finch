@@ -150,14 +150,14 @@ def array2fft(npArray, samplingRate, ti, tf, log = False):
     n = len(section)
     
     # Calculo el Power Frequencies (ver documentacion de np.fft)
-    section_fft = abs(np.fft.fft(section))**2
+    section_fft = np.absolute(np.fft.fft(section))**2
 
     # Saco frecuencias negativas (mitad superior del array. Ver documentacion np.fft)
     section_fft = section_fft[range(int(n/2))]
 
     # Paso a escala log
     if log:
-        section_fft = np.log(section_fft)  
+        section_fft = np.log(section_fft, where=(section_fft != 0))  
     
     # Genero vector de Frecuencias (conservo solo las positivas)
     frequencies = np.fft.fftfreq(n , d = 1/samplingRate)
@@ -313,21 +313,26 @@ random.seed(123)
 ave_fname = 'AB010-bi.py'
 tiempo_total = 2.07 # segundos 
 
-version = 'ajuste_GCR'
+version = 'ajuste_GCR_intento_17'
 
-guardar_syn  = True
-guardar_plot = True
+guardar_syn  = False
+guardar_plot = False
 
 # T inicial y final en segundos de silabas que voy analisar
-
-# silabas = {'B':[0.794424, 0.824770], 
-#            'C':[0.969586,1.000902],
-#            'D':[1.035681,1.108332]}
 
 silabas = {'D': [0.969586, 1.000902],
            'E': [1.035681, 1.108332],
            'C': [0.825773, 0.929312]}
 
+# silabas = {'B_ds': [0.699490,0.724839],
+#            'C_hs': [0.795595, 0.822859],
+#            'C_ds:': [0.825773, 0.929312],
+#            'D': [0.969586, 1.000902],
+#            'E': [1.035681, 1.108332],
+#            'F': [1.158998, 1.175064]}
+         
+  
+         
 
 # Frecuencia y ventana temporal
 # -----------------------------
@@ -346,16 +351,18 @@ beta = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de contro
 for i in range(np.int(tiempo_total/(dt))):
     alpha[i] = 0.15 # sistema no fona en este valor
     beta[i]  = 0.15 # sistema no fona en este valor
+    
+# Lista con nombres de mapas b_w para cada gamma
+lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/mapas_b_w/*.txt')
 
 # Parametros tracto vocal (filtro)
+f_rango = np.arange(500, 9001, 100) # 85 it
+uoch_list = [f*f*40 for f in f_rango] # rango 
+rdis_list = np.arange(1000, 40001, 1000) # 40 it
 
-# f_rango = np.arange(1500, 6001, 500)
+# f_rango = [2400]
 # uoch_list = [f*f*40 for f in f_rango]
-# rdis_list = np.arange(3000, 35000, 5000)
-
-f_rango = [3500, 6001]
-uoch_list = [f*f*40 for f in f_rango]
-rdis_list = [13000, 33000]
+# rdis_list = [12000]
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
@@ -413,12 +420,17 @@ gamma_resultados = []
 # Lista de las sílabas
 silabas_resultados = []
 
-# Número de iteración (para facilitar la búsqueda)
+# Número de ID de set de parámetros (para facilitar la búsqueda)
 Id = 0
 Id_list = []
 
-
-
+# Número de Iteración teniendo en cuenta el número de sílabas
+it = 1 # Itereación actual
+n_G = len(lista_mapas_b_w) # Total de gammas
+n_R = len(rdis_list) # Total de R
+n_C = len(uoch_list) # Total de C
+n_s = len(silabas) # Total de sílabas 
+it_totales = n_G * n_R * n_C * n_s
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes
@@ -447,11 +459,10 @@ envolvente = find_envolvente(BOS)
 # Calculamos Beta (a partir de las trazas de ff)
 # ----------------------------------------------
 
-# Lista con nombres de mapas b_w para cada gamma
-lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/mapas_b_w/*.txt')
-
 # Para cada gamma calculo betas a partir de las trazas de frecuencias
 for mapa_fn in tqdm(lista_mapas_b_w):
+
+    
     gamma = int(mapa_fn[86:91]) # Extraigo valor del gamma del nombre del archivo
     
     # Abro el archivo b_w
@@ -620,11 +631,11 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # Calculo FFT de TODO el BOS y SYN
             frequencies_BOS_all, BOS_fft_all = array2fft(BOS, rate_bos, 0, tiempo_total, log = True)
             frequencies_SYN_all, SYN_fft_all = array2fft(SYN, rate_syn, 0, tiempo_total, log = True)
-            frequencies_Y_all, Y_fft_all      = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
+            frequencies_Y_all, Y_fft_all     = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
             
             # Calculo índices de bondad de ajuste del FFT y SYN completos
             chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
-
+            
             # # Guardo indices de bondad de ajuste del FFT del SYN completo            
             # silabas_resultados.append('SYN all') 
             # chi2_all_resultados.append(chi2_all)
@@ -634,7 +645,11 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # infoM_all_resultados.append(infoM_all)
             # R2_all_resultados.append(R2_all)  
 
-            for silaba in silabas.items():            
+            for silaba in silabas.items():
+                
+                # Print calculo actual
+                print(f'\nSilaba: {silaba} \nGamma: {gamma} \nC: {c} \nR: {r} \nit: {it}/{it_totales}')
+                it = it + 1 # Actualizo la iteración actual
                 
                 # Defino comienzo y fin de la silaba
                 tin = silaba[1][0]
@@ -653,18 +668,16 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Extraigo pequeña parte del sonido de la sílaba de interes
                 BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
                 SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
-                         
-                
+    
 
-            
+    
+        
                 # -----------------------------------
                 # Calculo indices de bondad de ajuste
                 # -----------------------------------
 
                 chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
-                
                 chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
-                
                 chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
                 
                 
