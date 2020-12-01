@@ -126,7 +126,7 @@ def find_ff(y_list, sampling_freq, freq, n):
 # Definicion parametros
 # ---------------------
 
-version = '5_1'
+version = '5_2'
 
 # GAMMAS
 # gammas = [29000]
@@ -134,7 +134,7 @@ version = '5_1'
 gammas = np.arange(30000, 40000, 1000)
 
 # BETAS
-betas =np.arange(-0.07 , 0.0, 0.0005)
+betas =np.arange(-0.07 , 0.0, 0.00005)
 alp = - 0.150 # Alpha suficiente para fonar
 
 # Parametros de frecuencia y ventana temporal
@@ -201,7 +201,7 @@ for g in tqdm(gammas):
         
     
     
-    np.savetxt(f'b_w_{g}_javi_{version}.txt', b_w, delimiter = ' ', fmt = '%1.4f')
+    np.savetxt(f'b_w_{g}_javi_{version}.txt', b_w, delimiter = ' ', fmt = '%1.5f')
     
     
         

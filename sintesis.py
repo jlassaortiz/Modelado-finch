@@ -251,8 +251,9 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_17_mejor_ajuste_ID-42245'
+version = 'intento_17_ID-20640_masRuido'
 guardar_SYN = True
+guardar_fuente = False
 
 
 # Frecuencia y ventana temporal
@@ -279,8 +280,8 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i] = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 40*2900**2
-rdis = 6000.0
+uoch = 10000000
+rdis = 1000
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = - 0.35 # -0.35 
@@ -294,9 +295,9 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.001 # 0.001 es el mínimo paso  de beta en los mapas b-w
-ruido_alfa = 0.003 # 2% del valor del alfa necesario para fonar (-0.15)
-ruido_amplitud = 0.001 # el desvío del error es un porcentaje de la amplitud maxima del la envolvente
+ruido_beta = 0.005 # 0.001 es el mínimo paso  de beta en los mapas b-w
+ruido_alfa = 0.009 # 2% del valor del alfa necesario para fonar (-0.15)
+ruido_amplitud = 0.005 # el desvío del error es un porcentaje de la amplitud maxima del la envolvente
 
 # ruido_beta = 0.0 
 # ruido_alfa = 0.0
@@ -411,7 +412,7 @@ for i in range(np.int(tiempo_total/(dt))):
 # Escaleo amplitud de cada uno de los gestos de frecuencia
 # --------------------------------------------------------
 
-v_3 = np.asarray(v_3) /max(v_3) # es necesario para encontrar k que escalee correctamente y evitar errores
+v_3 = np.asarray(v_3) /max(np.abs(v_3)) # es necesario para encontrar k que escalee correctamente y evitar errores
 
 # Inicializo vector k para re-escaleo. 
 # Este vector k multiplicado por la salida del modelo (v[3]) va a dar el 
@@ -463,7 +464,8 @@ if guardar_SYN:
 
 # # Guardo salida de fuente.
 y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
-write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
+if guardar_fuente:
+    write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
 
 
 
@@ -472,19 +474,24 @@ write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
 # Ploteos
 # -------
 
-fig, axs = plt.subplots(2, sharex=True)
+fig, axs = plt.subplots(4, sharex=True)
 
 i = 0
-# axs[i].plot(v_3, 'tab:gray')
-# axs[i].legend(['v[3]'], loc = 'lower left')
+axs[i].plot(y_scaled, '-k')
+axs[i].legend(['fuente'], loc = 'lower left')
+
+i = i+1
+axs[i].plot(v_3, 'tab:gray')
+axs[i].legend(['v[3]'], loc = 'lower left')
 
 # i = i+1
 # axs[i].plot(k, 'tab:orange')
 # axs[i].legend(['k'], loc = 'lower left')
 
-# i = i+1
+i = i+1
 axs[i].plot(sonido, 'tab:orange')
 axs[i].plot(envolvente, 'tab:red')
+axs[i].plot(-envolvente, 'tab:red')
 axs[i].legend(['SYN', 'envolvente_BOS'], loc = 'lower left')
 
 # i = i+1
@@ -495,7 +502,10 @@ axs[i].legend(['SYN', 'envolvente_BOS'], loc = 'lower left')
 i = i+1
 axs[i].plot(BOS/max(BOS))
 axs[i].plot(envolvente/max(envolvente), 'tab:red')
+axs[i].plot(-envolvente/max(envolvente), 'tab:red')
 axs[i].legend(['BOS_norm', 'envolvente_BOS_norm'], loc = 'lower left')
+
+fig.suptitle(f'{nombre_ave}_Y_{version}.wav')
 
 plt.show()
 

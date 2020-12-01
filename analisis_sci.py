@@ -313,10 +313,10 @@ random.seed(123)
 ave_fname = 'AB010-bi.py'
 tiempo_total = 2.07 # segundos 
 
-version = 'ajuste_GCR_intento_17'
+version = 'variaciones_20640'
 
-guardar_syn  = False
-guardar_plot = False
+guardar_syn  = True
+guardar_plot = True
 
 # T inicial y final en segundos de silabas que voy analisar
 
@@ -356,13 +356,13 @@ for i in range(np.int(tiempo_total/(dt))):
 lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/mapas_b_w/*.txt')
 
 # Parametros tracto vocal (filtro)
-f_rango = np.arange(500, 9001, 100) # 85 it
-uoch_list = [f*f*40 for f in f_rango] # rango 
-rdis_list = np.arange(1000, 40001, 1000) # 40 it
+# f_rango = np.arange(500, 9001, 100) # 85 it
+# uoch_list = [f*f*40 for f in f_rango] # rango 
+# rdis_list = np.arange(1000, 40001, 1000) # 40 it
 
-# f_rango = [2400]
-# uoch_list = [f*f*40 for f in f_rango]
-# rdis_list = [12000]
+f_rango = np.arange(400, 600, 10)
+uoch_list = [f*f*40 for f in f_rango]
+rdis_list = np.arange(100, 2000, 100) 
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
