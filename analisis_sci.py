@@ -313,7 +313,7 @@ random.seed(123)
 ave_fname = 'AB010-bi.py'
 tiempo_total = 2.07 # segundos 
 
-version = 'variaciones_20640'
+version = 'variaciones_25929'
 
 guardar_syn  = True
 guardar_plot = True
@@ -360,9 +360,9 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 # uoch_list = [f*f*40 for f in f_rango] # rango 
 # rdis_list = np.arange(1000, 40001, 1000) # 40 it
 
-f_rango = np.arange(400, 600, 10)
+f_rango = np.arange(5010, 5200, 10)
 uoch_list = [f*f*40 for f in f_rango]
-rdis_list = np.arange(100, 2000, 100) 
+rdis_list = np.arange(9100, 11000, 100) 
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
