@@ -115,13 +115,13 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
 # Modela cada gesto de frec fundamental como una expo, recta o seno.
 # Modifica alpha para que el sistema fone.
 # Guarda inicio y finales de cada gestos de frecuencia.
-def expo(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
+def expo(ti,tf,wi,wf,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-        alpha[i+k]= -0.150 + random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
@@ -129,13 +129,13 @@ def expo(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     return frequencias, silabas_timestamp
 
 
-def rectas(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
+def rectas(ti,tf,wi,wf,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti) 
-        alpha[i+k]= -0.150 + random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)     
@@ -143,13 +143,13 @@ def rectas(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     return frequencias, silabas_timestamp
 
 
-def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, silabas_timestamp):
+def senito(ti,tf,media,amplitud,alphai,alphaf,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
         t = ti+k*dt
         frequencias[i+k]= media + amplitud * np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-        alpha[i+k]= -0.150 + random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
         
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
@@ -251,7 +251,7 @@ tiempo_total = 2.07 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_17_ID-20640_masRuido'
+version = 'intento_19_ID-22'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -277,13 +277,13 @@ beta = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de contro
 
 for i in range(np.int(tiempo_total/(dt))):
     alpha[i] = 0.15 # sistema no fona en este valor
-    beta[i] = 0.15 # sistema no fona en este valor
+    beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 10000000
-rdis = 1000
-uolg =  1.0
-L =  0.036 # Longitud tubo (en metros) (0.036)
+uoch = 6724000
+rdis = 400
+uolg = 1.0
+L    = 0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = - 0.35 # -0.35 
 print(f'\nC: {uoch} \nR: {rdis} \nLg: {uolg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
 
@@ -295,13 +295,9 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.005 # 0.001 es el mínimo paso  de beta en los mapas b-w
-ruido_alfa = 0.009 # 2% del valor del alfa necesario para fonar (-0.15)
-ruido_amplitud = 0.005 # el desvío del error es un porcentaje de la amplitud maxima del la envolvente
-
-# ruido_beta = 0.0 
-# ruido_alfa = 0.0
-# ruido_amplitud = 0.0
+ruido_beta = 0.02 # % del valor del mínimo paso (0.001) de beta en los mapas b-w 
+ruido_alfa = 0.001 # % del valor del alfa necesario para fonar (-0.15)
+ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
 
@@ -379,7 +375,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i] + random.normalvariate(0, ruido_beta) # La media del error es cero y el SD es ruido_beta
+    b = beta[i] + 0.001*random.normalvariate(0, ruido_beta) # La media del error es cero y el SD es ruido_beta
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
@@ -460,7 +456,7 @@ sonido = v_3 * k
 # Ver la documentacion de: scipy.io.wavfile.write
 scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
 if guardar_SYN:
-    write(f'{nombre_ave}_SYN_{version}.wav', int(sampling_freq), scaled)
+    write(f'{nombre_ave}_SYN_{version}_rBeta_{ruido_beta}_rAlfa_{ruido_alfa}_rAmp_{ruido_amplitud}.wav', int(sampling_freq), scaled)
 
 # # Guardo salida de fuente.
 y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)

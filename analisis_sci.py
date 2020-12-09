@@ -100,7 +100,7 @@ def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
 # Modela cada gesto de frec fundamental como una expo, recta o seno.
 # Modifica alpha para que el sistema fone.
 # Guarda inicio y finales de cada gestos de frecuencia.
-def expo(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
+def expo(ti,tf,wi,wf,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
@@ -114,7 +114,7 @@ def expo(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     return frequencias, silabas_timestamp
 
 
-def rectas(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
+def rectas(ti,tf,wi,wf,frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
@@ -128,7 +128,7 @@ def rectas(ti,tf,wi,wf,factor,frequencias, silabas_timestamp):
     return frequencias, silabas_timestamp
 
 
-def senito(ti,tf,media,amplitud,alphai,alphaf,factor,frequencias, silabas_timestamp):
+def senito(ti,tf,media,amplitud,alphai,alphaf, frequencias, silabas_timestamp):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
