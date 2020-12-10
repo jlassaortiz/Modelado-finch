@@ -245,13 +245,13 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = 'AB010-bi.py'
-tiempo_total = 2.07 # segundos
+ave_fname = 'zf-JL016-NaVe.py'
+tiempo_total = 2.96 # segundos
 
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_19_ID-22'
+version = 'intento_1'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -295,7 +295,7 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.02 # % del valor del mínimo paso (0.001) de beta en los mapas b-w 
+ruido_beta = 0.02 # % del valor del máximo beta en este canto
 ruido_alfa = 0.001 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
@@ -320,7 +320,8 @@ rate_bos, BOS = read(nombre_BOS)
 # Calculo envolvente como en Boari 2015 ("automatic")
 envolvente = find_envolvente(BOS)
 
-
+# Calculo máximo de beta para usarlo para generar el ruido
+beta_max = max(beta)
 
 
 # ----------------------------------------------
@@ -375,7 +376,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i] + 0.001*random.normalvariate(0, ruido_beta) # La media del error es cero y el SD es ruido_beta
+    b = beta[i] + beta_max*random.normalvariate(0, ruido_beta) # La media del error es cero y el SD es ruido_beta
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
