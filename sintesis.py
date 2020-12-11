@@ -245,8 +245,11 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = 'zf-JL016-NaVe.py'
-tiempo_total = 2.96 # segundos
+# ave_fname = 'zf-JL016-NaVe.py'
+# tiempo_total = 2.96 # segundos
+
+ave_fname = 'AB010-bi.py'
+tiempo_total = 2.07 # segundos
 
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
@@ -297,9 +300,8 @@ n = 5
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
 ruido_beta = 0.02 # % del valor del máximo beta en este canto
 ruido_alfa = 0.001 # % del valor del alfa necesario para fonar (-0.15)
-ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
-print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
+print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa}')
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes
@@ -416,14 +418,6 @@ v_3 = np.asarray(v_3) /max(np.abs(v_3)) # es necesario para encontrar k que esca
 # sonido final (cuya envolvente va a ser muy similar a la del BOS)
 k = deepcopy(envolvente)
 k = np.asarray(k)
-
-# Agrego ruido para que el sonido final tenga una envolvente ruidosa y algo distinta a la del BOS
-if ruido_amplitud > 0:
-    maximo_envolvente = max(k)
-    for i in range(len(k)):
-        # El ruido tiene media cero y un desvío estandar del x % de la máxima amplitud
-        ruido = maximo_envolvente * random.normalvariate(0, ruido_amplitud)
-        k[i] = k[i] + ruido
 
 # Modifico vector k para que re-escale la salida del modelo v[3] correctamente
 i = 0
