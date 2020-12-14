@@ -245,16 +245,16 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-# ave_fname = 'zf-JL016-NaVe.py'
-# tiempo_total = 2.96 # segundos
+ave_fname = 'zf-JL016-NaVe.py'
+tiempo_total = 2.96 # segundos
 
-ave_fname = 'AB010-bi.py'
-tiempo_total = 2.07 # segundos
+# ave_fname = 'AB010-bi.py'
+# tiempo_total = 2.07 # segundos
 
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'intento_1'
+version = 'G_14000_intento_1'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -283,11 +283,11 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 6724000
+uoch = 6724000 
 rdis = 400
 uolg = 1.0
 L    = 0.036 # Longitud tubo (en metros) (0.036)
-coef_reflexion = - 0.35 # -0.35 
+coef_reflexion = -0.35 # -0.35 
 print(f'\nC: {uoch} \nR: {rdis} \nLg: {uolg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
 
 # Condiciones iniciales
@@ -299,9 +299,10 @@ n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
 ruido_beta = 0.02 # % del valor del máximo beta en este canto
-ruido_alfa = 0.001 # % del valor del alfa necesario para fonar (-0.15)
+ruido_alfa = 0.02 # % del valor del alfa necesario para fonar (-0.15)
+ruido_amplitud = 0.03 # % del valor de la amplitud maxima de la envolvente
 
-print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa}')
+print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes
@@ -378,7 +379,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i] + beta_max*random.normalvariate(0, ruido_beta) # La media del error es cero y el SD es ruido_beta
+    b = beta[i] + beta_max*random.normalvariate(0, ruido_beta) 
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
@@ -418,6 +419,14 @@ v_3 = np.asarray(v_3) /max(np.abs(v_3)) # es necesario para encontrar k que esca
 # sonido final (cuya envolvente va a ser muy similar a la del BOS)
 k = deepcopy(envolvente)
 k = np.asarray(k)
+
+# Agrego ruido para que el sonido final tenga una envolvente ruidosa y algo distinta a la del BOS
+if ruido_amplitud > 0:
+    maximo_envolvente = max(k)
+    for i in range(len(k)):
+        # El ruido tiene media cero y un desvío estandar del x % de la máxima amplitud
+        ruido = maximo_envolvente * random.normalvariate(0, ruido_amplitud)
+        k[i] = k[i] + ruido
 
 # Modifico vector k para que re-escale la salida del modelo v[3] correctamente
 i = 0
