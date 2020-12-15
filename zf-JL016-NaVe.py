@@ -86,13 +86,13 @@ rectas(0.5622, 0.5648,
 rectas(0.5648, 0.5720,
        1200.0, 750.0,
        frequencias, silabas_timestamp)
-# D2
-rectas(0.5872, 0.5916,
-        4800.0, 4800.0,
-        frequencias, silabas_timestamp)
-expo(  0.5916, 0.6151,
-        4800.0, 450.0,
-        frequencias, silabas_timestamp)
+# # D2
+# rectas(0.5872, 0.5916,
+#         4800.0, 4800.0,
+#         frequencias, silabas_timestamp)
+# expo(  0.5916, 0.6151,
+#         4800.0, 450.0,
+#         frequencias, silabas_timestamp)
 # D3
 # rectas(0.6151, 0.6191,
 #        4800.0, 4800.0,
