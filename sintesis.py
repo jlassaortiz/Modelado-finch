@@ -41,7 +41,7 @@ global destimulodt1
 global hilb
 global tau
 
- 
+np.seterr(over='raise')
 
    
 # -----------------------
@@ -53,7 +53,7 @@ global tau
 def ecuaciones(v, dv):
     x ,y,i1,i2,i3 = v
     dv[0]=y
-    dv[1]=gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
+    dv[1]= gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
     dv[2]= i2
     dv[3]= - uolg*uoch*i1 - (rdis*uolg)*i2 + uolg*destimulodt
     dv[4]=0.
@@ -254,7 +254,7 @@ tiempo_total = 2.96 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'G_14000_intento_1'
+version = 'G_14000_intento_2'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -283,8 +283,8 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 6724000 
-rdis = 400
+uoch = 1032256000
+rdis = 9800
 uolg = 1.0
 L    = 0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = -0.35 # -0.35 
@@ -300,7 +300,7 @@ n = 5
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
 ruido_beta = 0.02 # % del valor del máximo beta en este canto
 ruido_alfa = 0.02 # % del valor del alfa necesario para fonar (-0.15)
-ruido_amplitud = 0.03 # % del valor de la amplitud maxima de la envolvente
+ruido_amplitud = 0.01 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
 
@@ -360,7 +360,7 @@ v_3 = [] # Salida del modelo
 # Otras variables intermedias de la integracion que quizas quiera guardar
 # x_out = []
 y_out = []
-# tiempo1 = []
+# tiempo = []
 # forzado_out = []
 # dforzadodt1 = []
 # elbeta1 = []
@@ -379,7 +379,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i] + beta_max*random.normalvariate(0, ruido_beta) 
+    b = beta[i] + beta_max*random.normalvariate(0, ruido_beta)
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion
@@ -400,7 +400,7 @@ for i in range(np.int(tiempo_total/(dt))):
     # Guarda otras variables de interes de la integracion
     # x_out.append(v[0])  
     y_out.append(v[1]) # Salida de la fuente! 
-    # tiempo1.append(t)
+    # tiempo.append(t)
     # forzado_out.append(estimulo)
     # dforzadodt1.append(destimulodt)
     # elbeta1.append(beta[i])
@@ -456,9 +456,23 @@ sonido = v_3 * k
 # Guardo canto sintetico
 # ----------------------
 
-# Este paso es necesario para que el archivo wav se guarde correctamente
 # Ver la documentacion de: scipy.io.wavfile.write
-scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767)
+
+# Genero factor para que el volumen de SYN sea igual al del BOS
+escala = np.max(np.abs(BOS))
+if BOS.dtype == 'float32':
+    escala = escala / 1
+elif BOS.dtype == 'int32':
+    escala = escala / 2147483647
+elif BOS.dtype == 'int16':
+    escala = escala / 32767
+elif BOS.dtype == 'uint8':
+    escala = escala / 25
+
+# Guardo el SYN en formato 16-bit
+# ver documentación de scipy.io.wavfile.read y scipy.io.wavfile.write 
+scaled = np.int16(sonido/np.max(np.abs(sonido)) * escala * 32767)
+
 if guardar_SYN:
     write(f'{nombre_ave}_SYN_{version}_rBeta_{ruido_beta}_rAlfa_{ruido_alfa}_rAmp_{ruido_amplitud}.wav', int(sampling_freq), scaled)
 
