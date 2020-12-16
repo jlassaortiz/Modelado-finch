@@ -256,7 +256,7 @@ tiempo_total = 2.96 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'G_14000_intento_5'
+version = 'G_14000_intento_6'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -301,7 +301,7 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.02 # % del valor del máximo beta en este canto
+ruido_beta = 0.005 # % del valor del máximo beta en este canto
 ruido_alfa = 0.02 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.01 # % del valor de la amplitud maxima de la envolvente
 
@@ -327,9 +327,6 @@ rate_bos, BOS = read(nombre_BOS)
 envolvente = find_envolvente(BOS, rate_bos)
 envolvente = resample(envolvente, np.int(tiempo_total/(dt)))
 
-# Calculo máximo de beta para usarlo para generar el ruido
-beta_max = max(beta)
-
 
 # ----------------------------------------------
 # Calculamos Beta (a partir de las trazas de ff)
@@ -353,7 +350,8 @@ for i in range(np.int(tiempo_total/(dt))):
         # beta es el polinomio p valuado en frecuencias[i]
         beta[i] = p(frequencias[i])
     
-
+# Calculo máximo de beta para usarlo para generar el ruido
+beta_max = np.max(np.abs(beta))
 
 # -----------
 # Integracion
