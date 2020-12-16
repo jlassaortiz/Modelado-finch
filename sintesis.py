@@ -301,9 +301,9 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.005 # % del valor del máximo beta en este canto
+ruido_beta = 0.002 # % del valor del máximo beta en este canto
 ruido_alfa = 0.02 # % del valor del alfa necesario para fonar (-0.15)
-ruido_amplitud = 0.01 # % del valor de la amplitud maxima de la envolvente
+ruido_amplitud = 0.02 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
 
@@ -337,7 +337,7 @@ bes,was = np.loadtxt(mapa_b_w[0] ,unpack=True)
 
 # Ajustamos was vs bes a un polinomio de grado 5
 # z es una lista de los coeficientes del polinomio ajustado
-z = np.polyfit(was, bes, 5)
+z = np.polyfit(was, bes, 6)
 
 # Generamos objeto p, que es un polinomio de grado 5 (es z, hecho objeto)
 p = np.poly1d(z)
