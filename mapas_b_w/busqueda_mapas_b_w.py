@@ -126,15 +126,15 @@ def find_ff(y_list, sampling_freq, freq, n):
 # Definicion parametros
 # ---------------------
 
-version = '5_2'
+version = '5_3'
 
 # GAMMAS
-# gammas = [29000]
+gammas = [14000]
 # gammas = [16000, 33000]
-gammas = np.arange(30000, 40000, 1000)
+# gammas = np.arange(30000, 40000, 1000)
 
 # BETAS
-betas =np.arange(-0.07 , 0.0, 0.00005)
+betas =np.arange(-5.0 , 0.0, 0.001)
 alp = - 0.150 # Alpha suficiente para fonar
 
 # Parametros de frecuencia y ventana temporal
@@ -165,7 +165,7 @@ for g in tqdm(gammas):
     ws = []
     betas_aux = []
     
-    for b in betas:
+    for b in tqdm(betas):
         
         # Condiciones iniciales
         v = np.zeros(2)
@@ -189,10 +189,10 @@ for g in tqdm(gammas):
         
         print(f'w: {w} \nb: {b}')
         
-        if w > 300 and w < 2100 and len(ws) == 0:
+        if w > 300 and w < 5000 and len(ws) == 0:
             betas_aux.append(b)
             ws.append(w)
-        if w > 300 and w < 2100 and len(ws) > 0 and w < ws[-1]:
+        if w > 300 and w < 5000 and len(ws) > 0 and w < ws[-1]:
             betas_aux.append(b)
             ws.append(w)  
     

@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
      
 from copy import deepcopy	
 from scipy.io.wavfile import write, read
-from scipy.signal import hilbert, savgol_filter
+from scipy.signal import hilbert, savgol_filter, resample
 
 global alp
 global b
@@ -157,8 +157,10 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,frequencias, silabas_timestamp):
     return frequencias,silabas_timestamp
 
 
-def find_envolvente(sonido): # tiene que ser un np.array
-    
+def find_envolvente(sonido, sf): # tiene que ser un np.array
+
+    paso = 1/sf    
+
     # Calculo transformada de Hilbert
     envolvente_h = hilbert(sonido)
     
@@ -167,7 +169,7 @@ def find_envolvente(sonido): # tiene que ser un np.array
     
     e = [0.0]    
     
-    for i in range(np.int(tiempo_total/(dt))):
+    for i in range(np.int(tiempo_total/(paso))):
         
         hilb = envolvente_h[i]
         tau = 0.001
@@ -189,8 +191,8 @@ def find_envolvente(sonido): # tiene que ser un np.array
             k3.append(x)
             k4.append(x)
             
-        dt2=dt/2.0
-        dt6=dt/6.0
+        dt2=paso/2.0
+        dt6=paso/6.0
         
         for x in range(0, n):
             v1[x]=e[x]
@@ -211,19 +213,19 @@ def find_envolvente(sonido): # tiene que ser un np.array
         k3[x] = -(1/tau) * xi + np.abs(hilb)       
         
         for x in range(0, n):
-            v1[x]=e[x]+dt*k3[x]
+            v1[x]=e[x]+paso*k3[x]
 
         xi = v1[x]
         k4[x] = -(1/tau) * xi + np.abs(hilb)       
         
         for x in range(0, n):
-            v1[x]=e[x]+dt*k4[x] #parece al pedo este paso
+            v1[x]=e[x]+paso*k4[x] #parece al pedo este paso
             
         for x in range(0, n):
             e[x]=e[x]+dt6*(2.0*(k2[x]+k3[x])+k1[x]+k4[x])
                 
         envolvente_int.append(e[0])
-    
+        
     # Aplico filtro Savitzky-Golay
     envolvente = savgol_filter(envolvente_int, 513, 4)
     
@@ -254,7 +256,7 @@ tiempo_total = 2.96 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = 'G_14000_intento_2'
+version = 'G_14000_intento_5'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -294,6 +296,7 @@ print(f'\nC: {uoch} \nR: {rdis} \nLg: {uolg} \n \nlargo_traquea: {L} \ncoef. ref
 v = np.zeros(5)
 v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 
+
 # Tamaño del sistema de ecuaciones
 n = 5 
 
@@ -321,7 +324,8 @@ with open(ave_fname) as f:
 rate_bos, BOS = read(nombre_BOS)
 
 # Calculo envolvente como en Boari 2015 ("automatic")
-envolvente = find_envolvente(BOS)
+envolvente = find_envolvente(BOS, rate_bos)
+envolvente = resample(envolvente, np.int(tiempo_total/(dt)))
 
 # Calculo máximo de beta para usarlo para generar el ruido
 beta_max = max(beta)
@@ -384,6 +388,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Integracion
     t =i*dt
+    v.astype('float64')
     rk4(ecuaciones,v,n,t,dt) # modifica v
      
     # Actualizo las siguientes variables (retro-propagación)
