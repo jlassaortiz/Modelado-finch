@@ -12,7 +12,7 @@ nombre_BOS = 'zf-JL016-NaVe_BOS_long_44100.wav'
 # --------------------------------------------------------------------------
 
 # Para cada silaba defino: alpha, frecuencias fundamentales y silabas_timestamp
-    
+
 # expo(ti,tf,
 # wi,wf,
 # factor,
@@ -20,13 +20,13 @@ nombre_BOS = 'zf-JL016-NaVe_BOS_long_44100.wav'
 
 # rectas(ti,tf,
 # wi,wf,factor,
-# frequencias, 
+# frequencias,
 # silabas_timestamp)
 
 # senito(ti,tf,
 # media,amplitud,
 # alphai,alphaf,
-# factor,frequencias, 
+# factor,frequencias,
 # silabas_timestamp)
 
 # Notas intro
@@ -36,7 +36,7 @@ rectas(0.1817, 0.1961,
        2600.0, 2600.0,
        frequencias, silabas_timestamp)
 expo(  0.1961, 0.2134,
-       3100.0, 750.0,
+       2600.0, 750.0,
        frequencias, silabas_timestamp)
 
 
@@ -45,7 +45,7 @@ rectas(0.2717, 0.2861,
        2600.0, 2600.0,
        frequencias, silabas_timestamp)
 expo(  0.2861, 0.3034,
-       3100.0, 750.0,
+       2600.0, 750.0,
        frequencias, silabas_timestamp)
 
 
@@ -158,7 +158,7 @@ expo(  0.9160, 0.9300,
        frequencias, silabas_timestamp)
 
 
-# G 
+# G
 rectas(0.9589, 0.9626,
        1000.0, 1000.0,
        frequencias, silabas_timestamp)
@@ -203,45 +203,45 @@ rectas(0.5648 +0.5767, 0.5720 +0.5767,
        frequencias, silabas_timestamp)
 # D2'
 rectas(0.5872 +0.5767, 0.5916 +0.5767,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.5916 +0.5767, 0.6151 +0.5767,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D3'
 rectas(0.6151 +0.5767, 0.6191 +0.5767,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6191 +0.5767, 0.6390 +0.5767,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D4'
 rectas(0.6390 +0.5767, 0.6429 +0.5767,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6429 +0.5767, 0.6623 +0.5767,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D5'
 rectas(0.6623 +0.5767, 0.6671 +0.5767,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6671 +0.5767, 0.6859 +0.5767,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D6'
 rectas(0.6859 +0.5767, 0.6908 +0.5767,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6908 +0.5767, 0.7095 +0.5767,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D7'
 rectas(0.7095 +0.5767, 0.7163 +0.5767,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.7163 +0.5767, 0.7373 +0.5767,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D8'
 rectas(0.7373 +0.5767, 0.7408 +0.5767,
@@ -267,19 +267,19 @@ expo(  0.8255 +0.5767, 0.8410 +0.5767,
 
 # i2
 rectas(0.2717 +1.3585, 0.2861 +1.3585,
-       3100.0, 3100.0,
+       2600.0, 2600.0,
        frequencias, silabas_timestamp)
 expo(  0.2861 +1.3585, 0.3034 +1.3585,
-       3100.0, 750.0,
+       2600.0, 750.0,
        frequencias, silabas_timestamp)
 
 
 # A
 rectas(0.3642 +1.3585, 0.3757 +1.3585,
-       1200.0, 2400.0,
+       600.0, 1200.0,
        frequencias, silabas_timestamp)
 expo(  0.3757 +1.3585, 0.3990 +1.3585,
-       2400.0, 750.0,
+       1200.0, 400.0,
        frequencias, silabas_timestamp)
 
 
@@ -313,45 +313,45 @@ rectas(0.5648 +1.3585, 0.5720 +1.3585,
        frequencias, silabas_timestamp)
 # D2
 rectas(0.5872 +1.3585, 0.5916 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.5916 +1.3585, 0.6151 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D3
 rectas(0.6151 +1.3585, 0.6191 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6191 +1.3585, 0.6390 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D4
 rectas(0.6390 +1.3585, 0.6429 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6429 +1.3585, 0.6623 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D5
 rectas(0.6623 +1.3585, 0.6671 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6671 +1.3585, 0.6859 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D6
 rectas(0.6859 +1.3585, 0.6908 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6908 +1.3585, 0.7095 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D7
 rectas(0.7095 +1.3585, 0.7163 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.7163 +1.3585, 0.7373 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D8
 rectas(0.7373 +1.3585, 0.7408 +1.3585,
@@ -383,7 +383,7 @@ expo(  0.9160 +1.3585, 0.9300 +1.3585,
        frequencias, silabas_timestamp)
 
 
-# G 
+# G
 rectas(0.9589 +1.3585, 0.9626 +1.3585,
        1000.0, 1000.0,
        frequencias, silabas_timestamp)
@@ -428,45 +428,45 @@ rectas(0.5648 +0.5767 +1.3585, 0.5720 +0.5767 +1.3585,
        frequencias, silabas_timestamp)
 # D2'
 rectas(0.5872 +0.5767 +1.3585, 0.5916 +0.5767 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.5916 +0.5767 +1.3585, 0.6151 +0.5767 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D3'
 rectas(0.6151 +0.5767 +1.3585, 0.6191 +0.5767 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6191 +0.5767 +1.3585, 0.6390 +0.5767 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D4'
 rectas(0.6390 +0.5767 +1.3585, 0.6429 +0.5767 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6429 +0.5767 +1.3585, 0.6623 +0.5767 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D5'
 rectas(0.6623 +0.5767 +1.3585, 0.6671 +0.5767 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6671 +0.5767 +1.3585, 0.6859 +0.5767 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D6'
 rectas(0.6859 +0.5767 +1.3585, 0.6908 +0.5767 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.6908 +0.5767 +1.3585, 0.7095 +0.5767 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D7'
 rectas(0.7095 +0.5767 +1.3585, 0.7163 +0.5767 +1.3585,
-        4800.0, 4800.0,
+        4900.0, 4900.0,
         frequencias, silabas_timestamp)
 expo(  0.7163 +0.5767 +1.3585, 0.7373 +0.5767 +1.3585,
-        4800.0, 450.0,
+        4900.0, 450.0,
         frequencias, silabas_timestamp)
 # D8'
 rectas(0.7373 +0.5767 +1.3585, 0.7408 +0.5767 +1.3585,
