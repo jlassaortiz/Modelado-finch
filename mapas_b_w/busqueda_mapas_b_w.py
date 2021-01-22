@@ -129,12 +129,12 @@ def find_ff(y_list, sampling_freq, freq, n):
 version = '5_3'
 
 # GAMMAS
-gammas = [14000]
+gammas = [24000]
 # gammas = [16000, 33000]
 # gammas = np.arange(30000, 40000, 1000)
 
 # BETAS
-betas =np.arange(-5.0 , 0.0, 0.001)
+betas =np.arange(-1.6 , 0.0, 0.001)
 alp = - 0.150 # Alpha suficiente para fonar
 
 # Parametros de frecuencia y ventana temporal

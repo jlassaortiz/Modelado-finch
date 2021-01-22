@@ -6,7 +6,7 @@ Created on Wed Dec  9 14:15:45 2020
 @author: javi_lassaortiz
 """
 nombre_ave = 'zf-JL016-NaVe'
-nombre_BOS = 'zf-JL016-NaVe_BOS_long_44100.wav'
+nombre_BOS = 'zf-JL016-NaVe_BOS_long_44100_70dB.wav'
 
 # Calculamos trazas de frecuencias fundamentales de este canto en particular
 # --------------------------------------------------------------------------
