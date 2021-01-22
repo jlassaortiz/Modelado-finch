@@ -179,26 +179,27 @@ def denoisear(npArray, samplingRate):
 # Calculo de Chi2 de dos señales tipo npArray 1D
 def buen_ajuste(obs, pred): # obs = BOS,   pred = SYN
     
-    # Traslado la señal para que no contengan ceros y chi2 esté bien definido siempre
-    minimo = abs(min(pred)) + 1 
-    obs_aux = obs + minimo
-    pred_aux = pred + minimo
+    # # Traslado la señal para que no contengan ceros y chi2 esté bien definido siempre
+    # minimo = abs(min(pred)) + 1 
+    # obs_aux = obs + minimo
+    # pred_aux = pred + minimo
 
-    # Calculo Chi2    
-    chi = sum( ((obs_aux - pred_aux)**2)/ pred_aux )
+    # # Calculo Chi2    
+    # chi = sum( ((obs_aux - pred_aux)**2)/ pred_aux )
 
     # Calculo varios parámetros de correlación
-    pearson_r, p_value = pearsonr(obs, pred)
+    # pearson_r, p_value = pearsonr(obs, pred)
     sperman_r, p_value = spearmanr(obs, pred)
-    kendal_t, p_value = kendalltau(obs, pred)
+    # kendal_t, p_value = kendalltau(obs, pred)
     
-    # Calculo la información mutua
-    info_m = mutual_info_regression(obs.reshape(-1,1), pred)[0]
+    # # Calculo la información mutua
+    # info_m = mutual_info_regression(obs.reshape(-1,1), pred)[0]
     
-    # Calculo el coeficiente de determinación
-    R2 = r2_score(obs, pred)
+    # # Calculo el coeficiente de determinación
+    # R2 = r2_score(obs, pred)
     
-    return chi, pearson_r, sperman_r, kendal_t, info_m, R2
+    # return chi, pearson_r, sperman_r, kendal_t, info_m, R2
+    return sperman_r
 
 
 # Extra pequeña sección de sonido al rededor de la máxima amplitud
@@ -310,19 +311,22 @@ random.seed(123)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = 'AB010-bi.py'
-tiempo_total = 2.07 # segundos 
+ave_fname = '022-NeRo_1motif.py'
+tiempo_total = 1.04 # segundos
 
-version = 'variaciones_25929'
+# ave_fname = 'AB010-bi.py'
+# tiempo_total = 2.07 # segundos 
+
+version = ''
 
 guardar_syn  = True
 guardar_plot = True
 
 # T inicial y final en segundos de silabas que voy analisar
 
-silabas = {'D': [0.969586, 1.000902],
-           'E': [1.035681, 1.108332],
-           'C': [0.825773, 0.929312]}
+# silabas = {'D': [0.969586, 1.000902],
+#            'E': [1.035681, 1.108332],
+#            'C': [0.825773, 0.929312]}
 
 # silabas = {'B_ds': [0.699490,0.724839],
 #            'C_hs': [0.795595, 0.822859],
@@ -360,9 +364,11 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 # uoch_list = [f*f*40 for f in f_rango] # rango 
 # rdis_list = np.arange(1000, 40001, 1000) # 40 it
 
-f_rango = np.arange(5010, 5200, 10)
-uoch_list = [f*f*40 for f in f_rango]
-rdis_list = np.arange(9100, 11000, 100) 
+# f_rango = np.arange(5010, 5200, 10)
+# uoch_list = [f*f*40 for f in f_rango]
+
+uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000)
+rdis_list = np.arange(1000, 40000, 100) 
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
@@ -384,33 +390,33 @@ n = 5 # Tamaño del sistema de ecuaciones
 # ---------------------------------------
 
 # Lista de parámetros de bondad de ajuste
-chi2_log_resultados = []
-pearsonR_log_resultados = []
+# chi2_log_resultados = []
+# pearsonR_log_resultados = []
 spermanR_log_resultados = []
-kendalT_log_resultados = []
-infoM_log_resultados = []
-R2_log_resultados = []
+# kendalT_log_resultados = []
+# infoM_log_resultados = []
+# R2_log_resultados = []
 
-chi2_lin_resultados = []
-pearsonR_lin_resultados = []
-spermanR_lin_resultados = []
-kendalT_lin_resultados = []
-infoM_lin_resultados = []
-R2_lin_resultados = []
+# chi2_lin_resultados = []
+# pearsonR_lin_resultados = []
+# spermanR_lin_resultados = []
+# kendalT_lin_resultados = []
+# infoM_lin_resultados = []
+# R2_lin_resultados = []
 
-chi2_s_resultados = []
-pearsonR_s_resultados = []
-spermanR_s_resultados = []
-kendalT_s_resultados = []
-infoM_s_resultados = []
-R2_s_resultados = []
+# chi2_s_resultados = []
+# pearsonR_s_resultados = []
+# spermanR_s_resultados = []
+# kendalT_s_resultados = []
+# infoM_s_resultados = []
+# R2_s_resultados = []
 
-chi2_all_resultados = []
-pearsonR_all_resultados = []
+# chi2_all_resultados = []
+# pearsonR_all_resultados = []
 spermanR_all_resultados = []
-kendalT_all_resultados = []
-infoM_all_resultados = []
-R2_all_resultados = []
+# kendalT_all_resultados = []
+# infoM_all_resultados = []
+# R2_all_resultados = []
 
 # Lista de parámetros C, R y Gamma
 c_resultados = []
@@ -420,17 +426,7 @@ gamma_resultados = []
 # Lista de las sílabas
 silabas_resultados = []
 
-# Número de ID de set de parámetros (para facilitar la búsqueda)
-Id = 0
-Id_list = []
 
-# Número de Iteración teniendo en cuenta el número de sílabas
-it = 1 # Itereación actual
-n_G = len(lista_mapas_b_w) # Total de gammas
-n_R = len(rdis_list) # Total de R
-n_C = len(uoch_list) # Total de C
-n_s = len(silabas) # Total de sílabas 
-it_totales = n_G * n_R * n_C * n_s
 
 # ------------------------------------------------------------
 # Calculamos trazas de frecuencias fundamentales y envolventes
@@ -452,6 +448,32 @@ BOS = np.array(BOS, dtype= 'float64')
 # Calculo envolvente como en Boari 2015 ("automatic")
 envolvente = find_envolvente(BOS)
 
+silabas = dict()
+
+for i in range(int(len(silabas_timestamp)/2 - 1)):
+    silaba = str(i)
+    t = [0,0]
+    t[0] = silabas_timestamp[i]
+    t[1] = silabas_timestamp[i + 1]
+    
+    silabas[silaba] = t
+    
+    del(t, silaba)
+
+del(i)
+
+
+# Número de ID de set de parámetros (para facilitar la búsqueda)
+Id = 0
+Id_list = []
+
+# Número de Iteración teniendo en cuenta el número de sílabas
+it = 1 # Itereación actual
+n_G = len(lista_mapas_b_w) # Total de gammas
+n_R = len(rdis_list) # Total de R
+n_C = len(uoch_list) # Total de C
+n_s = len(silabas) # Total de sílabas 
+it_totales = n_G * n_R * n_C * n_s
 
 
 
@@ -621,8 +643,8 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             rate_syn, SYN = sampling_freq, scaled
             SYN = np.array(SYN, dtype= 'float64')
             
-            rate_Y, Y = sampling_freq, y_scaled
-            Y = np.array(Y, dtype = 'float64')
+            # rate_Y, Y = sampling_freq, y_scaled
+            # Y = np.array(Y, dtype = 'float64')
             
             # # Filtro BOS y SYN
             # BOS = denoisear(BOS, rate_bos)
@@ -631,16 +653,18 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # Calculo FFT de TODO el BOS y SYN
             frequencies_BOS_all, BOS_fft_all = array2fft(BOS, rate_bos, 0, tiempo_total, log = True)
             frequencies_SYN_all, SYN_fft_all = array2fft(SYN, rate_syn, 0, tiempo_total, log = True)
-            frequencies_Y_all, Y_fft_all     = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
+            # frequencies_Y_all, Y_fft_all     = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
             
             # Calculo índices de bondad de ajuste del FFT y SYN completos
-            chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
+            # chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
+            spermanR_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
+
             
             # # Guardo indices de bondad de ajuste del FFT del SYN completo            
             # silabas_resultados.append('SYN all') 
             # chi2_all_resultados.append(chi2_all)
             # pearsonR_all_resultados.append(pearsonR_all)
-            # spermanR_all_resultados.append(spermanR_all)
+            spermanR_all_resultados.append(spermanR_all)
             # kendalT_all_resultados.append(kendalT_all)
             # infoM_all_resultados.append(infoM_all)
             # R2_all_resultados.append(R2_all)  
@@ -659,15 +683,15 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Calculo FFT de la sílaba de ineteres escala LOG
                 frequencies_BOS, BOS_fft = array2fft(BOS, rate_bos, tin, tfin, log = True)
                 frequencies_SYN, SYN_fft = array2fft(SYN, rate_syn, tin, tfin, log = True)
-                frequencies_Y,   Y_fft   = array2fft(Y,   rate_Y,   tin, tfin, log = True)
+                # frequencies_Y,   Y_fft   = array2fft(Y,   rate_Y,   tin, tfin, log = True)
                 
-                # Calculo FFT de la sílaba de ineteres escala LINEAL
-                frequencies_BOS, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
-                frequencies_SYN, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
+                # # Calculo FFT de la sílaba de ineteres escala LINEAL
+                # frequencies_BOS, BOS_fft_lin = array2fft(BOS, rate_bos, tin, tfin, log = False)
+                # frequencies_SYN, SYN_fft_lin = array2fft(SYN, rate_syn, tin, tfin, log = False)                
                 
-                # Extraigo pequeña parte del sonido de la sílaba de interes
-                BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
-                SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
+                # # Extraigo pequeña parte del sonido de la sílaba de interes
+                # BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
+                # SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
     
 
     
@@ -676,39 +700,41 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 # Calculo indices de bondad de ajuste
                 # -----------------------------------
 
-                chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
-                chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
-                chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
+                spermanR_log = buen_ajuste(BOS_fft, SYN_fft)
+                
+                # chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
+                # chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
+                # chi2_s, pearsonR_s, spermanR_s, kendalT_s, infoM_s, R2_s = buen_ajuste(BOS_chop, SYN_chop)
                 
                 
                 # Guardo indices de bondad de ajuste             
-                chi2_log_resultados.append(chi2_log)
-                pearsonR_log_resultados.append(pearsonR_log)
+                # chi2_log_resultados.append(chi2_log)
+                # pearsonR_log_resultados.append(pearsonR_log)
                 spermanR_log_resultados.append(spermanR_log)
-                kendalT_log_resultados.append(kendalT_log)
-                infoM_log_resultados.append(infoM_log)
-                R2_log_resultados.append(R2_log)
+                # kendalT_log_resultados.append(kendalT_log)
+                # infoM_log_resultados.append(infoM_log)
+                # R2_log_resultados.append(R2_log)
                 
-                chi2_lin_resultados.append(chi2_lin)
-                pearsonR_lin_resultados.append(pearsonR_lin)
-                spermanR_lin_resultados.append(spermanR_lin)
-                kendalT_lin_resultados.append(kendalT_lin)
-                infoM_lin_resultados.append(infoM_lin)
-                R2_lin_resultados.append(R2_lin)
+                # chi2_lin_resultados.append(chi2_lin)
+                # pearsonR_lin_resultados.append(pearsonR_lin)
+                # spermanR_lin_resultados.append(spermanR_lin)
+                # kendalT_lin_resultados.append(kendalT_lin)
+                # infoM_lin_resultados.append(infoM_lin)
+                # R2_lin_resultados.append(R2_lin)
                 
-                chi2_s_resultados.append(chi2_s)
-                pearsonR_s_resultados.append(pearsonR_s)
-                spermanR_s_resultados.append(spermanR_s)
-                kendalT_s_resultados.append(kendalT_s)
-                infoM_s_resultados.append(infoM_s)
-                R2_s_resultados.append(R2_s)
+                # chi2_s_resultados.append(chi2_s)
+                # pearsonR_s_resultados.append(pearsonR_s)
+                # spermanR_s_resultados.append(spermanR_s)
+                # kendalT_s_resultados.append(kendalT_s)
+                # infoM_s_resultados.append(infoM_s)
+                # R2_s_resultados.append(R2_s)
                 
-                chi2_all_resultados.append(chi2_all)
-                pearsonR_all_resultados.append(pearsonR_all)
+                # chi2_all_resultados.append(chi2_all)
+                # pearsonR_all_resultados.append(pearsonR_all)
                 spermanR_all_resultados.append(spermanR_all)
-                kendalT_all_resultados.append(kendalT_all)
-                infoM_all_resultados.append(infoM_all)
-                R2_all_resultados.append(R2_all)  
+                # kendalT_all_resultados.append(kendalT_all)
+                # infoM_all_resultados.append(infoM_all)
+                # R2_all_resultados.append(R2_all)  
                 
                 c_resultados.append(c)
                 r_resultados.append(r)
@@ -779,72 +805,84 @@ resultados = {'Id': Id_list,
               'C': c_resultados, 
               'R': r_resultados,
               'silaba': silabas_resultados,
-              'Chi2_log': chi2_log_resultados,
-              'Pearson_log': pearsonR_log_resultados,
               'Spearman_log': spermanR_log_resultados,
-              'Kendal_log': kendalT_log_resultados,
-              'Info_Mutua_log': infoM_log_resultados,
-              'R2_log': R2_log_resultados,
-              'Chi2_lin': chi2_lin_resultados,
-              'Pearson_lin': pearsonR_lin_resultados,
-              'Spearman_lin': spermanR_lin_resultados,
-              'Kendal_lin': kendalT_lin_resultados,
-              'Info_Mutua_lin': infoM_lin_resultados,
-              'R2_lin': R2_lin_resultados,              
-              'Chi2_s': chi2_s_resultados,
-              'Pearson_s': pearsonR_s_resultados,
-              'Spearman_s': spermanR_s_resultados,
-              'Kendal_s': kendalT_s_resultados,
-              'Info_Mutua_s': infoM_s_resultados,
-              'R2_s': R2_s_resultados,
-              'Chi2_all': chi2_all_resultados,
-              'Pearson_all': pearsonR_all_resultados,
-              'Spearman_all': spermanR_all_resultados,
-              'Kendal_all': kendalT_all_resultados,
-              'Info_Mutua_all': infoM_all_resultados,
-              'R2_all': R2_all_resultados}
+              'Spearman_all': spermanR_all_resultados}
+
+
+# resultados = {'Id': Id_list,
+#               'G': gamma_resultados, 
+#               'C': c_resultados, 
+#               'R': r_resultados,
+#               'silaba': silabas_resultados,
+#               'Chi2_log': chi2_log_resultados,
+#               'Pearson_log': pearsonR_log_resultados,
+#               'Spearman_log': spermanR_log_resultados,
+#               'Kendal_log': kendalT_log_resultados,
+#               'Info_Mutua_log': infoM_log_resultados,
+#               'R2_log': R2_log_resultados,
+#               'Chi2_lin': chi2_lin_resultados,
+#               'Pearson_lin': pearsonR_lin_resultados,
+#               'Spearman_lin': spermanR_lin_resultados,
+#               'Kendal_lin': kendalT_lin_resultados,
+#               'Info_Mutua_lin': infoM_lin_resultados,
+#               'R2_lin': R2_lin_resultados,              
+#               'Chi2_s': chi2_s_resultados,
+#               'Pearson_s': pearsonR_s_resultados,
+#               'Spearman_s': spermanR_s_resultados,
+#               'Kendal_s': kendalT_s_resultados,
+#               'Info_Mutua_s': infoM_s_resultados,
+#               'R2_s': R2_s_resultados,
+#               'Chi2_all': chi2_all_resultados,
+#               'Pearson_all': pearsonR_all_resultados,
+#               'Spearman_all': spermanR_all_resultados,
+#               'Kendal_all': kendalT_all_resultados,
+#               'Info_Mutua_all': infoM_all_resultados,
+#               'R2_all': R2_all_resultados}
 
 resultados = pd.DataFrame(resultados)
 
 
 
 # Busco mejores ajuste FFT (resumen)
-resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
-resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)][:1])
+# resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
+# resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)][:1])
 resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1])       
-resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)][:1])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)][:1])
-resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)][:1])  
+# resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)][:1])  
+# resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)][:1])
+# resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)][:1])  
 
-resumen = resumen.append(resultados[resultados.Chi2_lin == min(resultados.Chi2_lin)][:1])
-resumen = resumen.append(resultados[resultados.Pearson_lin == max(resultados.Pearson_lin)][:1])
-resumen = resumen.append(resultados[resultados.Spearman_lin == max(resultados.Spearman_lin)][:1])       
-resumen = resumen.append(resultados[resultados.Kendal_lin == max(resultados.Kendal_lin)][:1])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_lin == max(resultados.Info_Mutua_lin)][:1])
-resumen = resumen.append(resultados[resultados.R2_lin == max(resultados.R2_lin)])  
+# resumen = resumen.append(resultados[resultados.Chi2_lin == min(resultados.Chi2_lin)][:1])
+# resumen = resumen.append(resultados[resultados.Pearson_lin == max(resultados.Pearson_lin)][:1])
+# resumen = resumen.append(resultados[resultados.Spearman_lin == max(resultados.Spearman_lin)][:1])       
+# resumen = resumen.append(resultados[resultados.Kendal_lin == max(resultados.Kendal_lin)][:1])  
+# resumen = resumen.append(resultados[resultados.Info_Mutua_lin == max(resultados.Info_Mutua_lin)][:1])
+# resumen = resumen.append(resultados[resultados.R2_lin == max(resultados.R2_lin)])  
 
-resumen = resumen.append(resultados[resultados.Chi2_s == min(resultados.Chi2_s)][:1])
-resumen = resumen.append(resultados[resultados.Pearson_s == max(resultados.Pearson_s)][:1])
-resumen = resumen.append(resultados[resultados.Spearman_s == max(resultados.Spearman_s)][:1])       
-resumen = resumen.append(resultados[resultados.Kendal_s == max(resultados.Kendal_s)][:1])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_s == max(resultados.Info_Mutua_s)][:1])
-resumen = resumen.append(resultados[resultados.R2_s == max(resultados.R2_s)][:1])
+# resumen = resumen.append(resultados[resultados.Chi2_s == min(resultados.Chi2_s)][:1])
+# resumen = resumen.append(resultados[resultados.Pearson_s == max(resultados.Pearson_s)][:1])
+# resumen = resumen.append(resultados[resultados.Spearman_s == max(resultados.Spearman_s)][:1])       
+# resumen = resumen.append(resultados[resultados.Kendal_s == max(resultados.Kendal_s)][:1])  
+# resumen = resumen.append(resultados[resultados.Info_Mutua_s == max(resultados.Info_Mutua_s)][:1])
+# resumen = resumen.append(resultados[resultados.R2_s == max(resultados.R2_s)][:1])
 
-resumen = resumen.append(resultados[resultados.Chi2_all == min(resultados.Chi2_all)][:1])
-resumen = resumen.append(resultados[resultados.Pearson_all == max(resultados.Pearson_all)][:1])
+# resumen = resumen.append(resultados[resultados.Chi2_all == min(resultados.Chi2_all)][:1])
+# resumen = resumen.append(resultados[resultados.Pearson_all == max(resultados.Pearson_all)][:1])
 resumen = resumen.append(resultados[resultados.Spearman_all == max(resultados.Spearman_all)][:1])       
-resumen = resumen.append(resultados[resultados.Kendal_all == max(resultados.Kendal_all)][:1])  
-resumen = resumen.append(resultados[resultados.Info_Mutua_all == max(resultados.Info_Mutua_all)][:1])
-resumen = resumen.append(resultados[resultados.R2_all == max(resultados.R2_all)][:1])    
+# resumen = resumen.append(resultados[resultados.Kendal_all == max(resultados.Kendal_all)][:1])  
+# resumen = resumen.append(resultados[resultados.Info_Mutua_all == max(resultados.Info_Mutua_all)][:1])
+# resumen = resumen.append(resultados[resultados.R2_all == max(resultados.R2_all)][:1])    
 
 
 # Resumen promediando por cada combinación de C,R y G (promedio los indices de cada silaba y el SYN total)
 indices = []
 columnas = ['Id', 'G', 'C', 'R', 
-            'Chi2_log', 'Pearson_log', 'Spearman_log', 'Kendal_log', 'Info_Mutua_log', 'R2_log', 
-            'Chi2_lin', 'Pearson_lin', 'Spearman_lin', 'Kendal_lin', 'Info_Mutua_lin', 'R2_lin', 
-            'Chi2_s',   'Pearson_s',   'Spearman_s',   'Kendal_s',   'Info_Mutua_s',   'R2_s', 
-            'Chi2_all', 'Pearson_all', 'Spearman_all', 'Kendal_all', 'Info_Mutua_all', 'R2_all']
+            'Spearman_log',
+            'Pearson_all']
+# columnas = ['Id', 'G', 'C', 'R', 
+#             'Chi2_log', 'Pearson_log', 'Spearman_log', 'Kendal_log', 'Info_Mutua_log', 'R2_log', 
+#             'Chi2_lin', 'Pearson_lin', 'Spearman_lin', 'Kendal_lin', 'Info_Mutua_lin', 'R2_lin', 
+#             'Chi2_s',   'Pearson_s',   'Spearman_s',   'Kendal_s',   'Info_Mutua_s',   'R2_s', 
+#             'Chi2_all', 'Pearson_all', 'Spearman_all', 'Kendal_all', 'Info_Mutua_all', 'R2_all']
 lista_promedios = []
 
 for i in range(Id):
