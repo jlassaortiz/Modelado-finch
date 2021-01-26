@@ -312,7 +312,7 @@ random.seed(123)
 # -----------------------------------------------------------------------
 
 ave_fname = '022-NeRo_1motif.py'
-tiempo_total = 1.04 # segundos
+tiempo_total = 1.03 # segundos
 
 # ave_fname = 'AB010-bi.py'
 # tiempo_total = 2.07 # segundos 
@@ -367,8 +367,11 @@ lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuare
 # f_rango = np.arange(5010, 5200, 10)
 # uoch_list = [f*f*40 for f in f_rango]
 
-uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000)
-rdis_list = np.arange(1000, 40000, 100) 
+uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000) # 30 it
+rdis_list = np.arange(1000, 40000, 1000) # 40 it
+
+# uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 1000*1000*1000) # 3 it
+# rdis_list = np.arange(1000, 40000, 10000) # 4 it
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
@@ -450,17 +453,16 @@ envolvente = find_envolvente(BOS)
 
 silabas = dict()
 
-for i in range(int(len(silabas_timestamp)/2 - 1)):
+for i in range(0, len(silabas_timestamp), 2):
+    
     silaba = str(i)
     t = [0,0]
-    t[0] = silabas_timestamp[i]
-    t[1] = silabas_timestamp[i + 1]
+    t[0] = silabas_timestamp[i] / sampling_freq
+    t[1] = silabas_timestamp[i + 1] / sampling_freq
     
     silabas[silaba] = t
-    
-    del(t, silaba)
 
-del(i)
+del(i, t, silaba)
 
 
 # Número de ID de set de parámetros (para facilitar la búsqueda)
@@ -482,9 +484,8 @@ it_totales = n_G * n_R * n_C * n_s
 # ----------------------------------------------
 
 # Para cada gamma calculo betas a partir de las trazas de frecuencias
-for mapa_fn in tqdm(lista_mapas_b_w):
+for mapa_fn in lista_mapas_b_w:
 
-    
     gamma = int(mapa_fn[86:91]) # Extraigo valor del gamma del nombre del archivo
     
     # Abro el archivo b_w
@@ -513,7 +514,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
     # --------------------------------
     
     # Recorro grilla de valores de C y R (parametros del tracto vocal)
-    for c in uoch_list:
+    for c in tqdm(uoch_list):
         for r in rdis_list:
             
             uoch = c
@@ -527,7 +528,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             
             # Variables intermedias  de la integracion que quizas quiera guardar
             # x_out = []
-            y_out = []
+            # y_out = []
             # tiempo1 = []
             # amplitud1 = []
             # forzado_out = []
@@ -565,7 +566,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
     
                 # Guarda otras variables de interes de la integracion
                 # x_out.append(v[0])  
-                y_out.append(v[1]) # Salida de la fuente! 
+                # y_out.append(v[1]) # Salida de la fuente! 
                 # tiempo1.append(t)
                 # forzado_out.append(estimulo)
                 # dforzadodt1.append(destimulodt)
@@ -629,7 +630,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 write(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
                     
             # Guardo salida de fuente.
-            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767) # * (0.4434) Agrego factor de tamaño de la silaba.
+            # y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767) # * (0.4434) Agrego factor de tamaño de la silaba.
             # write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
             
             
@@ -658,16 +659,7 @@ for mapa_fn in tqdm(lista_mapas_b_w):
             # Calculo índices de bondad de ajuste del FFT y SYN completos
             # chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
             spermanR_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
-
-            
-            # # Guardo indices de bondad de ajuste del FFT del SYN completo            
-            # silabas_resultados.append('SYN all') 
-            # chi2_all_resultados.append(chi2_all)
-            # pearsonR_all_resultados.append(pearsonR_all)
-            spermanR_all_resultados.append(spermanR_all)
-            # kendalT_all_resultados.append(kendalT_all)
-            # infoM_all_resultados.append(infoM_all)
-            # R2_all_resultados.append(R2_all)  
+ 
 
             for silaba in silabas.items():
                 
@@ -747,49 +739,25 @@ for mapa_fn in tqdm(lista_mapas_b_w):
                 
                 
                 
-                # ----------
-                # Ploteo FFT
-                # ----------
+            # ----------
+            # Ploteo FFT
+            # ----------
                 
-                if guardar_plot:
-                    
-                    # Escala Log
-                    fig, axs = plt.subplots(3, 1, figsize=(110, 100))    
-                    
-                    fig.suptitle(f'{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r} \n chi2.Log_{round(chi2_log, 3)}    pearson.Log_{round(pearsonR_log, 3)}    spearman.Log_{round(spermanR_log, 3)}    kendal.Log_{round(kendalT_log, 3)}    infoM.Log_{round(infoM_log, 3)}    R2.Log_{round(R2_log, 3)} \n chi2.Lin_{round(chi2_lin, 3)}    pearson.Lin_{round(pearsonR_lin,3)}    spearman.Lin_{round(spermanR_lin, 3)}    kendal.Lin_{round(kendalT_lin, 3)}    infoM.Lin_{round(infoM_lin, 3)}    R2.Lin_{round(R2_lin, 3)} \n chi2.S_{round(chi2_s, 3)}    pearson.S_{round(pearsonR_s, 3)}    spearman.S_{round(spermanR_s, 3)}    kendal.S_{round(kendalT_s, 3)}    infoM.S_{round(infoM_s, 3)}    R2.S_{round(R2_s, 3)}')
-                    
-                    i = 0
-                    axs[i].plot(frequencies_BOS, BOS_fft)
-                    axs[i].plot(frequencies_SYN, SYN_fft, 'tab:green')
-                    axs[i].plot(frequencies_Y, Y_fft, 'tab:orange', linestyle = 'dotted')
-                    axs[i].legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
-                    #axs[i].set_yscale('log')
-                    axs[i].set_xlim([0,sampling_freq/2])
-                    axs[i].set_ylim([0,30])
-                    axs[i].set_xlabel('Frecuencias (Hz)')
-                    
-                    i = i+1                
-                    axs[i].plot(frequencies_BOS_all, BOS_fft_all)
-                    axs[i].plot(frequencies_SYN_all, SYN_fft_all, 'tab:green')
-                    axs[i].plot(frequencies_Y_all, Y_fft_all, 'tab:orange', linestyle = 'dotted')
-                    axs[i].legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
-                    #axs[i].set_yscale('log')
-                    axs[i].set_xlim([0,sampling_freq/2])
-                    # axs[i].set_ylim([0,30])
-                    axs[i].set_xlabel('Frecuencias (Hz)')
-                    
-                    i = i+1                
-                    axs[i].plot(np.arange(len(BOS_chop))*1000/sampling_freq, BOS_chop)
-                    axs[i].plot(np.arange(len(SYN_chop))*1000/sampling_freq, SYN_chop, 'tab:green')
-                    axs[i].legend(['BOS sound', 'SYN sound'])
-                    #axs[2].set_yscale('log')
-                    axs[i].set_xlabel('ms')
-                    
-                    plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
-                    plt.close()     
+            if guardar_plot:
+                
+                plt.figure(figsize=([16, 4]))
+                plt.plot(frequencies_BOS_all, BOS_fft_all)
+                plt.plot(frequencies_SYN_all, SYN_fft_all, 'tab:green')
+                plt.legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
+                plt.xlim([0,sampling_freq/2])
+                plt.xlabel('Frecuencias (Hz)')
+                
+                plt.title(f'{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}')
+                
+                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
+                plt.close()   
+                
 
-            
-            
             
             Id = Id + 1
             
@@ -842,11 +810,13 @@ resultados = {'Id': Id_list,
 resultados = pd.DataFrame(resultados)
 
 
-
 # Busco mejores ajuste FFT (resumen)
 # resumen = resultados[resultados.Chi2_log == min(resultados.Chi2_log)] 
 # resumen = resumen.append(resultados[resultados.Pearson_log == max(resultados.Pearson_log)][:1])
-resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1])       
+
+# resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1])   
+resumen = resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1]     
+     
 # resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)][:1])  
 # resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)][:1])
 # resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)][:1])  
@@ -874,10 +844,11 @@ resumen = resumen.append(resultados[resultados.Spearman_all == max(resultados.Sp
 
 
 # Resumen promediando por cada combinación de C,R y G (promedio los indices de cada silaba y el SYN total)
-indices = []
-columnas = ['Id', 'G', 'C', 'R', 
+
+columnas = ['Id', 'G', 'C', 'R',
+            'silaba',
             'Spearman_log',
-            'Pearson_all']
+            'Spearman_all']
 # columnas = ['Id', 'G', 'C', 'R', 
 #             'Chi2_log', 'Pearson_log', 'Spearman_log', 'Kendal_log', 'Info_Mutua_log', 'R2_log', 
 #             'Chi2_lin', 'Pearson_lin', 'Spearman_lin', 'Kendal_lin', 'Info_Mutua_lin', 'R2_lin', 
@@ -885,8 +856,9 @@ columnas = ['Id', 'G', 'C', 'R',
 #             'Chi2_all', 'Pearson_all', 'Spearman_all', 'Kendal_all', 'Info_Mutua_all', 'R2_all']
 lista_promedios = []
 
+# indices = []
 for i in range(Id):
-    indices.append(i)
+    # indices.append(i)
     lista_promedios.append(list(resultados[resultados.Id == i].mean()))
      
 resumen_promedios = pd.DataFrame(lista_promedios, columns= columnas)
@@ -899,7 +871,11 @@ resultados.to_csv('resultados_busqueda_GCR.csv', header=True, decimal=',', sep='
 
 
 
-
+del(alp, alpha, back1, bes, beta, BOS_fft, BOS_fft_all, c, code, coef_reflexion, columnas, destimulodt, dt, 
+    estimulo, f, fil1, fin, frequencias, frequencies_BOS, frequencies_BOS_all, frequencies_SYN, frequencies_SYN_all,
+    gamma, guardar_plot, guardar_syn, i, Id, inicio, it, it_totales, j, k, L, lista_mapas_b_w, lista_promedios,
+    mapa_fn, maximo_v_3, n, N, n_C, n_G, n_R, n_s, r, rdis, scaled, silaba, silaba_id, silabas, silabas_timestamp,
+    sonido, spermanR_all, spermanR_log, SYN_fft, SYN_fft_all, t, tfin, tin, uoch, uolg, v, v_3, was, z)
 
 
 

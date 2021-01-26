@@ -259,7 +259,7 @@ tiempo_total = 2.95 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = ''
+version = 'all'
 guardar_SYN = True
 guardar_fuente = False
 
@@ -288,8 +288,8 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 1040400000
-rdis = 10000
+uoch = 601000000
+rdis = 8000
 uolg = 1.0
 L    = 0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = -0.35 # -0.35 
@@ -304,9 +304,9 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0 # 0.03 # % del valor del máximo beta en este canto
-ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
-ruido_amplitud = 0.01 # % del valor de la amplitud maxima de la envolvente
+ruido_beta = 0.0 # 0.03 # % del valor del máximo beta en este canto
+ruido_alfa = 0.0 # % del valor del alfa necesario para fonar (-0.15)
+ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
 
@@ -481,7 +481,7 @@ scaled = np.int16(sonido/np.max(np.abs(sonido)) * escala * 32767)
 
 if guardar_SYN:
     # write(f'{nombre_ave}_SYN_{version}_rBeta_{ruido_beta}_rAlfa_{ruido_alfa}_rAmp_{ruido_amplitud}.wav', int(sampling_freq), scaled)
-    write(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}.wav', int(sampling_freq), scaled)
+    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}.wav', int(sampling_freq), scaled)
 
 # # Guardo salida de fuente.
 y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
