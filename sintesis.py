@@ -304,8 +304,8 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.0 # 0.03 # % del valor del máximo beta en este canto
-ruido_alfa = 0.0 # % del valor del alfa necesario para fonar (-0.15)
+ruido_beta = 0.0 # % del valor del máximo beta en este canto
+ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
@@ -481,7 +481,7 @@ scaled = np.int16(sonido/np.max(np.abs(sonido)) * escala * 32767)
 
 if guardar_SYN:
     # write(f'{nombre_ave}_SYN_{version}_rBeta_{ruido_beta}_rAlfa_{ruido_alfa}_rAmp_{ruido_amplitud}.wav', int(sampling_freq), scaled)
-    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}.wav', int(sampling_freq), scaled)
+    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}.wav', int(sampling_freq), scaled)
 
 # # Guardo salida de fuente.
 y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
@@ -495,7 +495,7 @@ if guardar_fuente:
 # Ploteos
 # -------
 
-fig, axs = plt.subplots(4, sharex=True)
+fig, axs = plt.subplots(4, sharex=True, figsize=(12,9))
 
 i = 0
 axs[i].plot(y_scaled, '-k')
@@ -526,7 +526,7 @@ axs[i].plot(envolvente/max(envolvente), 'tab:red')
 axs[i].plot(-envolvente/max(envolvente), 'tab:red')
 axs[i].legend(['BOS_norm', 'envolvente_BOS_norm'], loc = 'lower left')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}.wav')
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
 
 plt.show()
 

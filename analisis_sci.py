@@ -357,7 +357,7 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
     
 # Lista con nombres de mapas b_w para cada gamma
-lista_mapas_b_w = glob.glob('/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/mapas_b_w/*.txt')
+lista_mapas_b_w = glob.glob('/Users/javierlassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/mapas_b_w/*.txt')
 
 # Parametros tracto vocal (filtro)
 # f_rango = np.arange(500, 9001, 100) # 85 it
@@ -486,7 +486,7 @@ it_totales = n_G * n_R * n_C * n_s
 # Para cada gamma calculo betas a partir de las trazas de frecuencias
 for mapa_fn in lista_mapas_b_w:
 
-    gamma = int(mapa_fn[86:91]) # Extraigo valor del gamma del nombre del archivo
+    gamma = int(mapa_fn[87:92]) # Extraigo valor del gamma del nombre del archivo
     
     # Abro el archivo b_w
     bes,was = np.loadtxt(mapa_fn ,unpack=True)
@@ -627,7 +627,7 @@ for mapa_fn in lista_mapas_b_w:
             # Ver la documentacion de: scipy.io.wavfile.write
             scaled = np.int16(sonido/np.max(np.abs(sonido)) * 32767) # * (0.4434) Agrego factor de tamaño de la silaba.
             if guardar_syn:
-                write(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
+                write(f'/Users/javierlassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
                     
             # Guardo salida de fuente.
             # y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767) # * (0.4434) Agrego factor de tamaño de la silaba.
@@ -754,7 +754,7 @@ for mapa_fn in lista_mapas_b_w:
                 
                 plt.title(f'{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}')
                 
-                plt.savefig(f'/Users/javi_lassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
+                plt.savefig(f'/Users/javierlassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
                 plt.close()   
                 
 
@@ -871,11 +871,11 @@ resultados.to_csv('resultados_busqueda_GCR.csv', header=True, decimal=',', sep='
 
 
 
-del(alp, alpha, back1, bes, beta, BOS_fft, BOS_fft_all, c, code, coef_reflexion, columnas, destimulodt, dt, 
-    estimulo, f, fil1, fin, frequencias, frequencies_BOS, frequencies_BOS_all, frequencies_SYN, frequencies_SYN_all,
-    gamma, guardar_plot, guardar_syn, i, Id, inicio, it, it_totales, j, k, L, lista_mapas_b_w, lista_promedios,
-    mapa_fn, maximo_v_3, n, N, n_C, n_G, n_R, n_s, r, rdis, scaled, silaba, silaba_id, silabas, silabas_timestamp,
-    sonido, spermanR_all, spermanR_log, SYN_fft, SYN_fft_all, t, tfin, tin, uoch, uolg, v, v_3, was, z)
+# del(alp, alpha, back1, bes, beta, BOS_fft, BOS_fft_all, c, code, coef_reflexion, columnas, destimulodt, dt, 
+#     estimulo, f, fil1, fin, frequencias, frequencies_BOS, frequencies_BOS_all, frequencies_SYN, frequencies_SYN_all,
+#     gamma, guardar_plot, guardar_syn, i, Id, inicio, it, it_totales, j, k, L, lista_mapas_b_w, lista_promedios,
+#     mapa_fn, maximo_v_3, n, N, n_C, n_G, n_R, n_s, r, rdis, scaled, silaba, silaba_id, silabas, silabas_timestamp,
+#     sonido, spermanR_all, spermanR_log, SYN_fft, SYN_fft_all, t, tfin, tin, uoch, uolg, v, v_3, was, z)
 
 
 
