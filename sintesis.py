@@ -304,7 +304,7 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5 
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.0 # % del valor del máximo beta en este canto
+ruido_beta = 0.02 # % del valor del máximo beta en este canto
 ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
@@ -384,7 +384,7 @@ for i in range(np.int(tiempo_total/(dt))):
     
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i] + beta_max*random.normalvariate(0, ruido_beta)
+    b = beta[i]*(1+random.normalvariate(0., ruido_beta))
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     # Integracion

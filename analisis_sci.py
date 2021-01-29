@@ -546,7 +546,7 @@ for mapa_fn in lista_mapas_b_w:
                 # Parametros dependientes del tiempo del sistema de ecuaciones
                 # Variables globales ¿es necesario que asi lo sean?
                 alp = alpha[i]
-                b = beta[i] + random.normalvariate(0, ruido_beta)
+                b = beta[i]
                 destimulodt = (fil1[N-1]-fil1[N-2])/dt
                 
                 # Integracion
