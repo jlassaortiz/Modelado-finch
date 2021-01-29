@@ -122,14 +122,14 @@ rectas(0.465, 0.505,
        silabas_timestamp)
 
 rectas(0.505, 0.523,
-       2600, 2600,
+       2700, 2500,
        frequencias,
        silabas_timestamp)
 
 
 # D
 rectas(0.551, 0.571,
-       2900, 2900,
+       2750, 2950,
        frequencias,
        silabas_timestamp)
 
@@ -253,14 +253,14 @@ rectas(0.465 + 0.875, 0.505 + 0.875,
        silabas_timestamp)
 
 rectas(0.505 + 0.875, 0.523 + 0.875,
-       2600, 2600,
+       2700, 2500,
        frequencias,
        silabas_timestamp)
 
 
 # D2
 rectas(0.551 + 0.875, 0.571 + 0.875,
-       2900, 2900,
+       2750, 2950,
        frequencias,
        silabas_timestamp)
 
@@ -385,14 +385,14 @@ rectas(0.465 + 1.749, 0.505 + 1.749,
        silabas_timestamp)
 
 rectas(0.505 + 1.749, 0.523 + 1.749,
-       2600, 2600,
+       2700, 2500,
        frequencias,
        silabas_timestamp)
 
 
 # D3
 rectas(0.551 + 1.749, 0.571 + 1.749,
-       2900, 2900,
+       2750, 2950,
        frequencias,
        silabas_timestamp)
 
