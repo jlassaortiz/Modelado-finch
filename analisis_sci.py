@@ -299,6 +299,20 @@ def find_envolvente(sonido):
     return envolvente
 
 
+def sliding_window(signal, window_size, step):
+    
+    signal_out = []
+    
+    i = int(0)
+    window_size = int(window_size)
+    step = int(step)
+    
+    while i + window_size < len(signal):
+        signal_out.append( np.mean( signal[ i : i + window_size] ) )
+        i = i + step
+        
+    return signal_out
+
 
 
 # ----------------------
@@ -311,16 +325,16 @@ random.seed(123)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = '022-NeRo_1motif.py'
-tiempo_total = 1.03 # segundos
+ave_fname = '026-BN_1motif.py'
+tiempo_total = 2.25 # segundos
 
 # ave_fname = 'AB010-bi.py'
 # tiempo_total = 2.07 # segundos 
 
-version = ''
+version = 'ajuste-fino'
 
-guardar_syn  = True
-guardar_plot = True
+guardar_syn  = False
+guardar_plot = False
 
 # T inicial y final en segundos de silabas que voy analisar
 
@@ -370,8 +384,8 @@ lista_mapas_b_w = glob.glob('/Users/javierlassaortiz/Documents/LSD/Modelado cuar
 uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000) # 30 it
 rdis_list = np.arange(1000, 40000, 1000) # 40 it
 
-# uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 1000*1000*1000) # 3 it
-# rdis_list = np.arange(1000, 40000, 10000) # 4 it
+# uoch_list = np.arange(500*1000*1000, 701*1000*1000, 50*1000*1000) # 5 it
+# rdis_list = np.arange(7000, 9001, 500) # 5 it
 
 uolg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
@@ -420,6 +434,8 @@ spermanR_all_resultados = []
 # kendalT_all_resultados = []
 # infoM_all_resultados = []
 # R2_all_resultados = []
+
+spearmanR_all_smooth_resultados = []
 
 # Lista de parámetros C, R y Gamma
 c_resultados = []
@@ -528,7 +544,7 @@ for mapa_fn in lista_mapas_b_w:
             
             # Variables intermedias  de la integracion que quizas quiera guardar
             # x_out = []
-            # y_out = []
+            y_out = []
             # tiempo1 = []
             # amplitud1 = []
             # forzado_out = []
@@ -566,7 +582,7 @@ for mapa_fn in lista_mapas_b_w:
     
                 # Guarda otras variables de interes de la integracion
                 # x_out.append(v[0])  
-                # y_out.append(v[1]) # Salida de la fuente! 
+                y_out.append(v[1]) # Salida de la fuente! 
                 # tiempo1.append(t)
                 # forzado_out.append(estimulo)
                 # dforzadodt1.append(destimulodt)
@@ -630,7 +646,7 @@ for mapa_fn in lista_mapas_b_w:
                 write(f'/Users/javierlassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_{version}_C_{c}_R_{r}_{nombre_ave}_SYN.wav', int(sampling_freq), scaled)
                     
             # Guardo salida de fuente.
-            # y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767) # * (0.4434) Agrego factor de tamaño de la silaba.
+            y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767) # * (0.4434) Agrego factor de tamaño de la silaba.
             # write(f'{gamma}_{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
             
             
@@ -644,8 +660,8 @@ for mapa_fn in lista_mapas_b_w:
             rate_syn, SYN = sampling_freq, scaled
             SYN = np.array(SYN, dtype= 'float64')
             
-            # rate_Y, Y = sampling_freq, y_scaled
-            # Y = np.array(Y, dtype = 'float64')
+            rate_Y, Y = sampling_freq, y_scaled
+            Y = np.array(Y, dtype = 'float64')
             
             # # Filtro BOS y SYN
             # BOS = denoisear(BOS, rate_bos)
@@ -654,11 +670,33 @@ for mapa_fn in lista_mapas_b_w:
             # Calculo FFT de TODO el BOS y SYN
             frequencies_BOS_all, BOS_fft_all = array2fft(BOS, rate_bos, 0, tiempo_total, log = True)
             frequencies_SYN_all, SYN_fft_all = array2fft(SYN, rate_syn, 0, tiempo_total, log = True)
-            # frequencies_Y_all, Y_fft_all     = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
+            frequencies_Y_all, Y_fft_all     = array2fft(Y,   rate_syn, 0, tiempo_total, log = True)
             
             # Calculo índices de bondad de ajuste del FFT y SYN completos
             # chi2_all, pearsonR_all, spermanR_all, kendalT_all, infoM_all, R2_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
             spermanR_all = buen_ajuste(BOS_fft_all, SYN_fft_all)
+            
+        
+            # "Suavizo" la fft 
+            Hz_ventana = 100
+            Hz_step = 10
+            
+            ws = len(BOS_fft_all)* Hz_ventana /max(frequencies_BOS_all)
+            step = len(BOS_fft_all)* Hz_step /max(frequencies_BOS_all)
+            fft_BOS_smooth = sliding_window(BOS_fft_all, ws, step)
+            freq_BOS_smooth = sliding_window(frequencies_BOS_all, ws, step)
+            
+            ws = len(SYN_fft_all)* Hz_ventana /max(frequencies_SYN_all)
+            step = len(SYN_fft_all)* Hz_step /max(frequencies_SYN_all)
+            fft_SYN_smooth = sliding_window(SYN_fft_all, ws, step)
+            freq_SYN_smooth = sliding_window(frequencies_SYN_all, ws, step)
+            
+            ws = len(Y_fft_all)* Hz_ventana /max(frequencies_Y_all)
+            step = len(Y_fft_all)* Hz_step /max(frequencies_Y_all)
+            fft_fuente_smooth = sliding_window(Y_fft_all, ws, step)
+            freq_fuente_smooth = sliding_window(frequencies_Y_all, ws, step)
+            
+            spearmanR_all_smooth = buen_ajuste(fft_BOS_smooth, fft_SYN_smooth)
  
 
             for silaba in silabas.items():
@@ -728,6 +766,8 @@ for mapa_fn in lista_mapas_b_w:
                 # infoM_all_resultados.append(infoM_all)
                 # R2_all_resultados.append(R2_all)  
                 
+                spearmanR_all_smooth_resultados.append(spearmanR_all_smooth)
+                
                 c_resultados.append(c)
                 r_resultados.append(r)
                 gamma_resultados.append(gamma)
@@ -748,13 +788,14 @@ for mapa_fn in lista_mapas_b_w:
                 plt.figure(figsize=([16, 4]))
                 plt.plot(frequencies_BOS_all, BOS_fft_all)
                 plt.plot(frequencies_SYN_all, SYN_fft_all, 'tab:green')
+                plt.plot(frequencies_Y_all, Y_fft_all, ':r')
                 plt.legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
                 plt.xlim([0,sampling_freq/2])
                 plt.xlabel('Frecuencias (Hz)')
                 
                 plt.title(f'{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}')
                 
-                plt.savefig(f'/Users/javierlassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}.pdf')
+                plt.savefig(f'/Users/javierlassaortiz/Documents/LSD/Modelado cuarentena/Modelado-finch/analisis_riquesa_espectral/{Id}_{gamma}_silaba_{silaba_id}_{version}_C_{c}_R_{r}')
                 plt.close()   
                 
 
@@ -774,7 +815,8 @@ resultados = {'Id': Id_list,
               'R': r_resultados,
               'silaba': silabas_resultados,
               'Spearman_log': spermanR_log_resultados,
-              'Spearman_all': spermanR_all_resultados}
+              'Spearman_all': spermanR_all_resultados,
+              'Spearman_smooth_all': spearmanR_all_smooth_resultados}
 
 
 # resultados = {'Id': Id_list,
@@ -842,13 +884,15 @@ resumen = resumen.append(resultados[resultados.Spearman_all == max(resultados.Sp
 # resumen = resumen.append(resultados[resultados.Info_Mutua_all == max(resultados.Info_Mutua_all)][:1])
 # resumen = resumen.append(resultados[resultados.R2_all == max(resultados.R2_all)][:1])    
 
+resumen = resumen.append(resultados[resultados.Spearman_smooth_all== max(resultados.Spearman_smooth_all)][:1])       
 
 # Resumen promediando por cada combinación de C,R y G (promedio los indices de cada silaba y el SYN total)
 
 columnas = ['Id', 'G', 'C', 'R',
             'silaba',
             'Spearman_log',
-            'Spearman_all']
+            'Spearman_all',
+            'Spearman_smooth_all']
 # columnas = ['Id', 'G', 'C', 'R', 
 #             'Chi2_log', 'Pearson_log', 'Spearman_log', 'Kendal_log', 'Info_Mutua_log', 'R2_log', 
 #             'Chi2_lin', 'Pearson_lin', 'Spearman_lin', 'Kendal_lin', 'Info_Mutua_lin', 'R2_lin', 
