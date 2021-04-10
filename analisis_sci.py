@@ -307,6 +307,11 @@ def sliding_window(signal, window_size, step):
     window_size = int(window_size)
     step = int(step)
     
+    if window_size < 2: 
+        window_size = 2
+    if step  < 1: 
+        step = 1
+    
     while i + window_size < len(signal):
         signal_out.append( np.mean( signal[ i : i + window_size] ) )
         i = i + step
@@ -331,7 +336,7 @@ tiempo_total = 2.25 # segundos
 # ave_fname = 'AB010-bi.py'
 # tiempo_total = 2.07 # segundos 
 
-version = 'ajuste-fino'
+version = 'smooth_fft'
 
 guardar_syn  = False
 guardar_plot = False
@@ -381,8 +386,11 @@ lista_mapas_b_w = glob.glob('/Users/javierlassaortiz/Documents/LSD/Modelado cuar
 # f_rango = np.arange(5010, 5200, 10)
 # uoch_list = [f*f*40 for f in f_rango]
 
-uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000) # 30 it
-rdis_list = np.arange(1000, 40000, 1000) # 40 it
+# uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000) # 30 it
+# rdis_list = np.arange(1000, 40000, 1000) # 40 it
+
+uoch_list = np.arange(1*1000*1000, 3001*1000*1000, 750*1000*1000) # 4 it
+rdis_list = np.arange(1000, 40001, 10000) # 4 it
 
 # uoch_list = np.arange(500*1000*1000, 701*1000*1000, 50*1000*1000) # 5 it
 # rdis_list = np.arange(7000, 9001, 500) # 5 it
@@ -408,8 +416,9 @@ n = 5 # Tamaño del sistema de ecuaciones
 
 # Lista de parámetros de bondad de ajuste
 # chi2_log_resultados = []
-# pearsonR_log_resultados = []
+pearsonR_log_resultados = []
 spermanR_log_resultados = []
+spermanR_log_resultados_smooth = []
 # kendalT_log_resultados = []
 # infoM_log_resultados = []
 # R2_log_resultados = []
@@ -723,7 +732,19 @@ for mapa_fn in lista_mapas_b_w:
                 # BOS_chop = silaba_chopper(BOS, tin, tfin, sampling_freq)
                 # SYN_chop = silaba_chopper(SYN, tin, tfin, sampling_freq)
     
-
+                # "Suavizo" la fft 
+                Hz_ventana = 100
+                Hz_step = 10
+                
+                ws = len(BOS_fft)* Hz_ventana /max(frequencies_BOS)
+                step = len(BOS_fft)* Hz_step /max(frequencies_BOS)
+                fft_BOS_smooth_silaba = sliding_window(BOS_fft, ws, step)
+                freq_BOS_smooth_silaba  = sliding_window(frequencies_BOS, ws, step)
+                
+                ws = len(SYN_fft)* Hz_ventana /max(frequencies_SYN)
+                step = len(SYN_fft)* Hz_step /max(frequencies_SYN)
+                fft_SYN_smooth_silaba  = sliding_window(SYN_fft, ws, step)
+                freq_SYN_smooth_silaba  = sliding_window(frequencies_SYN, ws, step)
     
         
                 # -----------------------------------
@@ -731,6 +752,8 @@ for mapa_fn in lista_mapas_b_w:
                 # -----------------------------------
 
                 spermanR_log = buen_ajuste(BOS_fft, SYN_fft)
+                spermanR_log_smooth = buen_ajuste(fft_BOS_smooth_silaba, fft_SYN_smooth_silaba )
+                pearsonR_log_smooth, p_value = pearsonr(fft_BOS_smooth_silaba, fft_SYN_smooth_silaba)
                 
                 # chi2_log, pearsonR_log, spermanR_log, kendalT_log, infoM_log, R2_log = buen_ajuste(BOS_fft, SYN_fft)
                 # chi2_lin, pearsonR_lin, spermanR_lin, kendalT_lin, infoM_lin, R2_lin = buen_ajuste(BOS_fft_lin, SYN_fft_lin)
@@ -741,6 +764,9 @@ for mapa_fn in lista_mapas_b_w:
                 # chi2_log_resultados.append(chi2_log)
                 # pearsonR_log_resultados.append(pearsonR_log)
                 spermanR_log_resultados.append(spermanR_log)
+                spermanR_log_resultados_smooth.append(spermanR_log_smooth)
+                pearsonR_log_resultados.append(pearsonR_log_smooth)
+
                 # kendalT_log_resultados.append(kendalT_log)
                 # infoM_log_resultados.append(infoM_log)
                 # R2_log_resultados.append(R2_log)
@@ -815,6 +841,8 @@ resultados = {'Id': Id_list,
               'R': r_resultados,
               'silaba': silabas_resultados,
               'Spearman_log': spermanR_log_resultados,
+              'Spearman_log_smooth': spermanR_log_resultados_smooth,
+              'Pearson_log_smooth': pearsonR_log_resultados,
               'Spearman_all': spermanR_all_resultados,
               'Spearman_smooth_all': spearmanR_all_smooth_resultados}
 
@@ -858,7 +886,10 @@ resultados = pd.DataFrame(resultados)
 
 # resumen = resumen.append(resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1])   
 resumen = resultados[resultados.Spearman_log == max(resultados.Spearman_log)][:1]     
-     
+resumen = resumen.append(resultados[resultados.Spearman_log_smooth == max(resultados.Spearman_log_smooth)][:1])       
+resumen = resumen.append(resultados[resultados.Pearson_log_smooth == max(resultados.Pearson_log_smooth)][:1])       
+  
+   
 # resumen = resumen.append(resultados[resultados.Kendal_log == max(resultados.Kendal_log)][:1])  
 # resumen = resumen.append(resultados[resultados.Info_Mutua_log == max(resultados.Info_Mutua_log)][:1])
 # resumen = resumen.append(resultados[resultados.R2_log == max(resultados.R2_log)][:1])  
@@ -891,6 +922,8 @@ resumen = resumen.append(resultados[resultados.Spearman_smooth_all== max(resulta
 columnas = ['Id', 'G', 'C', 'R',
             'silaba',
             'Spearman_log',
+            'Spearman_log_smooth',
+            'Pearson_log_smooth',
             'Spearman_all',
             'Spearman_smooth_all']
 # columnas = ['Id', 'G', 'C', 'R', 
