@@ -50,7 +50,7 @@ def ecuaciones(v, dv):
     dv[0]=y
     dv[1]=gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
     dv[2]= i2
-    dv[3]=-uolg*uoch*i1-(rdis*uolg)*i2+uolg*destimulodt
+    dv[3]= - 1/(Ch*Lg)*i1 - (Rd/Lg)*i2 + (1/Lg)*destimulodt
     dv[4]=0.
     return dv
 
@@ -318,7 +318,15 @@ def sliding_window(signal, window_size, step):
         
     return signal_out
 
+def calc_w(c):
+    w = 1/(np.sqrt(c) * 2*np.pi)
+    return w
 
+
+
+def calc_c(w):
+    c = 1/(2*np.pi * w)**2
+    return c
 
 # ----------------------
 # Deficion de parametros
@@ -336,7 +344,7 @@ tiempo_total = 2.25 # segundos
 # ave_fname = 'AB010-bi.py'
 # tiempo_total = 2.07 # segundos 
 
-version = 'smooth_fft'
+version = 'C-R_grilla-NEW'
 
 guardar_syn  = False
 guardar_plot = False
@@ -389,13 +397,20 @@ lista_mapas_b_w = glob.glob('/Users/javierlassaortiz/Documents/LSD/Modelado cuar
 # uoch_list = np.arange(1*1000*1000, 3000*1000*1000, 100*1000*1000) # 30 it
 # rdis_list = np.arange(1000, 40000, 1000) # 40 it
 
-uoch_list = np.arange(1*1000*1000, 3001*1000*1000, 750*1000*1000) # 4 it
-rdis_list = np.arange(1000, 40001, 10000) # 4 it
+#uoch_list = np.arange(1*1000*1000, 3001*1000*1000, 50*1000*1000) # 60 it
+#rdis_list = np.arange(1000, 40001, 500) # 79 it
+
+# uoch_list = np.arange(1*1000*1000, 3001*1000*1000, 750*1000*1000) # 4 it
+# rdis_list = np.arange(1000, 40001, 10000) # 4 it
 
 # uoch_list = np.arange(500*1000*1000, 701*1000*1000, 50*1000*1000) # 5 it
 # rdis_list = np.arange(7000, 9001, 500) # 5 it
 
-uolg =  1.0
+f_rango = np.arange(100, 5001, 50) # 100 it
+C_list = [calc_c(f) for f in f_rango]
+Rd_list = np.arange()
+
+Lg =  1.0
 L =  0.036 # Longitud tubo (en metros) (0.036)
 coef_reflexion = - 0.35 # -0.35 
 
@@ -465,6 +480,8 @@ frequencias = np.zeros(np.int(tiempo_total/(dt)))
 silabas_timestamp = []
 
 # Corro scritp que genera la traza de ff
+nombre_ave = '' #inicializo  pq es una variable q se define en otro script y sino me saltan carteles de error
+nombre_BOS = '' #inicializo  pq es una variable q se define en otro script y sino me saltan carteles de error
 with open(ave_fname) as f:
     code = compile(f.read(), ave_fname, 'exec')
     exec(code)
@@ -497,8 +514,8 @@ Id_list = []
 # Número de Iteración teniendo en cuenta el número de sílabas
 it = 1 # Itereación actual
 n_G = len(lista_mapas_b_w) # Total de gammas
-n_R = len(rdis_list) # Total de R
-n_C = len(uoch_list) # Total de C
+n_R = len(Rd_list) # Total de R
+n_C = len(C_list) # Total de C
 n_s = len(silabas) # Total de sílabas 
 it_totales = n_G * n_R * n_C * n_s
 
@@ -539,11 +556,11 @@ for mapa_fn in lista_mapas_b_w:
     # --------------------------------
     
     # Recorro grilla de valores de C y R (parametros del tracto vocal)
-    for c in tqdm(uoch_list):
-        for r in rdis_list:
+    for c in tqdm(C_list):
+        for r in Rd_list:
             
-            uoch = c
-            rdis = r
+            Ch = c
+            Rd = r
             
             # Condiciones iniciales
             v[0], v[1], v[2], v[3], v[4] =0.01,0.001,0.001, 0.0001, 0.0001
