@@ -53,20 +53,12 @@ np.seterr(over='raise')
 def ecuaciones(v, dv):
     x ,y,i1,i2,i3 = v
     dv[0]=y
-    dv[1]= gamma*gamma*alp+b*gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
+    dv[1]= gamma*gamma*alp+ b *gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
     dv[2]= i2
-    dv[3]= - uolg*uoch*i1 - (rdis*uolg)*i2 + uolg*destimulodt
+    dv[3]= - 1/(Ch*Lg)*i1 - (Rd/Lg)*i2 + (1/Lg)*destimulodt
     dv[4]=0.
     
     return dv
-
-
-def takens(v, dv):
-    x = v[0]
-    dv[0] = -(1/tau) * x + np.abs(hilb)
-    
-    return dv
-
 
 # Integrador RK4
 def rk4(dv,v,n,t,dt): #  dv es la funcion ecuaciones()
@@ -155,6 +147,7 @@ def senito(ti,tf,media,amplitud,alphai,alphaf,frequencias, silabas_timestamp):
     silabas_timestamp.append(j)
         
     return frequencias,silabas_timestamp
+  
 
 
 def find_envolvente(sonido, sf): # tiene que ser un np.array
@@ -272,6 +265,16 @@ def sliding_window(signal, window_size, step):
 
 
 
+def calc_w(c):
+    w = 1/(np.sqrt(c) * 2*np.pi)
+    return w
+
+
+
+def calc_c(w):
+    c = 1/(2*np.pi * w)**2
+    return c
+
 # Inicializo generador de números pseudo-random para poder replicar resultados
 random.seed(1992)
 
@@ -297,15 +300,17 @@ tiempo_total = 2.25 # segundos
 # ave_fname = 'bu49.py'
 # tiempo_total = 1.048 # segundos
 
-version = '_'
+# ave_fname = 'white_noise.py'
+# tiempo_total = 2.0 # segundos
+
+version = 'nuevos'
 guardar_SYN = False
 guardar_fuente = False
-
 
 # Frecuencia y ventana temporal
 # -----------------------------
 
-sampling_freq = 44100 * 2 # Hz
+sampling_freq = 44100 * 3 # Hz
 dt = 1/sampling_freq
 print(f'\nsampling freq: {sampling_freq}')
 
@@ -326,12 +331,12 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-uoch = 601000000 #* 2
-rdis = 8000
-uolg = 1.0
-L    = 0.036 #* 1.5 # Longitud tubo (en metros) (0.036)
+Ch = calc_c(1600) # * 1.0  # Capacitancia Helmholtz
+Rd = 1500 # * 1.0  # Resistencia disipación 
+Lg = 1.0 # Inductancia glotis
+L    = 0.036 * 1.0 # Longitud tubo (en metros) (0.036)
 coef_reflexion = -0.35 # -0.35 
-print(f'\nC: {uoch} \nR: {rdis} \nLg: {uolg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
+print(f'\nC: {Ch} \nR: {Rd} \nLg: {Lg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
 
 # Condiciones iniciales
 v = np.zeros(5)
@@ -357,6 +362,8 @@ frequencias = np.zeros(np.int(tiempo_total/(dt)))
 silabas_timestamp = []
 
 # Corro scritp que genera la traza de ff
+nombre_ave = '' #inicializo  pq es una variable q se define en otro script y sino me saltan carteles de error
+nombre_BOS = '' #inicializo  pq es una variable q se define en otro script y sino me saltan carteles de error
 with open(ave_fname) as f:
     code = compile(f.read(), ave_fname, 'exec')
     exec(code)
@@ -431,12 +438,10 @@ for i in range(np.int(tiempo_total/(dt))):
     rk4(ecuaciones,v,n,t,dt) # modifica v
      
     # Actualizo las siguientes variables (retro-propagación)
-    estimulo=fil1[N-1]
     fil1[0]= v[1] + back1[N-1]
     back1[0]= coef_reflexion * fil1[N-1] 
     fil1[1:]=fil1[:-1]
     back1[1:]=back1[:-1]
-    #feedback1=back1[N-1]
 
     # Guardo salida del modelo (falta escalearla con la envolvente)
     v_3.append(v[3])
@@ -445,7 +450,6 @@ for i in range(np.int(tiempo_total/(dt))):
     # x_out.append(v[0])  
     y_out.append(v[1]) # Salida de la fuente! 
     # tiempo.append(t)
-    # forzado_out.append(estimulo)
     # dforzadodt1.append(destimulodt)
     # elbeta1.append(beta[i])
   
@@ -519,7 +523,7 @@ scaled = np.int16(sonido/np.max(np.abs(sonido)) * escala * 32767)
 
 if guardar_SYN:
     # write(f'{nombre_ave}_SYN_{version}_rBeta_{ruido_beta}_rAlfa_{ruido_alfa}_rAmp_{ruido_amplitud}.wav', int(sampling_freq), scaled)
-    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}.wav', int(sampling_freq), scaled)
+    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}.wav', int(sampling_freq), scaled)
 
 # Guardo salida de fuente.
 y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
@@ -567,6 +571,7 @@ axs[i].legend(['fuente'], loc = 'lower left')
 
 i = i+1
 axs[i].plot(v_3, 'tab:gray')
+axs[i].plot(k/max(k))
 axs[i].legend(['v[3]'], loc = 'lower left')
 
 # i = i+1
@@ -590,10 +595,9 @@ axs[i].plot(envolvente/max(envolvente), 'tab:red')
 axs[i].plot(-envolvente/max(envolvente), 'tab:red')
 axs[i].legend(['BOS_norm', 'envolvente_BOS_norm'], loc = 'lower left')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 plt.show()
-
 
 
 
@@ -605,7 +609,7 @@ plt.legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 
@@ -617,22 +621,20 @@ plt.legend(['BOS FFT SMOOTH','SYN FFT SMOOTH', 'Fuente FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
-
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 
 plt.figure(figsize=([16, 4]))
-plt.plot(freq_BOS, fft_BOS)
-plt.plot(freq_BOS_smooth, fft_BOS_smooth)
+plt.plot(freq_BOS, fft_BOS,'-k')
+plt.plot(freq_BOS_smooth, fft_BOS_smooth, '-')
 plt.legend(['BOS FFT','BOS FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
-plt.figure()
 
 plt.figure(figsize=([16, 4]))
 plt.plot(freq_SYN, fft_SYN)
@@ -641,10 +643,9 @@ plt.legend(['SYN FFT','SYN FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
-plt.figure()
 
 plt.figure(figsize=([16, 4]))
 plt.plot(freq_fuente, fft_fuente)
@@ -653,7 +654,7 @@ plt.legend(['FUENTE FFT','FUENTE FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{uoch}_R_{rdis}_Lg_{uolg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}.wav_rAmpl_{ruido_amplitud}')
+fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch}_R_{Rd}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 
