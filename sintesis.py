@@ -345,17 +345,17 @@ for i in range(np.int(tiempo_total/(dt))):
 # Parametros tracto vocal (filtro)
 Ch = (3.0 * 1e-8) / 350 # calc_c(2000)*(1.0 **2) # / 1.0 # Capacitancia Helmholtz
 Lg = 60 # 1.0 # Inductancia glotis Helmholtz
-Rh = (100/2)*10000 # 5000 # Resistencia disipación Helmholtz
+Rh = 650000 # 5000 # Resistencia disipación Helmholtz
 
-L  = np.round(0.036 * 1.0 , 3) # Longitud tubo (en metros) (0.036)
-coef_reflexion = -0.1 # -0.35 
+L  = np.round(0.0292 * 1.0 , 4) # Longitud tubo (en metros) (0.036)
+coef_reflexion = -0.4 # -0.35 
 print(f'\nC: {Ch:.2e}  \nR: {Rh} \nLg: {Lg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
 
 # Coef sans perl 2011
 Lb = 1e4
-Rb = (0.5)*1e7
+Rb = (2.5)*1e7
 
-version = 'nature-params_HS_r-01' # Este numero se usa para el nombre del archivo wav que se guarda
+version = 'BEST-BEAK' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
@@ -368,7 +368,7 @@ n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
 ruido_beta = 0.04 # % del valor del beta
-ruido_alfa = 0.005 # % del valor del alfa necesario para fonar (-0.15)
+ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
