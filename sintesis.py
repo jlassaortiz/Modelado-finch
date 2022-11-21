@@ -55,14 +55,8 @@ def ecuaciones(v, dv):
     dv[1]= gamma*gamma*alp+ b *gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
     dv[2]= i2
     
-    # dv[3]=-uolg*Ch*i1-(Rh*uolb+Rh*uolg)*i2+(uolg*Ch-Rh*rb*uolg*uolb)*i3+uolg*destimulodt+Rh*uolg*uolb*estimulo
-    # dv[4]=-(uolb/uolg)*i2-rb*uolb*i3+uolb*estimulo
-    
-    
-    # Ecuaciones PRE 2011 (igual que las de arriba con pico pero mas legibles)
-    
-    dv[3] = - i1/(Lg*Ch) - Rh*i2*(1/Lb + 1/Lg) + i3*( 1/(Lg*Ch) - (Rb*Rh)/(Lb*Lg) ) + destimulodt/Lg + estimulo*Rh / (Lg*Lb)
-    dv[4] = - Lg*i2/Lb - Rb*i3 / Lb + estimulo/Lb
+    dv[3]= - i1/(Ch*Lg) - i2*Rh/Lg + destimulodt/Lg
+    dv[4]= 0.
     return dv
 
 # Integrador RK4
@@ -343,9 +337,9 @@ for i in range(np.int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-Ch = (3.0 * 1e-8) / 350 # calc_c(2000)*(1.0 **2) # / 1.0 # Capacitancia Helmholtz
-Lg = 60 # 1.0 # Inductancia glotis Helmholtz
-Rh = 650000 # 5000 # Resistencia disipación Helmholtz
+Ch =calc_c(3600)*(1.0 **2) # / 1.0 # Capacitancia Helmholtz
+Lg = 1.0 # Inductancia glotis Helmholtz
+Rh = 5000  # Resistencia disipación Helmholtz
 
 L  = np.round(0.0292 * 1.0 , 4) # Longitud tubo (en metros) (0.036)
 coef_reflexion = -0.4 # -0.35 
@@ -355,7 +349,7 @@ print(f'\nC: {Ch:.2e}  \nR: {Rh} \nLg: {Lg} \n \nlargo_traquea: {L} \ncoef. refl
 Lb = 1e4
 Rb = (2.5)*1e7
 
-version = 'BEST-BEAK' # Este numero se usa para el nombre del archivo wav que se guarda
+version = 'BEST-NO-BEAK' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
@@ -466,7 +460,7 @@ for i in range(np.int(tiempo_total/(dt))):
     back1[1:]=back1[:-1]
 
     # Guardo salida del modelo (falta escalearla con la envolvente)
-    v_3.append(v[4])
+    v_3.append(v[3])
 
     # Guarda otras variables de interes de la integracion
     # x_out.append(v[0])
