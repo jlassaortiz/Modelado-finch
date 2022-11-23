@@ -15,8 +15,8 @@ nombre_BOS = 'zf-JL026-BN_BOS_44100_70dB_band.wav'
 
 # expo(ti,tf,
 # wi,wf,
-# factor,
-# frequencias, silabas_timestamp)
+# frequencias, 
+# silabas_timestamp)
 
 # rectas(ti,tf,
 # wi,wf,
