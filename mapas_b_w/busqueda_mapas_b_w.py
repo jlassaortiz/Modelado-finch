@@ -129,17 +129,17 @@ def find_ff(y_list, sampling_freq, freq, n):
 version = '5_3'
 
 # GAMMAS
-gammas = [24000]
+gammas = [19000]
 # gammas = [16000, 33000]
 # gammas = np.arange(30000, 40000, 1000)
 
 # BETAS
-betas =np.arange(-1.6 , 0.0, 0.001)
+betas =np.arange(-2.63 , 0.0, 0.001)
 alp = - 0.150 # Alpha suficiente para fonar
 
 # Parametros de frecuencia y ventana temporal
 tiempo_total = 2.0 # segundos
-sampling_freq = 44100 # Hz
+sampling_freq = 44100 *2 # Hz
 dt = 1/sampling_freq
 len_syn = np.int(tiempo_total / dt)
 
