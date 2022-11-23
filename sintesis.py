@@ -54,13 +54,6 @@ def ecuaciones(v, dv):
     dv[0]=y
     dv[1]= gamma*gamma*alp+ b *gamma*gamma*x-gamma*gamma*x*x*x-gamma*x*x*y+gamma*gamma*x*x-gamma*x*y
     dv[2]= i2
-    
-    # dv[3]=-uolg*Ch*i1-(Rh*uolb+Rh*uolg)*i2+(uolg*Ch-Rh*rb*uolg*uolb)*i3+uolg*destimulodt+Rh*uolg*uolb*estimulo
-    # dv[4]=-(uolb/uolg)*i2-rb*uolb*i3+uolb*estimulo
-    
-    
-    # Ecuaciones PRE 2011 (igual que las de arriba con pico pero mas legibles)
-    
     dv[3] = - i1/(Lg*Ch) - Rh*i2*(1/Lb + 1/Lg) + i3*( 1/(Lg*Ch) - (Rb*Rh)/(Lb*Lg) ) + destimulodt/Lg + estimulo*Rh / (Lg*Lb)
     dv[4] = - Lg*i2/Lb - Rb*i3 / Lb + estimulo/Lb
     return dv
@@ -113,8 +106,8 @@ def rk4(dv,v,n,dt): #  dv es la funcion ecuaciones()
 # Modifica alpha para que el sistema fone.
 # Guarda inicio y finales de cada gestos de frecuencia.
 def expo(ti,tf,wi,wf,frequencias, silabas_timestamp):
-    i=np.int(ti/dt)
-    j=np.int(tf/dt)
+    i=int(ti/dt)
+    j=int(tf/dt)
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
@@ -127,8 +120,8 @@ def expo(ti,tf,wi,wf,frequencias, silabas_timestamp):
 
 
 def rectas(ti,tf,wi,wf,frequencias, silabas_timestamp):
-    i=np.int(ti/dt)
-    j=np.int(tf/dt)
+    i=int(ti/dt)
+    j=int(tf/dt)
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti)
@@ -167,7 +160,7 @@ def find_envolvente(sonido, sf): # tiene que ser un np.array
 
     e = [0.0]
 
-    for i in range(np.int(tiempo_total/(paso))):
+    for i in range(int(tiempo_total/(paso))):
 
         hilb = envolvente_h[i]
         tau = 0.001
@@ -335,27 +328,42 @@ mapa_b_w = glob.glob('*.txt') # Mapa b_w para determinado gamma
 gamma = int(mapa_b_w[0][4:9]) # determino el gamma del nombre del archivo del mapa
 print(f'\nmapa: {mapa_b_w[0]} \ngamma: {gamma}')
 
-alpha = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de control
-beta = np.zeros(np.int(tiempo_total/(dt))) # Inicializo los parametros de control
-
-for i in range(np.int(tiempo_total/(dt))):
+alpha = np.zeros(int(tiempo_total/(dt))) # Inicializo los parametros de control
+beta = np.zeros(int(tiempo_total/(dt))) # Inicializo los parametros de control
+for i in range(int(tiempo_total/(dt))):
     alpha[i] = 0.15 # sistema no fona en este valor
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-Ch = (3.0 * 1e-8) / 350 # calc_c(2000)*(1.0 **2) # / 1.0 # Capacitancia Helmholtz
-Lg = 60 # 1.0 # Inductancia glotis Helmholtz
-Rh = 650000 # 5000 # Resistencia disipación Helmholtz
+L  = np.round(0.0292 * 1.0 , 4) # Longitud traquea (en metros)
+coef_reflexion = -0.82 # Determina la "fuerza" de la resonancia del tubo
 
-L  = np.round(0.0292 * 1.0 , 4) # Longitud tubo (en metros) (0.036)
-coef_reflexion = -0.4 # -0.35 
-print(f'\nC: {Ch:.2e}  \nR: {Rh} \nLg: {Lg} \n \nlargo_traquea: {L} \ncoef. reflexión: {coef_reflexion}')
+Ch =  (.70 * 1e-8) / 350 # Capacitancia Helmholtz
+Rh = 330000 # Resistencia disipación Helmholtz
+Lg = 60 # Inductancia glotis Helmholtz
 
-# Coef sans perl 2011
-Lb = 1e4
-Rb = (2.5)*1e7
+Rb = (2.5)*1e7 # Resistencia pico
+Lb = 1e4 # Inductancia pico
 
-version = 'BEST-BEAK' # Este numero se usa para el nombre del archivo wav que se guarda
+# Parametros de escaleo!
+lambda_cabeza = 1.0
+lambda_cuello = 1.0
+
+# Escaleo parametros del tracto vocal que defini mas arriba. 
+L = L * lambda_cuello
+
+Ch = Ch * lambda_cabeza**3
+Rh = Rh / lambda_cabeza**2
+Lg = Lg / lambda_cabeza
+
+Rb = Rb / lambda_cabeza**2
+Lb = Lb / lambda_cabeza
+
+
+print(f'\nCh: {Ch:.2e}  \nRh: {Rh:.2e} \nLg: {Lg:.2e} \n \nRb: {Rb:.2e} \nLb : {Lb:.2e}  \n \nlargo_traquea: {L:.4e} \ncoef. reflexión: {coef_reflexion}')
+
+
+version = 'final-1' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
@@ -367,7 +375,7 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.04 # % del valor del beta
+ruido_beta = 0.05 # % del valor del beta
 ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
@@ -378,7 +386,7 @@ print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: 
 # ------------------------------------------------------------
 
 # Inicializo las frecuencias fundamentales y time_stamps de los gestos de ff
-frequencias = np.zeros(np.int(tiempo_total * sampling_freq))
+frequencias = np.zeros(int(tiempo_total * sampling_freq))
 silabas_timestamp = []
 
 # Corro scritp que genera la traza de ff
@@ -393,7 +401,7 @@ rate_bos, BOS = read(nombre_BOS)
 
 # Calculo envolvente como en Boari 2015 ("automatic")
 envolvente = find_envolvente(BOS, rate_bos)
-envolvente = resample(envolvente, np.int(tiempo_total/(dt)))
+envolvente = resample(envolvente, int(tiempo_total/(dt)))
 
 
 # ----------------------------------------------
@@ -411,7 +419,7 @@ z = np.polyfit(was, bes, 6)
 p = np.poly1d(z)
 
 # Calculamos beta como resultado de valuar p() en frecuencias fundamentales
-for i in range(np.int(tiempo_total/(dt))):
+for i in range(int(tiempo_total/(dt))):
     # if se cumple siempre que aplique senito(), recta() o exp()
     # es decir: si el sistema esta fonando
     if(alpha[i]<0):
@@ -445,7 +453,7 @@ back1 = np.zeros(N)
 # Integro
 # -------
 
-for i in range(np.int(tiempo_total/(dt))):
+for i in range(int(tiempo_total/(dt))):
 
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
@@ -519,6 +527,12 @@ while i < len(silabas_timestamp):
 # Salida del modelo escaleada a la envolvente del BOS mediante el factor k
 sonido = v_3 * k
 
+# Re sampleo salida (sonido y fuente) a 44100 
+# para que quede con mismo sr que suelen tener audios
+sampling_freq_subsample = 44100 # Hz
+sonido_subsample = resample(sonido, int(tiempo_total * sampling_freq_subsample))
+y_out_subsample = resample(y_out, int(tiempo_total * sampling_freq_subsample))
+
 
 
 
@@ -541,26 +555,25 @@ elif BOS.dtype == 'uint8':
 
 # Guardo el SYN en formato 16-bit
 # ver documentación de scipy.io.wavfile.read y scipy.io.wavfile.write
-scaled = np.int16(sonido/np.max(np.abs(sonido)) * escala * 32767)
+scaled = np.int16(sonido_subsample/np.max(np.abs(sonido_subsample)) * escala * 32767)
 
 if guardar_SYN:
-    # write(f'{nombre_ave}_SYN_{version}_rBeta_{ruido_beta}_rAlfa_{ruido_alfa}_rAmp_{ruido_amplitud}.wav', int(sampling_freq), scaled)
-    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}.wav', int(sampling_freq), scaled)
+    write(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e}_Rb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}.wav', int(sampling_freq_subsample), scaled)
 
 # Guardo salida de fuente.
-y_scaled = np.int16(y_out/np.max(np.abs(y_out)) * 32767)
+y_scaled = np.int16(y_out_subsample/np.max(np.abs(y_out_subsample)) * 32767)
 
 if guardar_fuente:
-    write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq), y_scaled)
+    write(f'{nombre_ave}_Y_{version}.wav', int(sampling_freq_subsample), y_scaled)
 
 
-
+sampling_freq_subsample
 
 # Calculo el fft del BOS, SYN y fuente
 
 freq_BOS, fft_BOS = array2fft(BOS, rate_bos, log = True)
-freq_SYN, fft_SYN = array2fft(scaled, sampling_freq, log = True)
-freq_fuente, fft_fuente= array2fft(y_scaled, sampling_freq, log = True)
+freq_SYN, fft_SYN = array2fft(scaled, sampling_freq_subsample, log = True)
+freq_fuente, fft_fuente= array2fft(y_scaled, sampling_freq_subsample, log = True)
 
 Hz_ventana = 100
 Hz_step = 10
@@ -588,22 +601,22 @@ freq_fuente_smooth = sliding_window(freq_fuente, ws, step)
 fig, axs = plt.subplots(4, sharex=True, figsize=(12,9))
 
 i = 0
-axs[i].plot(y_scaled, '-k')
+axs[i].plot(np.array(range(0,len(y_scaled)))/sampling_freq_subsample, y_scaled, '-k')
 axs[i].legend(['fuente'], loc = 'lower left')
 
 i = i+1
-axs[i].plot(v_3, 'tab:gray')
-axs[i].plot(k/max(k))
-axs[i].legend(['v[3]'], loc = 'lower left')
+axs[i].plot(np.array(range(0,len(v_3))) /sampling_freq, v_3, 'tab:gray')
+axs[i].plot(np.array(range(0,len(k))) /sampling_freq, k/max(k))
+axs[i].legend(['v[3]', 'k'], loc = 'lower left')
 
 # i = i+1
 # axs[i].plot(k, 'tab:orange')
 # axs[i].legend(['k'], loc = 'lower left')
 
 i = i+1
-axs[i].plot(sonido, 'tab:orange')
-axs[i].plot(envolvente, 'tab:red')
-axs[i].plot(-envolvente, 'tab:red')
+axs[i].plot(np.array(range(0,len(sonido))) /sampling_freq, sonido, 'tab:orange')
+axs[i].plot(np.array(range(0,len(envolvente))) /sampling_freq, envolvente, 'tab:red')
+axs[i].plot(np.array(range(0,len(envolvente))) /sampling_freq, -envolvente, 'tab:red')
 axs[i].legend(['SYN', 'envolvente_BOS'], loc = 'lower left')
 
 # i = i+1
@@ -612,12 +625,13 @@ axs[i].legend(['SYN', 'envolvente_BOS'], loc = 'lower left')
 # axs[i].legend(['sonido_norm', 'envolvente_norm'], loc = 'lower left')
 
 i = i+1
-axs[i].plot(BOS/max(BOS))
-axs[i].plot(envolvente/max(envolvente), 'tab:red')
-axs[i].plot(-envolvente/max(envolvente), 'tab:red')
+axs[i].plot(np.array(range(0,len(BOS))) / rate_bos, BOS/max(BOS))
+axs[i].plot(np.array(range(0,len(envolvente))) / sampling_freq, envolvente/max(envolvente), 'tab:red')
+axs[i].plot(np.array(range(0,len(envolvente))) / sampling_freq, -envolvente/max(envolvente), 'tab:red')
 axs[i].legend(['BOS_norm', 'envolvente_BOS_norm'], loc = 'lower left')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+fig.suptitle(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+fig.tight_layout()
 
 plt.show()
 
@@ -630,8 +644,8 @@ plt.plot(freq_fuente, fft_fuente, ':r', alpha=0.2)
 plt.legend(['BOS FFT','SYN FFT', 'Fuente FFT'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
+plt.title(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
-fig.suptitle(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 # FFT bos, syn, fuente SUAVE
@@ -643,7 +657,7 @@ plt.legend(['BOS FFT SMOOTH','SYN FFT SMOOTH', 'Fuente FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-plt.title(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+plt.title(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 # FFT bos
@@ -654,7 +668,7 @@ plt.legend(['BOS FFT','BOS FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-plt.title(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+plt.title(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 # FFT syn
@@ -665,7 +679,7 @@ plt.legend(['SYN FFT','SYN FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-plt.title(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+plt.title(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
 
 
 # FFT fuente
@@ -676,4 +690,4 @@ plt.legend(['FUENTE FFT','FUENTE FFT SMOOTH'])
 plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
-plt.title(f'{nombre_ave}_SYN_G_{gamma}_C_{Ch:.2e}_R_{Rh}_Lg_{Lg}_Ltraquea_{L}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+plt.title(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
