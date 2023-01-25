@@ -15,24 +15,47 @@ nombre_BOS = 'zf-JL044-AmA_BOS_44100_70dB_band.wav'
 
 # expo(ti,tf,
 # wi,wf,
-# frequencias, 
-# silabas_timestamp)
+# frequencias, silabas_timestamp) # no se completa
 
 # rectas(ti,tf,
 # wi,wf,
-# frequencias,
-# silabas_timestamp)
+# frequencias, silabas_timestamp) # no se completa
 
 # senito(ti,tf,
 # media,amplitud,
 # alphai,alphaf,
-# frequencias,
-# silabas_timestamp)
+# frequencias, silabas_timestamp) # no se completa
 
 
- 
 # i1
+rectas(0.0807,0.0878,
+900,900,
+frequencias,
+silabas_timestamp)
 
+rectas(0.0878,0.0944,
+400,460,
+frequencias, silabas_timestamp) # no se completa
+
+rectas(0.0944, 0.1010,
+460, 460,
+frequencias, silabas_timestamp) # no se completa
+
+rectas(0.1010, 0.1090,
+460, 570,
+frequencias, silabas_timestamp) # no se completa
+
+rectas(0.1090, 0.1234, # Puede ser expo tambien. Chequear que queda mejor.
+570, 700,
+frequencias, silabas_timestamp) # no se completa
+
+rectas(0.1234, 0.1403,
+700,700 ,
+frequencias, silabas_timestamp) # no se completa
+
+expo(0.1403, 0.1610,
+700,600 ,
+frequencias, silabas_timestamp) # no se completa
 
 
 
