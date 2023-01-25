@@ -289,8 +289,11 @@ random.seed(1992)
 # ave_fname = 'segmentobk93.py' # Nature
 # tiempo_total = 0.49 # segundos
 
-ave_fname = '040-AmaNe.py'
-tiempo_total = 3.68 # segundos
+ave_fname = '044-AmA.py'
+tiempo_total = 1.8 # segundos
+
+# ave_fname = '040-AmaNe.py'
+# tiempo_total = 3.68 # segundos
 
 # ave_fname = '028-ViVe.py'
 # tiempo_total = 3.20 # segundos
@@ -315,7 +318,7 @@ guardar_fuente = False
 # Frecuencia y ventana temporal
 # -----------------------------
 
-sampling_freq = 44100 * 20# Hz
+sampling_freq = 44100 * 20 #Hz
 dt = 1/sampling_freq
 print(f'\nsampling freq: {sampling_freq}')
 
@@ -346,8 +349,9 @@ Rb = (2.5)*1e7 # Resistencia pico
 Lb = 1e4 # Inductancia pico
 
 # Parametros de escaleo!
-lambda_cabeza = 1.0
-lambda_cuello = 1.0
+lambda_gral = 0.5
+lambda_cabeza = lambda_gral
+lambda_cuello = lambda_gral
 
 # Escaleo parametros del tracto vocal que defini mas arriba. 
 L = L * lambda_cuello
@@ -363,7 +367,7 @@ Lb = Lb / lambda_cabeza
 print(f'\nCh: {Ch:.2e}  \nRh: {Rh:.2e} \nLg: {Lg:.2e} \n \nRb: {Rb:.2e} \nLb : {Lb:.2e}  \n \nlargo_traquea: {L:.4e} \ncoef. reflexión: {coef_reflexion}')
 
 
-version = 'final-1' # Este numero se usa para el nombre del archivo wav que se guarda
+version = 'curva-calib' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
