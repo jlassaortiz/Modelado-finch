@@ -290,7 +290,7 @@ random.seed(1992)
 # tiempo_total = 0.49 # segundos
 
 ave_fname = '044-AmA.py'
-tiempo_total = 1.8 # segundos
+tiempo_total = 1.77 # segundos
 
 # ave_fname = '040-AmaNe.py'
 # tiempo_total = 3.68 # segundos
@@ -349,7 +349,7 @@ Rb = (2.5)*1e7 # Resistencia pico
 Lb = 1e4 # Inductancia pico
 
 # Parametros de escaleo!
-lambda_gral = 0.5
+lambda_gral = 1.0
 lambda_cabeza = lambda_gral
 lambda_cuello = lambda_gral
 
@@ -367,7 +367,7 @@ Lb = Lb / lambda_cabeza
 print(f'\nCh: {Ch:.2e}  \nRh: {Rh:.2e} \nLg: {Lg:.2e} \n \nRb: {Rb:.2e} \nLb : {Lb:.2e}  \n \nlargo_traquea: {L:.4e} \ncoef. reflexión: {coef_reflexion}')
 
 
-version = 'curva-calib' # Este numero se usa para el nombre del archivo wav que se guarda
+version = 'test' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
