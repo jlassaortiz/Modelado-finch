@@ -338,14 +338,14 @@ for i in range(int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-L  = np.round(0.0292 * 1.0 , 4) # Longitud traquea (en metros)
-coef_reflexion = -0.82 # Determina la "fuerza" de la resonancia del tubo
+L  = np.round(0.0273 * 1.0 , 4) # Longitud traquea (en metros)
+coef_reflexion = -0.60 # Determina la "fuerza" de la resonancia del tubo
 
 Ch =  (.70 * 1e-8) / 350 # Capacitancia Helmholtz
-Rh = 330000 # Resistencia disipación Helmholtz
+Rh = 600000 # Resistencia disipación Helmholtz
 Lg = 60 # Inductancia glotis Helmholtz
 
-Rb = (2.5)*1e7 # Resistencia pico
+Rb = (9)*1e7 # Resistencia pico
 Lb = 1e4 # Inductancia pico
 
 # Parametros de escaleo!
@@ -379,8 +379,8 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
-ruido_beta = 0.05 # % del valor del beta
-ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
+ruido_beta = 0.15 # % del valor del beta
+ruido_alfa = 0.05 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')

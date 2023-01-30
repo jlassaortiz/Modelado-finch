@@ -59,7 +59,11 @@ frequencias, silabas_timestamp) # no se completa
 
 
 # i2
-expo(0.2319, 0.2452,
+rectas(0.2319, 0.2367,
+600, 600,
+frequencias, silabas_timestamp) # no se completa
+
+expo(0.2367, 0.2452,
 600, 1030,
 frequencias, silabas_timestamp) # no se completa
 
@@ -69,7 +73,19 @@ frequencias, silabas_timestamp) # no se completa
 
 
 # i3
-expo(0.4115, 0.4304,
+# expo(0.4115, 0.4304,
+# 550, 760,
+# frequencias, silabas_timestamp) # no se completa
+
+rectas(0.4115, 0.4155,
+550, 550,
+frequencias, silabas_timestamp) # no se completa
+
+# rectas(0.4304, 0.4505,
+# 760, 720,
+# frequencias, silabas_timestamp) # no se completa
+
+rectas(0.4155, 0.4304,
 550, 760,
 frequencias, silabas_timestamp) # no se completa
 
@@ -77,8 +93,12 @@ rectas(0.4304, 0.4505,
 760, 720,
 frequencias, silabas_timestamp) # no se completa
  
-expo(0.4505, 0.4678,
-720, 570,
+rectas(0.4505, 0.4579,
+720, 680,
+frequencias, silabas_timestamp) # no se completa
+
+rectas(0.4579, 0.4678,
+680, 570,
 frequencias, silabas_timestamp) # no se completa
 
 
@@ -95,7 +115,7 @@ rectas(0.4972, 0.5080,
 frequencias, silabas_timestamp) # no se completa
 
 rectas(0.5080, 0.5178,
-4700,4700,
+1200,1200,
 frequencias, silabas_timestamp) # no se completa
 
 rectas(0.5178, 0.5356,
@@ -241,7 +261,7 @@ frequencias, silabas_timestamp)
 ################################### B'
 
 senito(1.2663, 1.3026,
-3800, 600, 
+3800, 1200, 
 np.pi/2, np.pi* 21/2,
 frequencias, silabas_timestamp)
 
