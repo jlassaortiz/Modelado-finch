@@ -162,6 +162,8 @@ rectas(0.6983, 0.7165,
 frequencias, silabas_timestamp,
 ruido_beta_list, ruido_beta,  ruido_alfa)
 
+
+
 rectas(0.7165, 0.7218,
 1100, 1400,
 frequencias, silabas_timestamp,
@@ -176,6 +178,8 @@ rectas(0.7288, 0.7371,
 1300, 1200,
 frequencias, silabas_timestamp,
 ruido_beta_list, 0.2,  0.3)
+
+
 
 rectas(0.7371, 0.7413,
 1200, 1400, 
@@ -262,30 +266,24 @@ ruido_beta_list, ruido_beta,  ruido_alfa)
 rectas(0.9884, 0.9928,
 1800, 2100,
 frequencias, silabas_timestamp,
-ruido_beta_list, 0.2,  0.2)
+ruido_beta_list, 0.3,  0.4)
 
 rectas(0.9928, 1.0008,
 2100, 2100,
 frequencias, silabas_timestamp,
-ruido_beta_list, 0.2,  0.2)
+ruido_beta_list, 0.3,  0.4)
 
-rectas(1.0008, 1.0051,
-2100, 1900,
+rectas(1.0008, 1.0225,
+2100, 1400,
 frequencias, silabas_timestamp,
-ruido_beta_list, 0.2,  0.2)
+ruido_beta_list, 0.3,  0.4)
 
-expo(1.0051, 1.0225,
-1900, 1400,
-frequencias, silabas_timestamp,
-ruido_beta_list, 0.2,  0.2)
+
 
 expo(1.0225, 1.0861,
 1400, 700,
 frequencias, silabas_timestamp,
 ruido_beta_list, ruido_beta,  ruido_alfa)
-
-
-
 
 rectas(1.0861, 1.0957,
 700, 600,
@@ -344,45 +342,49 @@ rectas(1.3026, 1.3240,
 frequencias, silabas_timestamp,
 ruido_beta_list, ruido_beta,  ruido_alfa)
 
+
+
 rectas(0.7165 + 0.6075, 0.7218 + 0.6075,
 1100, 1400,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.2,  0.3)
 
 rectas(0.7218 + 0.6075, 0.7288 + 0.6075,
 1400, 1300,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.2,  0.3)
 
 rectas(0.7288 + 0.6075, 0.7371 + 0.6075,
 1300, 1200,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.2,  0.3)
+
+
 
 rectas(0.7371 + 0.6075, 0.7413 + 0.6075,
 1200, 1400, 
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
 rectas(0.7413 + 0.6075, 0.7517 + 0.6075,
 1400, 1000,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
 rectas(0.7517 + 0.6075, 0.7665 + 0.6075,
 1000, 900, 
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
 rectas(0.7665 + 0.6075, 0.7700 + 0.6075,
 900, 1200,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
 rectas(0.7700 + 0.6075, 0.7980 + 0.6075,
 1200, 700,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
 
 
@@ -398,10 +400,25 @@ expo(0.8248 + 0.6075, 0.8302 + 0.6075,
 frequencias, silabas_timestamp,
 ruido_beta_list, 0.3,  0.6)
 
-rectas(0.8302 + 0.6075, 0.8939 + 0.6075,
-1300, 1000,
+rectas(0.8302 + 0.6075, 0.8394 + 0.6075,
+1300, 1300,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.2,  0.5)
+
+rectas(0.8394 + 0.6075, 0.8576 + 0.6075,
+1300, 1200,
 frequencias, silabas_timestamp,
 ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(0.8576 + 0.6075, 0.8684 + 0.6075,
+1200, 1100,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.1,  0.2)
+
+rectas(0.8684 + 0.6075, 0.8939 + 0.6075,
+1100, 900,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.5)
 
 
 ################################### D2
@@ -425,23 +442,25 @@ rectas(0.9805 + 0.6075, 0.9886 + 0.6075,
 frequencias, silabas_timestamp,
 ruido_beta_list, ruido_beta,  ruido_alfa)
 
+
 rectas(0.9884 + 0.6075, 0.9928 + 0.6075,
 1800, 2100,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
 rectas(0.9928 + 0.6075, 1.0008 + 0.6075,
 2100, 2100,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
-rectas(1.0008 + 0.6075, 1.0051 + 0.6075,
-2100, 1900,
+rectas(1.0008 + 0.6075, 1.0225 + 0.6075,
+2100, 1400,
 frequencias, silabas_timestamp,
-ruido_beta_list, ruido_beta,  ruido_alfa)
+ruido_beta_list, 0.3,  0.4)
 
-expo(1.0051 + 0.6075, 1.0861 + 0.6075,
-1900, 700,
+
+expo(1.0225 + 0.6075, 1.0861 + 0.6075,
+1400, 700,
 frequencias, silabas_timestamp,
 ruido_beta_list, ruido_beta,  ruido_alfa)
 
