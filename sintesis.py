@@ -355,7 +355,7 @@ Ch =  (.70 * 1e-8) / 350 # Capacitancia Helmholtz
 Rh = 600000 # Resistencia disipación Helmholtz
 Lg = 60 # Inductancia glotis Helmholtz
 
-Rb = (9)*1e7 # Resistencia pico
+Rb = (30)*1e7 # Resistencia pico
 Lb = 1e4 # Inductancia pico
 
 # Parametros de escaleo!
