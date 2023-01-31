@@ -297,7 +297,7 @@ random.seed(1992)
 # tiempo_total = 0.49 # segundos
 
 ave_fname = '044-AmA_custom_noise.py'
-tiempo_total = 1.77 # segundos
+tiempo_total = 2.44 # segundos
 
 # ave_fname = '044-AmA.py'
 # tiempo_total = 1.77 # segundos

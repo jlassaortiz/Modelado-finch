@@ -476,6 +476,180 @@ ruido_beta_list, ruido_beta,  ruido_alfa)
 
 
 
+############### siguiente y último motivo #################################
+
+rectas(1.1581 + 0.6062, 1.1629 + 0.6062,
+700, 800,
+frequencias,silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(1.1629 + 0.6062, 1.1699 + 0.6062,
+800, 800,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(1.1699 + 0.6062, 1.1758 + 0.6062,
+800, 700,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(1.1758 + 0.6062, 1.1802 + 0.6062,
+1200, 1200, 
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+expo(1.1802 + 0.6062, 1.2280 + 0.6062,
+1200, 400,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+
+
+################################### B'
+
+senito(1.2663 + 0.6062, 1.3026 + 0.6062,
+3800, 1200, 
+np.pi/2, np.pi* 21/2,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(1.3026 + 0.6062, 1.3240 + 0.6062,
+4600, 4600,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+
+
+rectas(0.7165 + 0.6075 + 0.6062, 0.7218 + 0.6075 + 0.6062,
+1100, 1400,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.2,  0.3)
+
+rectas(0.7218 + 0.6075 + 0.6062, 0.7288 + 0.6075 + 0.6062,
+1400, 1300,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.2,  0.3)
+
+rectas(0.7288 + 0.6075 + 0.6062, 0.7371 + 0.6075 + 0.6062,
+1300, 1200,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.2,  0.3)
+
+
+
+rectas(0.7371 + 0.6075 + 0.6062, 0.7413 + 0.6075 + 0.6062,
+1200, 1400, 
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+rectas(0.7413 + 0.6075 + 0.6062, 0.7517 + 0.6075 + 0.6062,
+1400, 1000,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+rectas(0.7517 + 0.6075 + 0.6062, 0.7665 + 0.6075 + 0.6062,
+1000, 900, 
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+rectas(0.7665 + 0.6075 + 0.6062, 0.7700 + 0.6075 + 0.6062,
+900, 1200,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+rectas(0.7700 + 0.6075 + 0.6062, 0.7980 + 0.6075 + 0.6062,
+1200, 700,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+
+
+
+################################### C2
+expo(0.8167 + 0.6075 + 0.6062, 0.8248 + 0.6075 + 0.6062,
+700, 1400,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.6)
+
+expo(0.8248 + 0.6075 + 0.6062, 0.8302 + 0.6075 + 0.6062,
+1400, 1200,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.6)
+
+rectas(0.8302 + 0.6075 + 0.6062, 0.8394 + 0.6075 + 0.6062,
+1300, 1300,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.2,  0.5)
+
+rectas(0.8394 + 0.6075 + 0.6062, 0.8576 + 0.6075 + 0.6062,
+1300, 1200,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(0.8576 + 0.6075 + 0.6062, 0.8684 + 0.6075 + 0.6062,
+1200, 1100,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.1,  0.2)
+
+rectas(0.8684 + 0.6075 + 0.6062, 0.8939 + 0.6075 + 0.6062,
+1100, 900,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.5)
+
+
+################################### D2
+rectas(0.9397 + 0.6075 + 0.6062, 0.9563 + 0.6075 + 0.6062,
+900, 1400,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(0.9563 + 0.6075 + 0.6062, 0.9643 + 0.6075 + 0.6062,
+3800, 4100,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(0.9643 + 0.6075 + 0.6062, 0.9805 + 0.6075 + 0.6062,
+4100, 4100,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(0.9805 + 0.6075 + 0.6062, 0.9886 + 0.6075 + 0.6062,
+4100, 3600,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+
+rectas(0.9884 + 0.6075 + 0.6062, 0.9928 + 0.6075 + 0.6062,
+1800, 2100,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+rectas(0.9928 + 0.6075 + 0.6062, 1.0008 + 0.6075 + 0.6062,
+2100, 2100,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+rectas(1.0008 + 0.6075 + 0.6062, 1.0225 + 0.6075 + 0.6062,
+2100, 1400,
+frequencias, silabas_timestamp,
+ruido_beta_list, 0.3,  0.4)
+
+
+expo(1.0225 + 0.6075 + 0.6062, 1.0861 + 0.6075 + 0.6062,
+1400, 700,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(1.0861 + 0.6075 + 0.6062, 1.0957 + 0.6075 + 0.6062,
+700, 600,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
+rectas(1.0957 + 0.6075 + 0.6062, 1.1158 + 0.6075 + 0.6062,
+600,500,
+frequencias, silabas_timestamp,
+ruido_beta_list, ruido_beta,  ruido_alfa)
+
 
 
 
