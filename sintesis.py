@@ -105,46 +105,53 @@ def rk4(dv,v,n,dt): #  dv es la funcion ecuaciones()
 # Modela cada gesto de frec fundamental como una expo, recta o seno.
 # Modifica alpha para que el sistema fone.
 # Guarda inicio y finales de cada gestos de frecuencia.
-def expo(ti,tf,wi,wf,frequencias, silabas_timestamp):
+def expo(ti,tf,wi,wf,frequencias, silabas_timestamp, ruido_beta_list, ruido_beta, ruido_alfa_aux):
     i=int(ti/dt)
     j=int(tf/dt)
+    
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]=wf+(wi-wf)*np.exp(-3*(t-ti)/((tf-ti)))
-        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa_aux) # alpha suficiente para fonar
+        ruido_beta_list[i+k] = ruido_beta
 
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
+    
 
-    return frequencias, silabas_timestamp
+    return frequencias, silabas_timestamp, ruido_beta_list
 
 
-def rectas(ti,tf,wi,wf,frequencias, silabas_timestamp):
+def rectas(ti,tf,wi,wf,frequencias, silabas_timestamp, ruido_beta_list, ruido_beta, ruido_alfa_aux):
     i=int(ti/dt)
     j=int(tf/dt)
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti)
-        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa_aux) # alpha suficiente para fonar
+        ruido_beta_list[i+k] = ruido_beta
 
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
+    
 
-    return frequencias, silabas_timestamp
+    return frequencias, silabas_timestamp, ruido_beta_list
 
 
-def senito(ti,tf,media,amplitud,alphai,alphaf,frequencias, silabas_timestamp):
+def senito(ti,tf,media,amplitud,alphai,alphaf,frequencias, silabas_timestamp, ruido_beta_list, ruido_beta, ruido_alfa_aux):
     i=np.int(ti/dt)
     j=np.int(tf/dt)
     for k in range((j-i)):
         t = ti+k*dt
         frequencias[i+k]= media + amplitud * np.sin(alphai+(alphaf-alphai)*(t-ti)/(tf-ti))
-        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa) # alpha suficiente para fonar
+        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa_aux) # alpha suficiente para fonar
+        ruido_beta_list[i+k] = ruido_beta
 
     silabas_timestamp.append(i)
     silabas_timestamp.append(j)
+    
 
-    return frequencias,silabas_timestamp
+    return frequencias,silabas_timestamp, ruido_beta_list
 
 
 
@@ -289,8 +296,11 @@ random.seed(1992)
 # ave_fname = 'segmentobk93.py' # Nature
 # tiempo_total = 0.49 # segundos
 
-ave_fname = '044-AmA.py'
+ave_fname = '044-AmA_custom_noise.py'
 tiempo_total = 1.77 # segundos
+
+# ave_fname = '044-AmA.py'
+# tiempo_total = 1.77 # segundos
 
 # ave_fname = '040-AmaNe.py'
 # tiempo_total = 3.68 # segundos
@@ -379,6 +389,7 @@ v[0], v[1], v[2], v[3], v[4] = 0.01, 0.001, 0.001, 0.0001, 0.0001
 n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
+ruido_beta_list = np.zeros(int(tiempo_total * sampling_freq)) # Inicializo vector donde voy a guardar el ruido auxiliar
 ruido_beta = 0.15 # % del valor del beta
 ruido_alfa = 0.05 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
@@ -461,7 +472,10 @@ for i in range(int(tiempo_total/(dt))):
 
     # Parametros dependientes del tiempo del sistema de ecuaciones (Variables globales ¿es necesario?)
     alp = alpha[i]
-    b = beta[i]*(1+random.normalvariate(0., ruido_beta))
+    
+    b = beta[i]*(1+random.normalvariate(0., ruido_beta_list[i]))
+    
+    
     destimulodt = (fil1[N-1]-fil1[N-2])/dt
     
     estimulo=fil1[N-1]
