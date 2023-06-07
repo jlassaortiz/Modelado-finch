@@ -24,6 +24,11 @@ Estructura del codigo:
 # Importo librerias y seteo variables globales
 # --------------------------------------------
 
+import datetime
+inicio_corrida = datetime.datetime.now()
+print(f'\n Inicio corrida: {inicio_corrida}\n ')
+
+
 import glob
 import random
 import numpy as np
@@ -293,11 +298,15 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
+ave_fname = '041-NeBla_custom_noise.py'
+tiempo_total = 4.75
+
+
 # ave_fname = 'segmentobk93.py' # Nature
 # tiempo_total = 0.49 # segundos
 
-ave_fname = '044-AmA_custom_noise.py'
-tiempo_total = 2.44 # segundos
+# ave_fname = '044-AmA_custom_noise.py'
+# tiempo_total = 2.44 # segundos
 
 # ave_fname = '044-AmA.py'
 # tiempo_total = 1.77 # segundos
@@ -348,20 +357,20 @@ for i in range(int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-L  = np.round(0.0273 * 1.0 , 4) # Longitud traquea (en metros)
-coef_reflexion = -0.60 # Determina la "fuerza" de la resonancia del tubo
+L  = np.round(0.035 * 1.0 , 4) # Longitud traquea (en metros)
+coef_reflexion = -0.50 # Determina la "fuerza" de la resonancia del tubo (mas grande mas fuerte filto)
 
-Ch =  (.70 * 1e-8) / 350 # Capacitancia Helmholtz
-Rh = 600000 # Resistencia disipación Helmholtz
+Ch =  (1.4 * 1e-8) / 350 # Capacitancia Helmholtz
+Rh =  600000 # Resistencia disipación Helmholtz (mas chico mas fuerte el filtro)
 Lg = 60 # Inductancia glotis Helmholtz
 
-Rb = (30)*1e7 # Resistencia pico
+Rb = (6)*1e7 # Resistencia pico (mas grande, mas fuerte el filtro)
 Lb = 1e4 # Inductancia pico
 
 # Parametros de escaleo!
-lambda_gral = 1.0
-lambda_cabeza = lambda_gral
-lambda_cuello = lambda_gral
+lambda_cabeza = 1.4
+lambda_cuello = 1.4 
+
 
 # Escaleo parametros del tracto vocal que defini mas arriba. 
 L = L * lambda_cuello
@@ -377,7 +386,7 @@ Lb = Lb / lambda_cabeza
 print(f'\nCh: {Ch:.2e}  \nRh: {Rh:.2e} \nLg: {Lg:.2e} \n \nRb: {Rb:.2e} \nLb : {Lb:.2e}  \n \nlargo_traquea: {L:.4e} \ncoef. reflexión: {coef_reflexion}')
 
 
-version = 'test' # Este numero se usa para el nombre del archivo wav que se guarda
+version = 'final' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
@@ -390,8 +399,8 @@ n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
 ruido_beta_list = np.zeros(int(tiempo_total * sampling_freq)) # Inicializo vector donde voy a guardar el ruido auxiliar
-ruido_beta = 0.15 # % del valor del beta
-ruido_alfa = 0.05 # % del valor del alfa necesario para fonar (-0.15)
+ruido_beta = 0.05 # % del valor del beta
+ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
 print(f'\nruido beta: {ruido_beta} \nruido alfa: {ruido_alfa} \nruido amplitud: {ruido_amplitud}')
@@ -709,3 +718,12 @@ plt.xlim([0,20000])
 plt.xlabel('Frecuencias (Hz)')
 
 plt.title(f'{nombre_ave}_SYN_v-{version}_G_{gamma}_lambdaCabeza_{lambda_cabeza}_lambdaCuello_{lambda_cuello}_Ch_{Ch:.2e}_Rh_{Rh:.2e}_Lg_{Lg:.2e} \nRb_{Rb:.2e}_Lb_{Lb:.2e}_Ltraquea_{L:.4e}_coefReflex_{coef_reflexion}_rBeta_{ruido_beta}_rAlpha_{ruido_alfa}_rAmpl_{ruido_amplitud}')
+
+
+fin_corrida = datetime.datetime.now()
+print(f'\nFin corrdida: {fin_corrida}\n')
+
+print(f'\nTiempo total corrida: {fin_corrida - inicio_corrida}\n')
+
+      
+      
