@@ -298,9 +298,11 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
-ave_fname = '041-NeBla_custom_noise.py'
-tiempo_total = 4.75
+ave_fname = '046-AzuVi_custom_noise.py'
+tiempo_total = 4.95
 
+#ave_fname = '041-NeBla_custom_noise.py'
+#tiempo_total = 4.75
 
 # ave_fname = 'segmentobk93.py' # Nature
 # tiempo_total = 0.49 # segundos
@@ -368,8 +370,8 @@ Rb = (6)*1e7 # Resistencia pico (mas grande, mas fuerte el filtro)
 Lb = 1e4 # Inductancia pico
 
 # Parametros de escaleo!
-lambda_cabeza = 1.4
-lambda_cuello = 1.4 
+lambda_cabeza = 1.0
+lambda_cuello = 1.0 
 
 
 # Escaleo parametros del tracto vocal que defini mas arriba. 
