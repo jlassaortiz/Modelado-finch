@@ -359,15 +359,15 @@ for i in range(int(tiempo_total/(dt))):
     beta[i]  = 0.15 # sistema no fona en este valor
 
 # Parametros tracto vocal (filtro)
-L  = np.round(0.035 * 1.0 , 4) # Longitud traquea (en metros)
+L  = np.round(0.04861 , 4) # Longitud traquea (en metros)
 coef_reflexion = -0.50 # Determina la "fuerza" de la resonancia del tubo (mas grande mas fuerte filto)
 
 Ch =  (1.4 * 1e-8) / 350 # Capacitancia Helmholtz
-Rh =  600000 # Resistencia disipación Helmholtz (mas chico mas fuerte el filtro)
+Rh =  300000 # Resistencia disipación Helmholtz (mas chico mas fuerte el filtro)
 Lg = 60 # Inductancia glotis Helmholtz
 
-Rb = (6)*1e7 # Resistencia pico (mas grande, mas fuerte el filtro)
-Lb = 1e4 # Inductancia pico
+Rb = (40)*1e7 # Resistencia pico (mas chico, mas fuerte efeecto del filtro, es pasabajos)
+Lb = 0.2e4 # Inductancia pico
 
 # Parametros de escaleo!
 lambda_cabeza = 1.0
