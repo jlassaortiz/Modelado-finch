@@ -298,6 +298,9 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
+#ave_fname = '046-AzuVi_custom_noise_fuente_2.py'
+#tiempo_total = 4.95
+
 ave_fname = '046-AzuVi_custom_noise.py'
 tiempo_total = 4.95
 
@@ -367,7 +370,7 @@ Rh =  300000 # Resistencia disipación Helmholtz (mas chico mas fuerte el filtro
 Lg = 60 # Inductancia glotis Helmholtz
 
 Rb = (40)*1e7 # Resistencia pico (mas chico, mas fuerte efeecto del filtro, es pasabajos)
-Lb = 0.2e4 # Inductancia pico
+Lb = 0.5e4 # Inductancia pico
 
 # Parametros de escaleo!
 lambda_cabeza = 1.0
@@ -401,7 +404,7 @@ n = 5
 
 # RUIDO: en todos los casos los parámetros son los SD de un ruido de dist normal con media = 0
 ruido_beta_list = np.zeros(int(tiempo_total * sampling_freq)) # Inicializo vector donde voy a guardar el ruido auxiliar
-ruido_beta = 0.05 # % del valor del beta
+ruido_beta = 0.35 # % del valor del beta
 ruido_alfa = 0.01 # % del valor del alfa necesario para fonar (-0.15)
 ruido_amplitud = 0.0 # % del valor de la amplitud maxima de la envolvente
 
@@ -439,7 +442,7 @@ bes,was = np.loadtxt(mapa_b_w[0] ,unpack=True)
 
 # Ajustamos was vs bes a un polinomio de grado 6
 # z es una lista de los coeficientes del polinomio ajustado
-z = np.polyfit(was, bes, 6)
+z = np.polyfit(was, bes, 12)
 
 # Generamos objeto p, que es un polinomio (es z, hecho objeto)
 p = np.poly1d(z)
