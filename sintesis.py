@@ -299,10 +299,10 @@ random.seed(1992)
 # -----------------------------------------------------------------------
 
 #ave_fname = '046-AzuVi_custom_noise_fuente_2.py'
-#tiempo_total = 4.95
+#tiempo_total = 5.21
 
 ave_fname = '046-AzuVi_custom_noise.py'
-tiempo_total = 4.95
+tiempo_total = 5.21
 
 #ave_fname = '041-NeBla_custom_noise.py'
 #tiempo_total = 4.75
@@ -374,7 +374,7 @@ Lb = 0.5e4 # Inductancia pico
 
 # Parametros de escaleo!
 lambda_cabeza = 1.0
-lambda_cuello = 1.0 
+lambda_cuello = 1.0
 
 
 # Escaleo parametros del tracto vocal que defini mas arriba. 
