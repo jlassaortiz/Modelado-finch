@@ -133,7 +133,7 @@ def rectas(ti,tf,wi,wf,frequencias, silabas_timestamp, ruido_beta_list, ruido_be
     for k in range((j-i)):
         t=ti+k*dt
         frequencias[i+k]= wi + (wf-wi)*(t-ti)/(tf-ti)
-        alpha[i+k]= -0.150 + 0.150*random.normalvariate(0, ruido_alfa_aux) # alpha suficiente para fonar
+        alpha[i+k]= -0.10 + 0.150*random.normalvariate(0, ruido_alfa_aux) # alpha suficiente para fonar
         ruido_beta_list[i+k] = ruido_beta
 
     silabas_timestamp.append(i)
@@ -298,11 +298,14 @@ random.seed(1992)
 # Nombre archivo donde se calculan las frecuencias fundamentales del canto
 # -----------------------------------------------------------------------
 
+ave_fname = '046-AzuVi_custom_noise_motivoE.py'
+tiempo_total = 5.21
+
 #ave_fname = '046-AzuVi_custom_noise_fuente_2.py'
 #tiempo_total = 5.21
 
-ave_fname = '046-AzuVi_custom_noise.py'
-tiempo_total = 5.21
+#ave_fname = '046-AzuVi_custom_noise.py'
+#tiempo_total = 5.21
 
 #ave_fname = '041-NeBla_custom_noise.py'
 #tiempo_total = 4.75
@@ -352,7 +355,8 @@ print(f'\nsampling freq: {sampling_freq}')
 
 # Parámetros de la fuente de sonido
 mapa_b_w = glob.glob('*.txt') # Mapa b_w para determinado gamma
-gamma = int(mapa_b_w[0][4:9]) # determino el gamma del nombre del archivo del mapa
+#gamma = int(mapa_b_w[0][4:9]) # determino el gamma del nombre del archivo del mapa
+gamma = 18000
 print(f'\nmapa: {mapa_b_w[0]} \ngamma: {gamma}')
 
 alpha = np.zeros(int(tiempo_total/(dt))) # Inicializo los parametros de control
@@ -391,7 +395,7 @@ Lb = Lb / lambda_cabeza
 print(f'\nCh: {Ch:.2e}  \nRh: {Rh:.2e} \nLg: {Lg:.2e} \n \nRb: {Rb:.2e} \nLb : {Lb:.2e}  \n \nlargo_traquea: {L:.4e} \ncoef. reflexión: {coef_reflexion}')
 
 
-version = 'final' # Este numero se usa para el nombre del archivo wav que se guarda
+version = '_ALPHA-0.1_BETA-1.5_gamma_20k' # Este numero se usa para el nombre del archivo wav que se guarda
 
 
 # Condiciones iniciales
@@ -453,7 +457,8 @@ for i in range(int(tiempo_total/(dt))):
     # es decir: si el sistema esta fonando
     if(alpha[i]<0):
         # beta es el polinomio p valuado en frecuencias[i]
-        beta[i] = p(frequencias[i])
+#        beta[i] = p(frequencias[i])
+        beta[i] = -2.0
 
 # Calculo máximo de beta para usarlo para generar el ruido
 beta_max = np.max(np.abs(beta)) # no veo que se use en el código, se puede borrar?
